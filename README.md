@@ -1,2 +1,3 @@
-# cs224d
-CS224D Assignments
+# dCS224: Deep Learning for Natural Language Processing
+CS224D Assignments;
+[`Assignment's Page`](http://cs224d.stanford.edu/assignments.html)
