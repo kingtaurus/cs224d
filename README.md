@@ -19,4 +19,24 @@ Notes
 -------------
 
 Old Assignments
----------------
+===============
+Assignments from 2015. 
+
+`Assignment 1`
+--------------
+* **Softmax**
+* **Neural Network Basics**
+* **word2vec**
+* **Sentiment Analysis**
+
+`Assignment 2`
+--------------
+* **Boolean Logic**
+* **Deep Network (for Named Entity Recognition)**
+* **Recurrent Neural Networks (Language Modeling)**
+
+`Assignment 3`
+--------------
+* **Recursive Neural Network**
+* **2-Layer Deep RNN**
+* **Recursive Neural Tensor Networks (Extra Credit)**
