@@ -29,6 +29,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \RequirePackage{amsmath}
+\RequirePackage{amsmath,amssymb,amsthm}
 \RequirePackage{tikz}
 \usetikzlibrary{calc}
 \RequirePackage{tkz-euclide}
@@ -152,7 +153,7 @@ it follows, the linear shift, ${\bf x} + c$, yields the following (for the $i$ e
 \begin{align}
 \textrm{softmax}({\bf x} + c)_{i} & = \frac{e^{(x_{i} + c)}}{\sum_{j=1}{e^{(x_{j} + c)}}}\\
                                                  & = \frac{e^{c}}{e^{c}}\frac{e^{(x_{i})}}{\sum_{j=1}{e^{(x_{j})}}}\\
-                                                 & = \textrm{softmax}({\bf x})_{i},\\
+                                                 & = \textrm{softmax}({\bf x})_{i}
 \end{align}
 since this is true for an arbitary $i$, it follows immediately that the linear shift has no affect on the softmax probabilities.
 
@@ -196,7 +197,17 @@ $x$ is a scalar for this question.
 
 \noindent\rule{\textwidth}{0.4pt}
  
-\noindent alskdfasd.
+\noindent Denote the sigmoid function as $\sigma(z)$,
+\begin{equation}
+\sigma(z) = \frac{1}{1 + e^{-z}}.
+\end{equation}
+It follows, using the chain rule (and noting that $e^{-z}= 1/\sigma(z) -1$),
+\begin{align*}
+\sigma^{\prime}(z) &= \frac{-1}{(1+e^{-z})^{2}}\times(-e^{-z})\\
+                                &= \sigma^{2}(z)\left(\frac{1}{\sigma(z)} - 1 \right)\\
+                                &= \sigma(z) - \sigma^{2}(z)\\
+                                &= \sigma(z)(1 - \sigma(z))
+\end{align*}
  
 \clearpage
 \pagestyle{myheadings}
