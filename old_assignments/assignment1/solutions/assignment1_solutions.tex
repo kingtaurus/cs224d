@@ -146,13 +146,13 @@ where ${\bf x} + c$ means adding the constant $c$ to every dimension of ${\bf x}
 
 \noindent Starting from the definition of softmax,
 \begin{equation}
-\textrm{softmax}({\bf x})_{i} = \frac{\exp{x_{i}}}{\sum_{j=1}{\exp{x_{j}}}}
+\textrm{softmax}({\bf x})_{i} = \frac{e^{x_{i}}}{\sum_{j=1}{e^{x_{j}}}}
 \end{equation}
-it follows, the linear shift - ${\bf x} + c$, yields the following (for the $i$ element):
+it follows, the linear shift, ${\bf x} + c$, yields the following (for the $i$ element):
 \begin{align}
-\textrm{softmax}({\bf x} + c)_{i} & = \frac{\exp{x_{i} + c}}{\sum_{j=1}{\exp{x_{j} + c}}} \\
-                                  & = \frac{\exp{c}}{\exp{c}}\dot\frac{\exp{x_{i}}}{\sum_{j=1}{\exp{x_{j}}}}\\
-                                  & = \textrm{softmax}({\bf x})_{i},\\
+\textrm{softmax}({\bf x} + c)_{i} & = \frac{e^{(x_{i} + c)}}{\sum_{j=1}{e^{(x_{j} + c)}}}\\
+                                                 & = \frac{e^{c}}{e^{c}}\frac{e^{(x_{i})}}{\sum_{j=1}{e^{(x_{j})}}}\\
+                                                 & = \textrm{softmax}({\bf x})_{i},\\
 \end{align}
 since this is true for an arbitary $i$, it follows immediately that the linear shift has no affect on the softmax probabilities.
 
@@ -183,13 +183,135 @@ since this is true for an arbitary $i$, it follows immediately that the linear s
 %%   Note: "myheadings" is a LaTeX keyword; it is not a user-defined entity.
 %%
 \clearpage
-% \pagestyle{myheadings}
-% \myrunninghwhead{1}{1.42}
+\pagestyle{myheadings}
+\myrunninghwhead{1}{2 (Neural Networks)}
 
-% \myhwtitle{1}{1.42}{Greg King}
+\myhwtitle{1}{2(a)}{Gregory King}
 
-% \bigskip
+\bigskip
 
+\noindent Derive the gradients of the sigmoid function and show that it can be rewritten as a function of the 
+function value (i.e. in some expression where only $\sigma(x)$, but not $x$, is present). Assume that the input
+$x$ is a scalar for this question.
+
+\noindent\rule{\textwidth}{0.4pt}
+ 
+\noindent alskdfasd.
+ 
+\clearpage
+\pagestyle{myheadings}
+
+\myhwtitle{1}{2(b)}{Gregory King}
+\bigskip
+
+\noindent Derive the gradient with regard to the inputs of a softmax function when cross entropy loss is used for
+evaluation, i.e. find the gradients with respect to the softmax input vector $\theta$, when the prediction is
+made by $\hat{y} = \textrm{softmax}(\theta)$. Remember the cross entropy function is
+\begin{equation}
+\textrm{CE}(y,\hat{y}) = -\sum_{i}{y_{i}\log{\hat{y_{i}}}}
+\end{equation}
+where $y$ is the one-hot label vector, and $\hat{y}$ is the predicted probability vector for all classes. \vspace{2mm}\\
+\noindent {\bf Hint}: you might want to consider the fact many elements of $y$ are zeros, and assume that only the $k$-th dimension
+of $y$ is one.
+
+\clearpage
+
+\myhwtitle{1}{2(c)}{Gregory King}
+\bigskip
+
+\noindent Derive the gradients with respect to the inputs x to an one-hidden-layer neural network (that is, find
+$\partial{J}/\partial{\bf x}$ where $J$ is the cost function for the neural network). The neural network employs sigmoid activation
+function for the hidden layer, and softmax for the output layer. Assume the one-hot label vector is $y$,
+and cross entropy cost is used. (feel free to use $\sigma^{\prime}(x)$ as the shorthand for sigmoid gradient, and feel free
+to define any variables whenever you see fit). \vspace{5mm}\\
+\def\layersep{2.5cm}
+\begin{center}
+\begin{tikzpicture}[shorten >=1pt,->,draw=black!50, node distance=\layersep]
+    \tikzstyle{every pin edge}=[<-,shorten <=1pt]
+    \tikzstyle{neuron}=[circle,fill=black!25,minimum size=17pt,inner sep=0pt]
+    \tikzstyle{input neuron}=[neuron, fill=green!50];
+    \tikzstyle{output neuron}=[neuron, fill=red!50];
+    \tikzstyle{hidden neuron}=[neuron, fill=blue!50];
+    \tikzstyle{annot} = [text width=4em, text centered]
+
+    % Draw the input layer nodes
+    \foreach \name / \y in {1,...,4}
+    % This is the same as writing \foreach \name / \y in {1/1,2/2,3/3,4/4}
+        \node[input neuron, pin=left:$x_{\y}$] (I-\name) at (0,-\y) {};
+
+    % Draw the hidden layer nodes
+    \foreach \name / \y in {1,...,5}
+        \path[yshift=0.5cm]
+            node[hidden neuron] (H-\name) at (\layersep,-\y cm) {};
+
+    % Draw the output layer nodes
+    \foreach \name / \y in {1,...,6}
+        \path[yshift=0.75cm]
+            node[output neuron] (O-\name) at (\layersep+\layersep,-\y cm) {};
+%    % Draw the output layer node
+%    \node[output neuron,pin={[pin edge={->}]right:Output}, right of=H-3] (O) {};
+
+    % Connect every node in the input layer with every node in the
+    % hidden layer.
+    \foreach \source in {1,...,4}
+        \foreach \dest in {1,...,5}
+            \path (I-\source) edge (H-\dest);
+
+%    % Connect every node in the hidden layer with the output layer
+    \foreach \source in {1,...,5}
+       \foreach \dest in {1,...,6}
+        \path (H-\source) edge (O-\dest);
+
+    % Annotate the layers
+    \node[annot,above of=H-1, node distance=1cm] (hl) {$h$};
+    \node[annot,left of=hl] {$x$};
+    \node[annot,right of=hl] {$\hat{y}$};
+\end{tikzpicture}
+\end{center}
+\noindent Recall that the forward propagation is as follows:
+\begin{align}
+{\bf h} & = \textrm{sigmoid}({\bf x\textrm{W}_{1} + b_{1}}) \\
+{\bf \hat{y}} & = \textrm{softmax}({\bf x\textrm{W}_{2} + b_{2}})
+\end{align}
+\noindent {\bf Note}: here we're assuming that the input vector (and thus the hidden variables and output probabilities)
+is a row vector to be consistent with the programming part of the assignment. When we apply the sigmoid function to
+a vector, we are applying it to each of the elements of the vector. $\bf{\textrm{W}}_i$ and $\bf{b}_{i}$ ($i\in\{1,2\}$) are
+the weights and biases, respectively of the two layers.
+\clearpage
+
+\myhwtitle{1}{2(d)}{Gregory King}
+\bigskip
+\noindent How many parameters are there in this neural network, assuming the input is $\textrm{D}_{x}$-dimensional,
+the output is $\textrm{D}_{y}$-dimensional, and there are H hidden units?
+
+\noindent\rule{\textwidth}{0.4pt}
+
+\noindent 
+%\begin{itemize}
+%\item[$\bf{\textrm{W}}_{1}$:]{$\textrm{D}_{x}\times\textrm{H}$}
+%\item[$\bf{b}_{1}$:]{$\textrm{H}$}
+%\item[${\bf\textrm{W}}_{2}$:]{$\textrm{H}\times\textrm{D}_{y}$}
+%\item[$\bf{b}_{2}$:]{$\textrm{D}_{y}$}
+%\end{itemize}
+$\bf{\textrm{W}}_{1}$ must have dimensions:  $\textrm{D}_{x}\times\textrm{H}$. The bias ($\bf{b}_{1}$) for the first layer must have
+dimensions $\textrm{H}$. Adding these two together, yields $(\textrm{D}_{x} + 1)\times\textrm{H}$. Proceeding to the second layer,
+there must be $\textrm{H}\times\textrm{D}_{y}$ parameters associated with the weight matrix ${\bf\textrm{W}}_{2}$. The bias ($\bf{b}_{2}$)
+for the second layer must have dimensions $\textrm{D}_{y}$ elements. This yields, 
+\begin{equation}
+(\textrm{D}_{x} + 1)\times\textrm{H} + \textrm{D}_{y}\times(\textrm{H}+1)
+\end{equation}
+weights, for each input vector of dimensions $\textrm{D}_{x}$.
+\clearpage
+\myrunninghwhead{1}{3 (word2vec)}
+
+\myhwtitle{1}{3(a)}{Gregory King}
+\bigskip
+
+\clearpage
+\myrunninghwhead{1}{4 (Sentiment Analysis)}
+
+\myhwtitle{1}{4(a)}{Gregory King}
+\bigskip
 % \noindent Given two vectors $\vec{\bf A} = 4.00 \hat{\bf i} + 7.00 \hat{\bf j}$
 % and $\vec{\bf B} = 5.00 \hat{\bf i} - 2.00 \hat{\bf j}$, (a) find the magnitude
 % of each vector; (b) write an expression for the vector difference 
