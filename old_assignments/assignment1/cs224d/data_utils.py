@@ -60,7 +60,8 @@ class StanfordSentiment:
 
                 splitted = line.strip().split()[1:]
                 # Deal with some peculiar encoding issues with this file
-                sentences += [[w.lower().decode("utf-8").encode('latin1') for w in splitted]]
+                sentences += [[w.lower().encode('latin1','replace') for w in splitted]]
+                #'backslashreplace'
                 
         self._sentences = sentences
         self._sentlengths = np.array([len(s) for s in sentences])
@@ -139,7 +140,7 @@ class StanfordSentiment:
 
         sent_labels = [0.0] * self.numSentences()
         sentences = self.sentences()
-        for i in xrange(self.numSentences()):
+        for i in range(self.numSentences()):
             sentence = sentences[i]
             full_sent = " ".join(sentence).replace('-lrb-', '(').replace('-rrb-', ')')
             sent_labels[i] = labels[dictionary[full_sent]]
@@ -151,7 +152,7 @@ class StanfordSentiment:
         if hasattr(self, "_split") and self._split:
             return self._split
 
-        split = [[] for i in xrange(3)]
+        split = [[] for i in range(3)]
         with open(self.path + "/datasetSplit.txt", "r") as f:
             first = True
             for line in f:
@@ -203,7 +204,7 @@ class StanfordSentiment:
         samplingFreq = np.zeros((nTokens,))
         self.allSentences()
         i = 0
-        for w in xrange(nTokens):
+        for w in range(nTokens):
             w = self._revtokens[i]
             if w in self._tokenfreq:
                 freq = 1.0 * self._tokenfreq[w]
@@ -220,7 +221,7 @@ class StanfordSentiment:
         self._sampleTable = [0] * self.tablesize
 
         j = 0
-        for i in xrange(self.tablesize):
+        for i in range(self.tablesize):
             while i > samplingFreq[j]:
                 j += 1
             self._sampleTable[i] = j
@@ -235,7 +236,7 @@ class StanfordSentiment:
 
         nTokens = len(self.tokens())
         rejectProb = np.zeros((nTokens,))
-        for i in xrange(nTokens):
+        for i in range(nTokens):
             w = self._revtokens[i]
             freq = 1.0 * self._tokenfreq[w]
             # Reweigh
