@@ -51,6 +51,8 @@ class StanfordSentiment:
             return self._sentences
 
         sentences = []
+        #'rt' or 'rb'
+        #open('file.txt', 'rt', 'utf-8', 'strict')
         with open(self.path + "/datasetSentences.txt", "r") as f:
             first = True
             for line in f:
@@ -60,7 +62,10 @@ class StanfordSentiment:
 
                 splitted = line.strip().split()[1:]
                 # Deal with some peculiar encoding issues with this file
-                sentences += [[w.lower().encode('latin1','replace') for w in splitted]]
+                sentences += [[w.lower().encode('latin1','replace').decode('latin1') for w in splitted]]
+                #unicodedata.normalize
+                #encode('utf-8')?
+                #ascii(w.lower().encode('utf-8'))
                 #'backslashreplace'
                 
         self._sentences = sentences
