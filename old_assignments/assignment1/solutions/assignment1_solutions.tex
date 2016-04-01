@@ -416,16 +416,16 @@ respect to $\hat{\boldsymbol r}$.\vspace{5mm}
 \noindent\rule{\textwidth}{0.4pt}\vspace{5mm}
 Applying cross-entropy cost to the above softmax probability defined above:
 \begin{equation}
-J ={\boldsymbol w}_{i}\log{\boldsymbol P} = - {\boldsymbol w}_{i}^{\top}\hat{\boldsymbol r} + \log\sum^{\vert{V}\vert}_{j=1}\exp{({\boldsymbol w}^{\top}_{j}\hat{\boldsymbol r})}
+J =-\log{\boldsymbol P} = - {\boldsymbol w}_{i}^{\top}\hat{\boldsymbol r} + \log\sum^{\vert{V}\vert}_{j=1}\exp{({\boldsymbol w}^{\top}_{j}\hat{\boldsymbol r})}
 \end{equation}
 Let $z_{j}={\boldsymbol w}_{j}^{\top}\hat{\boldsymbol r}$, and $\delta^{i}_{j}$ be the indicator function (Kronecker delta), then
 \begin{equation}
-\frac{\partial J}{\partial{z_{k}}} = -  \delta^{i}_{k} +  \frac{\exp{({\boldsymbol w}^{\top}_{i}\hat{\boldsymbol r})}}{\sum^{\vert{V}\vert}_{j=1}\exp{({\boldsymbol w}^{\top}_{j}\hat{\boldsymbol r})}}
+\frac{\partial J}{\partial{z_{k}}} = - \delta^{i}_{k} + \frac{\exp{({\boldsymbol w}^{\top}_{i}\hat{\boldsymbol r})}}{\sum^{\vert{V}\vert}_{j=1}\exp{({\boldsymbol w}^{\top}_{j}\hat{\boldsymbol r})}}
 \end{equation}
 Now, using the chain rule, we can calculate,
 \begin{align}
 \frac{\partial J}{\partial{\hat{\boldsymbol r}}} =&\frac{\partial J}{\partial{{\boldsymbol z}}}\frac{\partial{{\boldsymbol z}}}{\partial{\hat{\boldsymbol r}}} \\
-                                                                           =& \sum^{\vert{V}\vert}_{j=1} {\boldsymbol w}_{j}\left(\frac{e^{z_{j}}}{\sum^{\vert{V}\vert}_{k=1}e^{z_{k}}}\right) -  1
+                                                                    =& \sum^{\vert{V}\vert}_{j=1} {\boldsymbol w}_{j}\left(\frac{e^{z_{j}}}{\sum^{\vert{V}\vert}_{k=1}e^{z_{k}}}\right) -  1
 \end{align}
 
 \clearpage
@@ -434,6 +434,11 @@ Now, using the chain rule, we can calculate,
 \noindent In the previous problem, derive gradients for the `output' word vectors ${\boldsymbol w}_{j}$'s (including ${\boldsymbol w}_{i}$).\vspace{5mm}
 
 \noindent\rule{\textwidth}{0.4pt}\vspace{5mm}
+This follows immediately from the chain rule:
+\begin{align}
+\frac{\partial J}{\partial{\boldsymbol w}_{j}} = &\frac{\partial J}{\partial{{\boldsymbol z}}}\frac{\partial{{\boldsymbol z}}}{\partial{\boldsymbol w}_{j}} \\
+                                                                  = & \hat{\boldsymbol r}\left(\frac{\exp{({\boldsymbol w}^{\top}_{i}\hat{\boldsymbol r})}}{\sum^{\vert{V}\vert}_{j=1}\exp{({\boldsymbol w}^{\top}_{j}\hat{\boldsymbol r})}} - \delta^{i}_{k}\right)
+\end{align}
 \clearpage
 
 \myhwtitle{1}{3(c)}{Gregory King}
