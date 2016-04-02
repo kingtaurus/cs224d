@@ -22,21 +22,24 @@ Old Assignments
 ===============
 Assignments from 2015. 
 
-`Assignment 1`
+[`Assignment 1`](https://github.com/kingtaurus/cs224d/blob/master/old_assignments/assignment1.pdf)
 --------------
+See [`Assignment1 README.md`](https://github.com/kingtaurus/cs224d/blob/master/old_assignments/assignment1/README.md)
 * **Softmax**
 * **Neural Network Basics**
 * **word2vec**
 * **Sentiment Analysis**
 
-`Assignment 2`
+[`Assignment 2`](https://github.com/kingtaurus/cs224d/blob/master/old_assignments/assignment2.pdf)
 --------------
+See [`Assignment2 README.md`](https://github.com/kingtaurus/cs224d/blob/master/old_assignments/assignment2/README.md)
 * **Boolean Logic**
 * **Deep Network (for Named Entity Recognition)**
 * **Recurrent Neural Networks (Language Modeling)**
 
-`Assignment 3`
+[`Assignment 3`](https://github.com/kingtaurus/cs224d/blob/master/old_assignments/assignment3.pdf)
 --------------
+See [`Assignment3 README.md`](https://github.com/kingtaurus/cs224d/blob/master/old_assignments/assignment3/README.md)
 * **Recursive Neural Network**
 * **2-Layer Deep RNN**
 * **Recursive Neural Tensor Networks (Extra Credit)**
