@@ -1,5 +1,5 @@
-CS224d: Deep Learning for Natural Language Processing
-=====================================================
+[CS224d: Deep Learning for Natural Language Processing](http://cs224d.stanford.edu/)
+====================================================================================
 
 ** Due Date: 4/16/2015 (Thursday) 11:59 PM PST. **
 
