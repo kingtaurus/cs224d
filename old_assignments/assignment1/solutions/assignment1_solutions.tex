@@ -498,12 +498,20 @@ J_{\texttt{skip-gram}}(\texttt{word}_{i-\textbf{c}},...,\texttt{word}_{i+\textbf
 \end{equation}
 For a simpler variant of \texttt{CBOW}, we sum up the input word vectors in the context,
 \begin{equation}
-\hat{\boldsymbol r} = \sum_{-c\leq j\leq c, j\neq 0} {\boldsymbol v}_{w_{i+j}}
+\hat{\boldsymbol r} = \sum_{-c\leq j\leq c, j\neq 0} {\boldsymbol v}_{w_{i+j}}\label{eq:3d r def}
 \end{equation}
 \vspace{5mm}
 
 \noindent\rule{\textwidth}{0.4pt}\vspace{5mm}
-The \texttt{skip-gram} model
+The \texttt{skip-gram} model involves summing over context (and treating each word as having a conditional probability). This yields
+\begin{equation}
+\frac{\partial{J}}{\partial{{\boldsymbol v}_{w_{i}}}} =
+\end{equation}
+Whereas in the \texttt{CBOW} model, the summing over context is handled internally to the probability model (in other words, the context vector is represented by the sum of the word vectors and the conditional probability is with respect to this sum). This means that cost, $J$, is represented as (with $\hat{\boldsymbol r}$ defined by Equation~\ref{eq:3d r def}),
+\begin{equation}
+J_{\texttt{CBOW}} =  F({\boldsymbol v}^{\prime}_{w_{i+j}}\vert\hat{\boldsymbol r})
+\end{equation}
+
 \clearpage
 \myrunninghwhead{1}{4 (Sentiment Analysis)}
 
