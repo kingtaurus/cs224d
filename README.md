@@ -6,8 +6,8 @@ Notes
 -----
 * Certain featuers may require a compiler to be installed: Visual Studio C++, GCC, clang
 * Code base is stored in separate assignment directories; might contain ipython notebooks used for running and displaying results;
-* Assignment will contain a small number of python nmodules (and possibly test scripts)
-* assignment directories might have a dataset directory (with either a scripts to download datasets, or at least details on how to get datasets);
+* Assignment will contain a small number of python modules (and possibly test scripts)
+* Assignment directories might have a dataset directory (with either a scripts to download datasets, or at least details on how to get datasets);
 
 [`Assignment 1`](https://github.com/kingtaurus/cs224d/blob/master/assignment1/assignment1.pdf)
 ------------
