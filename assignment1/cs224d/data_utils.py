@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import cPickle as pickle
+import pickle
 import numpy as np
 import os
 import random
@@ -60,7 +60,7 @@ class StanfordSentiment:
 
                 splitted = line.strip().split()[1:]
                 # Deal with some peculiar encoding issues with this file
-                sentences += [[w.lower().decode("utf-8").encode('latin1') for w in splitted]]
+                sentences += [[w.lower().encode('latin1','replace') for w in splitted]]
                 
         self._sentences = sentences
         self._sentlengths = np.array([len(s) for s in sentences])
