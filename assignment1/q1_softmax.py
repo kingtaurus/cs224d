@@ -21,7 +21,10 @@ def softmax(x):
     """
 
     ### YOUR CODE HERE
-    raise NotImplementedError
+    c = np.max(x, axis=x.ndim - 1, keepdims=True)
+    #for numerical stability
+    y = np.sum(np.exp(x - c), axis=x.ndim - 1, keepdims=True)
+    x = np.exp(x - c)/y
     ### END YOUR CODE
     
     return x
@@ -31,23 +34,23 @@ def test_softmax_basic():
     Some simple tests to get you started. 
     Warning: these are not exhaustive.
     """
-    print "Running basic tests..."
+    print("Running basic tests...")
     test1 = softmax(np.array([1,2]))
-    print test1
+    print(test1)
     assert np.amax(np.fabs(test1 - np.array(
         [0.26894142,  0.73105858]))) <= 1e-6
 
     test2 = softmax(np.array([[1001,1002],[3,4]]))
-    print test2
+    print(test2)
     assert np.amax(np.fabs(test2 - np.array(
         [[0.26894142, 0.73105858], [0.26894142, 0.73105858]]))) <= 1e-6
 
     test3 = softmax(np.array([[-1001,-1002]]))
-    print test3
+    print(test3)
     assert np.amax(np.fabs(test3 - np.array(
         [0.73105858, 0.26894142]))) <= 1e-6
 
-    print "You should verify these results!\n"
+    print("You should verify these results!\n")
 
 def test_softmax():
     """ 
@@ -56,9 +59,9 @@ def test_softmax():
     This function will not be called by the autograder, nor will
     your tests be graded.
     """
-    print "Running your tests..."
+    print("Running your tests...")
     ### YOUR CODE HERE
-    raise NotImplementedError
+    
     ### END YOUR CODE  
 
 if __name__ == "__main__":
