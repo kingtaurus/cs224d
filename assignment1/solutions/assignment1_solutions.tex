@@ -222,7 +222,7 @@ $\bf x$ and any constant $c$,
 \begin{equation}
 \textrm{softmax}({\bf x}) = \textrm{softmax}({\bf x} + c),
 \end{equation}
-where ${\bf x} + c$ means adding the constant $c$ to every dimension of ${\bf x}$.
+where $({\bf x} + c)$ means adding the constant $c$ to every dimension of ${\bf x}$.
 
 {\bf Note}: In practice, we make use of this property and choose $c = -\textrm{max}_{i}({\bf x_i})$, when computing $\textrm{softmax}$ probabilities for numerical stability (i.e. subtracting the maximum element from all elements of ${\bf x}$).\vspace{5mm}
 
@@ -538,7 +538,7 @@ hidden layer. Fill in your implementation in \texttt{q2\_neural.py}. Sanity chec
 \noindent Assume you are given a predicted word vector ${\boldsymbol v}_{c}$ corresponding to the center word $c$ for
 \texttt{skipgram}, and word prediction is made with the \texttt{softmax} function found in \texttt{word2vec} models
 \begin{equation}
-{\hat{\boldsymbol y}}_{\boldsymbol o} = p(~{\boldsymbol o} \mid {\boldsymbol c}) = \frac{\exp{({\boldsymbol u}^{\top}_{o}{\boldsymbol v}_{c})}}{\sum^{\vert{W}\vert}_{j=1}\exp{({\boldsymbol u}^{\top}_{j}{\boldsymbol v}_{c})}}
+{\hat{\boldsymbol y}}_{\boldsymbol o} = p(~{\boldsymbol o} \mid {\boldsymbol c}~) = \frac{\exp{({\boldsymbol u}^{\top}_{o}{\boldsymbol v}_{c})}}{\sum^{\vert{W}\vert}_{j=1}\exp{({\boldsymbol u}^{\top}_{j}{\boldsymbol v}_{c})}}
 \end{equation}
 where $w$ denotes the $w$-th word and ${\boldsymbol u}_{w}$ ($w=1,...,\vert\textrm{W}\vert$)  are the `output' word vectors for all words in the vocabulary ($v^{\prime}_{w}$ in the lecture notes). Assume the cross entropy cost is applied to this prediction and word $o$ is the expected word (the $o$-th element of the one-hot label vector is one), derive the gradients with respect to ${\boldsymbol v}_{c}$.\\
 
@@ -569,10 +569,12 @@ Now, using the chain rule, we can calculate,
 \end{align}
 
 \clearpage
-\myhwtitle{1}{3(b)}{Gregory King}
-\bigskip
-\noindent In the previous problem, derive gradients for the `output' word vectors ${\boldsymbol w}_{j}$'s (including ${\boldsymbol w}_{i}$).\vspace{5mm}
 
+\myhwtitle{1}{3(b)}{Gregory King}
+
+\bigskip
+\noindent As in the previous problem, derive gradients for the `output' word vectors ${\boldsymbol u}_{w}$'s (including ${\boldsymbol u}_{o}$).\vspace{5mm}
+%TODO FIX this 
 \noindent\rule{\textwidth}{0.4pt}\vspace{5mm}
 This follows immediately from the chain rule:
 \begin{align}
@@ -583,6 +585,7 @@ This follows immediately from the chain rule:
 
 \myhwtitle{1}{3(c)}{Gregory King}
 \bigskip
+%TODO FIX this 
 \noindent Repeat part (a) and (b) assuming we are using the negative sampling loss for the predicted vector $\hat{\boldsymbol r}$, and 
 the expected output word is ${\boldsymbol w}_{i}$. Assume that $K$ negative samples are drawn, and they are ${\boldsymbol w}_{1},...,{\boldsymbol w}_{k}$, respectively for simplicity of notation ($k\in\{1,...,K\}$). Recall that the negative sampling loss function in this case is,
 \begin{equation}
@@ -622,6 +625,7 @@ Which yields the following, where $j\in{1,...,K}$,
 
 \clearpage
 \myhwtitle{1}{3(d)}{Gregory King}
+%TODO FIX this 
 \bigskip
 \noindent Derive the gradients for all of the word vectors for \texttt{skip-gram} and \texttt{CBOW} (optional)
 given a set of context words [$\texttt{word}_{i-\textbf{c}},...,\texttt{word}_{i-\textbf{1}},\texttt{word}_{i},\texttt{word}_{i+\textbf{1}},...,\texttt{word}_{i+\textbf{c}}$ ], where \textbf{c} is the context size. You can denote 
@@ -661,22 +665,50 @@ J_{\texttt{CBOW}} =  F({\boldsymbol v}^{\prime}_{w_{i+j}}\vert\hat{\boldsymbol r
 \end{align}
 
 \clearpage
+%TODO FIX this (add questions 3(e), 3(f), 3(g), 3(h)
 \myrunninghwhead{1}{4 (Sentiment Analysis)}
+%Add details HERE 4, 4(a), 4(b), 4(c)
+
+\myhwtitle{1}{4}{Gregory King}
+\bigskip
+\noindent Now, with the word vectors you trained, we are going to perform a simple sentiment analysis. For each sentence in the Stanford Sentiment Treebank dataset, we are going to use the average of all the word vectors in that sentence as its feature, and try to predict the sentiment level of the said sentence. The sentiment level of the phrases are represented as real values in the original dataset, here we'll use five classes:
+\begin{center}
+\textbf{very negative}, \textbf{negative}, \textbf{neutral},\textbf{positive},\textbf{very positive}
+\end{center}
+which are represented by 0 to 4 in the code, respectively. For this part, you will learn to train a softmax regressor with SGD, and perform train/dev validation to imporve generalization of your regressor.
+\clearpage
 
 \myhwtitle{1}{4(a)}{Gregory King}
+
 \bigskip
-\noindent Explain in less than three sentences why do we want to introduce regularization when doing classification (in fact, most machine learning tasks).\vspace{5mm}
+\noindent Implement a sentence featurizer and softmax regression. Fill in the implementation in \texttt{q4\_softmaxreg.py}. Sanity check your implementation with \texttt{python q4\_softmaxreg.py}.\vspace{5mm}
 
 \noindent\rule{\textwidth}{0.4pt}\vspace{5mm}
-Regularization helps prevent over-fitting.
+
 \clearpage
 
 \myhwtitle{1}{4(b)}{Gregory King}
 \bigskip
-\noindent Plot the classification accuracy on the \texttt{dev} set with respoect to the regularization value, using a logarithmic scale on the $x$-axis. Briefly explain with less than three sentences what you see in the plot.\vspace{5mm}
+\noindent Explain in fewer than three sentences why we want to introduce regularization when doing classification (in fact, most machine learning tasks).\vspace{5mm}
+
+\noindent\rule{\textwidth}{0.4pt}\vspace{5mm}
+\clearpage
+
+\myhwtitle{1}{4(c)}{Gregory King}
+\bigskip
+\noindent Fill in the hyperparameter selection code in \texttt{q4\_sentiment.py} to search for the `optimal' regularization parameter. \textbf{What values did you select? Report your train, dev, and test accuracies. Justify your hyperparameter search methodology in at most one sentence.}. \\
+
+\noindent\textbf{Note:} you should be able to attain at least 30\% accuracy on dev.\vspace{5mm}
 
 \noindent\rule{\textwidth}{0.4pt}\vspace{5mm}
 
+\clearpage
+
+\myhwtitle{1}{4(d)}{Gregory King}
+\bigskip
+\noindent Plot the classification accuracy on the train and dev set with respect to the regularization value, using a logarithmic scale on the x-axis. This should have been done automatically. \textbf{Include \texttt{q4\_reg\_acc.png} in your homework write up.} Briefly explain in at most three sentences what you see in the plot.\vspace{5mm}
+
+\noindent\rule{\textwidth}{0.4pt}\vspace{5mm}
 
 %%%% End solution and document %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \end{document}
