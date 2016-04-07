@@ -54,6 +54,71 @@
 %      const double pi = 3.1415926535
 %    \end{minted}
 
+
+%\usepackage[utf8]{inputenc}
+%
+%% Default fixed font does not support bold face
+%\DeclareFixedFont{\ttb}{T1}{txtt}{bx}{n}{12} % for bold
+%\DeclareFixedFont{\ttm}{T1}{txtt}{m}{n}{12}  % for normal
+%
+%% Custom colors
+%\usepackage{color}
+%\definecolor{deepblue}{rgb}{0,0,0.5}
+%\definecolor{deepred}{rgb}{0.6,0,0}
+%\definecolor{deepgreen}{rgb}{0,0.5,0}
+%
+%\usepackage{listings}
+%
+%% Python style for highlighting
+%\newcommand\pythonstyle{\lstset{
+%language=Python,
+%basicstyle=\ttm,
+%otherkeywords={self},             % Add keywords here
+%keywordstyle=\ttb\color{deepblue},
+%emph={MyClass,__init__},          % Custom highlighting
+%emphstyle=\ttb\color{deepred},    % Custom highlighting style
+%stringstyle=\color{deepgreen},
+%frame=tb,                         % Any extra options here
+%showstringspaces=false            % 
+%}}
+%
+%
+%% Python environment
+%\lstnewenvironment{python}[1][]
+%{
+%\pythonstyle
+%\lstset{#1}
+%}
+%{}
+%
+%% Python for external files
+%\newcommand\pythonexternal[2][]{{
+%\pythonstyle
+%\lstinputlisting[#1]{#2}}}
+%
+%% Python for inline
+%\newcommand\pythoninline[1]{{\pythonstyle\lstinline!#1!}}
+%
+%\begin{document}
+%
+%\section{``In-text'' listing highlighting}
+%
+%\begin{python}
+%class MyClass(Yourclass):
+%    def __init__(self, my, yours):
+%        bla = '5 1 2 3 4'
+%        print bla
+%\end{python}
+%
+%\section{External listing highlighting}
+%
+%\pythonexternal{demo.py}
+%
+%\section{Inline highlighting}
+%
+%Definition \pythoninline{class MyClass} means \dots
+%
+%\end{document}
 %    \begin{minted}{python}
 %    def boring(args = None):
 %    pass
@@ -144,7 +209,7 @@
 
 \pagestyle{plain}
 \setcounter{page}{1}
-\myhwtitle{1}{1}{Gregory King}
+\myhwtitle{1}{1(a)}{Gregory King}
 
 \bigskip
 %Assn#1:
@@ -203,6 +268,23 @@ since this is true for an arbitary $i$, it follows immediately that the linear s
 %%
 \clearpage
 \pagestyle{myheadings}
+\myrunninghwhead{1}{1 (Softmax)}
+
+\myhwtitle{1}{1(b)}{Gregory King}
+
+\bigskip
+
+\noindent Given an input matrix of \texttt{N} rows and \texttt{d}-columns, compute the softmax prediction for each row.
+Write your implementation in \texttt{q1\_softmax.py}. You may test by executing python \texttt{q1\_softmax.py}.\\
+
+\noindent \textbf{Note:} The provided tests are not exhaustive. Later parts of the assignment will reference this code so it is
+important to have a correct implementation. Your implementation should also be efficient and vectorized
+whenever possible. A non-vectorized implementation will not receive full credit!\vspace{5mm}
+
+\noindent\rule{\textwidth}{0.4pt}\vspace{5mm}
+
+\clearpage
+
 \myrunninghwhead{1}{2 (Neural Networks)}
 
 \myhwtitle{1}{2(a)}{Gregory King}
@@ -228,7 +310,6 @@ It follows, using the chain rule (and noting that $e^{-z}= 1/\sigma(z) -1$),
 \end{align*}
  
 \clearpage
-\pagestyle{myheadings}
 
 \myhwtitle{1}{2(b)}{Gregory King}
 \bigskip
@@ -423,20 +504,55 @@ weights, for each input vector of dimensions $\textrm{D}_{x}$.
 %\item[$\bf{b}_{2}$:]{$\textrm{D}_{y}$}
 %\end{itemize}
 \clearpage
+\myhwtitle{1}{2(e)}{Gregory King}
+\bigskip
+\noindent Fill in the implementation for the sigmoid activation function and its gradient in  \texttt{q2\_sigmoid.py}.
+Test your implementation using python \texttt{q2\_sigmoid.py}. \textbf{Note:} Again, thoroughly test your code as the provided
+tests may not be exhaustive.\vspace{5mm}
+
+\noindent\rule{\textwidth}{0.4pt}\vspace{5mm}
+
+\clearpage
+\myhwtitle{1}{2(f)}{Gregory King}
+\bigskip
+\noindent To make debugging easier, we will now implement a gradient checker. Fill in the implementation
+for \texttt{gradcheck\_naive} in \texttt{q2\_gradcheck.py}. Test your code using python \texttt{q2\_gradcheck.py}\vspace{5mm}
+
+\noindent\rule{\textwidth}{0.4pt}\vspace{5mm}
+
+\clearpage
+\myhwtitle{1}{2(g)}{Gregory King}
+\bigskip
+\noindent  Now, implement the forward and backward passes for a neural network with one sigmoid
+hidden layer. Fill in your implementation in \texttt{q2\_neural.py}. Sanity check your implementation with
+\texttt{q2\_neural.py}. \\
+\noindent\rule{\textwidth}{0.4pt}\vspace{5mm}
+
+\clearpage
+
+
 \myrunninghwhead{1}{3 (word2vec)}
 
 \myhwtitle{1}{3(a)}{Gregory King}
 \bigskip
-\noindent Assume you are given a predicted word vector $\hat{\boldsymbol r}$ ($v_{w_{\textrm{I}}}$ in the lecture notes in the case of \texttt{skip-gram}), and
-word prediction is made with the softmax function found in \texttt{word2vec} models
+\noindent Assume you are given a predicted word vector ${\boldsymbol v}_{c}$ corresponding to the center word $c$ for
+\texttt{skipgram}, and word prediction is made with the \texttt{softmax} function found in \texttt{word2vec} models
 \begin{equation}
-{\boldsymbol P}(~\textrm{word}_{i} \mid \hat{\boldsymbol r}, {\boldsymbol w}) = \frac{\exp{({\boldsymbol w}^{\top}_{i}\hat{\boldsymbol r})}}{\sum^{\vert{V}\vert}_{j=1}\exp{({\boldsymbol w}^{\top}_{j}\hat{\boldsymbol r})}}
+{\hat{\boldsymbol y}}_{\boldsymbol o} = p(~{\boldsymbol o} \mid {\boldsymbol c}) = \frac{\exp{({\boldsymbol u}^{\top}_{o}{\boldsymbol v}_{c})}}{\sum^{\vert{W}\vert}_{j=1}\exp{({\boldsymbol u}^{\top}_{j}{\boldsymbol v}_{c})}}
 \end{equation}
-where ${\boldsymbol w}_{i}$ ($j=1,...,\vert\textrm{V}\vert$) are the `output' word vectors for all words in the vocabulary ($v^{\prime}_{w}$ in the lecture notes). Assume
-the cross entropy cost is applied to this prediction and $\texttt{word}_{i}$ is the expected word (the $i$-th element of the one-hot label vector is one), derive the gradients with
-respect to $\hat{\boldsymbol r}$.\vspace{5mm}
+where $w$ denotes the $w$-th word and ${\boldsymbol u}_{w}$ ($w=1,...,\vert\textrm{W}\vert$)  are the `output' word vectors for all words in the vocabulary ($v^{\prime}_{w}$ in the lecture notes). Assume the cross entropy cost is applied to this prediction and word $o$ is the expected word (the $o$-th element of the one-hot label vector is one), derive the gradients with respect to ${\boldsymbol v}_{c}$.\\
+
+\noindent \textbf{Hint:} It will be helpful to use notation from question 2. For instance, letting ${\hat{\boldsymbol y}}$ be the vector of the softmax
+prediction for every word, ${\boldsymbol y}$ as the expected word vector, and the loss function
+\begin{equation}
+J_{\textrm{softmax-CE}}({\boldsymbol o}, {\boldsymbol v}_{c}, {\boldsymbol U}) = CE({\boldsymbol y},{\hat{\boldsymbol y}})
+\end{equation}
+where ${\boldsymbol U} = [ {\boldsymbol u}_{1}, {\boldsymbol u}_{2},...,{\boldsymbol u}_{\vert\textrm{W}\vert}]$ is the matrix of all the output vectors. \textit{Make sure you state the orientation of your vectors and matrices.}
+\vspace{5mm}
+
 
 \noindent\rule{\textwidth}{0.4pt}\vspace{5mm}
+%TODO FIX this 
 Applying cross-entropy cost to the above softmax probability defined above:
 \begin{equation}
 J =-\log{\boldsymbol P} = - {\boldsymbol w}_{i}^{\top}\hat{\boldsymbol r} + \log\sum^{\vert{V}\vert}_{j=1}\exp{({\boldsymbol w}^{\top}_{j}\hat{\boldsymbol r})}
@@ -527,13 +643,22 @@ For a simpler variant of \texttt{CBOW}, we sum up the input word vectors in the 
 
 \noindent\rule{\textwidth}{0.4pt}\vspace{5mm}
 The \texttt{skip-gram} model involves summing over context (and treating each word as having a conditional probability). This yields
-\begin{equation}
-\frac{\partial{J}}{\partial{{\boldsymbol v}_{w_{i}}}} =
-\end{equation}
+\begin{equation*}
+\frac{\partial{J}}{\partial{{\boldsymbol v}_{w_{i}}}} = \frac{\partial}{\partial{{\boldsymbol v}_{w_{i}}}} \sum_{-c\leq j\leq c, j\neq 0} F({\boldsymbol v}^{\prime}_{w_{k+j}}\vert{\boldsymbol v}_{w_{k}}) = 
+\begin{cases}
+ \sum\frac{\partial F({\boldsymbol v}^{\prime}_{w_{j}}\vert{\boldsymbol v}_{w_{i}})}{\partial{{\boldsymbol v}_{w_{i}}}}\\
+ \frac{\partial F({\boldsymbol v}^{\prime}_{w_{k}}\vert{\boldsymbol v}_{w_{i}})}{\partial{{\boldsymbol v}_{w_{k}}}}
+\end{cases}
+\end{equation*}
 Whereas in the \texttt{CBOW} model, the summing over context is handled internally to the probability model (in other words, the context vector is represented by the sum of the word vectors and the conditional probability is with respect to this sum). This means that cost, $J$, is represented as (with $\hat{\boldsymbol r}$ defined by Equation~\ref{eq:3d r def}),
 \begin{equation}
 J_{\texttt{CBOW}} =  F({\boldsymbol v}^{\prime}_{w_{i+j}}\vert\hat{\boldsymbol r})
 \end{equation}
+
+\begin{align}
+\frac{\partial J_{\texttt{CBOW}}}{\partial{\boldsymbol v}_{w_{k}}} &= \\
+\frac{\partial J_{\texttt{CBOW}}}{\partial\hat{\boldsymbol r}}         &=
+\end{align}
 
 \clearpage
 \myrunninghwhead{1}{4 (Sentiment Analysis)}
