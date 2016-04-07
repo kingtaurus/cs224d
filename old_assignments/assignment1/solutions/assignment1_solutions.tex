@@ -27,15 +27,85 @@
 %    (To print the ps file.)
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
+\documentclass[letter,12pt]{article}
 \RequirePackage{amsmath}
 \RequirePackage{amsmath,amssymb,amsthm}
 \RequirePackage{tikz}
 \usetikzlibrary{calc}
 \RequirePackage{tkz-euclide}
 \usetkzobj{all}
+%\usepackage{minted}
+%\usepackage{fontspec}
+%\setsansfont{Calibri}
+%\setmonofont{Consolas}
 
-\documentstyle[12pt]{article}
+
+%\usepackage[utf8]{inputenc}
+%
+%% Default fixed font does not support bold face
+%\DeclareFixedFont{\ttb}{T1}{txtt}{bx}{n}{12} % for bold
+%\DeclareFixedFont{\ttm}{T1}{txtt}{m}{n}{12}  % for normal
+%
+%% Custom colors
+%\usepackage{color}
+%\definecolor{deepblue}{rgb}{0,0,0.5}
+%\definecolor{deepred}{rgb}{0.6,0,0}
+%\definecolor{deepgreen}{rgb}{0,0.5,0}
+%
+%\usepackage{listings}
+%
+%% Python style for highlighting
+%\newcommand\pythonstyle{\lstset{
+%language=Python,
+%basicstyle=\ttm,
+%otherkeywords={self},             % Add keywords here
+%keywordstyle=\ttb\color{deepblue},
+%emph={MyClass,__init__},          % Custom highlighting
+%emphstyle=\ttb\color{deepred},    % Custom highlighting style
+%stringstyle=\color{deepgreen},
+%frame=tb,                         % Any extra options here
+%showstringspaces=false            % 
+%}}
+%
+%
+%% Python environment
+%\lstnewenvironment{python}[1][]
+%{
+%\pythonstyle
+%\lstset{#1}
+%}
+%{}
+%
+%% Python for external files
+%\newcommand\pythonexternal[2][]{{
+%\pythonstyle
+%\lstinputlisting[#1]{#2}}}
+%
+%% Python for inline
+%\newcommand\pythoninline[1]{{\pythonstyle\lstinline!#1!}}
+%
+%\begin{document}
+%
+%\section{``In-text'' listing highlighting}
+%
+%\begin{python}
+%class MyClass(Yourclass):
+%    def __init__(self, my, yours):
+%        bla = '5 1 2 3 4'
+%        print bla
+%\end{python}
+%
+%\section{External listing highlighting}
+%
+%\pythonexternal{demo.py}
+%
+%\section{Inline highlighting}
+%
+%Definition \pythoninline{class MyClass} means \dots
+%
+%\end{document}
+
+
 % Set the margins
 %
 \setlength{\textheight}{8.5in}
@@ -121,7 +191,7 @@
 
 \pagestyle{plain}
 \setcounter{page}{1}
-\myhwtitle{1}{1}{Gregory King}
+\myhwtitle{1}{1(a)}{Gregory King}
 
 \bigskip
 %Assn#1:
@@ -178,6 +248,23 @@ since this is true for an arbitary $i$, it follows immediately that the linear s
 %% First page break
 %%   Note: "myheadings" is a LaTeX keyword; it is not a user-defined entity.
 %%
+\clearpage
+\pagestyle{myheadings}
+\myrunninghwhead{1}{1 (Softmax)}
+
+\myhwtitle{1}{1(b)}{Gregory King}
+
+\bigskip
+
+\noindent Given an input matrix of \texttt{N} rows and \texttt{d}-columns, compute the softmax prediction for each row.
+Write your implementation in \texttt{q1\_softmax.py}. You may test by executing python \texttt{q1\_softmax.py}.\\
+
+\noindent \textbf{Note:} The provided tests are not exhaustive. Later parts of the assignment will reference this code so it is
+important to have a correct implementation. Your implementation should also be efficient and vectorized
+whenever possible. A non-vectorized implementation will not receive full credit!\vspace{5mm}
+
+\noindent\rule{\textwidth}{0.4pt}\vspace{5mm}
+
 \clearpage
 \pagestyle{myheadings}
 \myrunninghwhead{1}{2 (Neural Networks)}
