@@ -10,9 +10,6 @@ def rel_error(x,y):
     """ returns relative error """
     return np.max(np.abs(x - y) / (np.maximum(1e-8, np.abs(x) + np.abs(y))))
 
-def test_assert():
-    assert 1
-
 @pytest.fixture(scope='module')
 def array_1():
 	return np.array([1,2])
@@ -21,18 +18,21 @@ def array_1():
 def array_2():
 	return np.array([1001,1002])
 
+@pytest.fixture(scope='module')
 def fake_data_normal(in_dim_1, in_dim_2, mean=0., sigma=1.):
 	return np.random.normal(loc=mean, scale=sigma, size=(in_dim_1,in_dim_2))
 
+@pytest.fixture(scope='module')
 def fake_data_uniform(in_dim_1, in_dim_2, low=-1000., high=1000.):
 	return np.random.uniform(low=low, high=high, size=(in_dim_1, in_dim_2))
 
-def fake_linear_shift(low=-100, high=100.):
+@pytest.fixture(scope='module')
+def linear_shift(low=-100, high=100.):
 	return np.random.uniform(low,high)
 
-def fake_shift_vector_shift(in_dim, low=-100., high=100.):
+@pytest.fixture(scope='module')
+def vector_shift(in_dim, low=-100., high=100.):
 	return np.random.uniform(low=low,high=high,size=(in_dim,1))
-
 
 #starting with some simple fixed test
 def test_array_1(array_1):
@@ -44,11 +44,27 @@ def test_array_2(array_1, array_2):
 @pytest.mark.parametrize("dim_1", list(range(1,20,3)))
 @pytest.mark.parametrize("dim_2", list(range(1,20,3)))
 def test_softmax_linearity(dim_1, dim_2):
-	shift = np.random.uniform(-100,100)
+	shift = linear_shift(-100,100)
 	a1    = np.random.normal(size=(dim_1,dim_2))
 	a2    = a1 + shift
-	assert rel_error(np.max(shift), np.min(shift)) <1e-5
+	assert rel_error(np.max(shift), np.min(shift)) <1e-8
 	assert rel_error(softmax(a1),softmax(a2)) < 1e-8
+
+#note: permutation(softmax(x)) = softmax(permutation(x))
+
+#NOT WORKING :/
+# def test_permutation(dim_1=5, dim_2=5):
+# 	shuffle_idx = np.arange(dim_1 * dim_2).reshape((dim_1,dim_2))
+# 	tmp = np.random.permutation(shuffle_idx.T)
+# 	print(tmp.T)#tmp is shuffled row-wise
+# 	print(tmp.T.ravel())
+# 	array = np.random.normal(size=(dim_1,dim_2))
+# 	array_2 = np.copy(array.T.ravel()[shuffle_idx])
+# 	print(array)
+# 	print(array.ravel()[tmp.T].reshape((dim_1,dim_2)))
+
+# 	# print(array_2.ravel()[tmp.T])
+# 	assert 1
 
 #probably can move this to a 'fake' data call
 @pytest.mark.parametrize("dim_1", list(range(1,20,3)))
@@ -58,7 +74,7 @@ def test_softmax_linearity_rowwise(dim_1, dim_2):
 	#print(shift)
 	a1    = np.random.normal(size=(dim_1,dim_2))
 	a2    = a1 + shift
-	assert rel_error(np.max(a2 - a1), np.max(shift)) < 1e-5
+	assert rel_error(np.max(a2 - a1), np.max(shift)) < 1e-8
 	assert rel_error(softmax(a1),softmax(a2)) < 1e-8
 
 def test_matrix_1():
