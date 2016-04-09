@@ -82,7 +82,7 @@ def test_softmax_linearity(dim_1, dim_2):
 	assert rel_error(softmax(a1),softmax(a2)) < 1e-8
 
 @pytest.mark.parametrize("dim_1", list(range(1,20)))
-def test_softmax_permutation(dim_1):
+def test_softmax_permutation_axis0(dim_1):
 	a1          = np.random.normal(size=(dim_1,1))
 	s1          = softmax(a1)
 
@@ -92,21 +92,17 @@ def test_softmax_permutation(dim_1):
 	s1_perm     = softmax(a1[permutation])
 	assert rel_error(s1_perm[inverse_permutation], s1) <= 1e-8
 
+@pytest.mark.parametrize("dim_1", list(range(1,20)))
+def test_softmax_permutation_axis1(dim_1):
+	a1          = np.random.normal(size=(1,dim_1))
+	s1          = softmax(a1)
+
+	permutation = np.random.permutation(dim_1)
+	inverse_permutation = np.argsort(permutation)
+
+	s1_perm     = softmax(a1.ravel()[permutation])
+	assert rel_error(s1_perm.ravel()[inverse_permutation], s1) <= 1e-8
 #note: permutation(softmax(x)) = softmax(permutation(x))
-
-#NOT WORKING :/
-# def test_permutation(dim_1=5, dim_2=5):
-# 	shuffle_idx = np.arange(dim_1 * dim_2).reshape((dim_1,dim_2))
-# 	tmp = np.random.permutation(shuffle_idx.T)
-# 	print(tmp.T)#tmp is shuffled row-wise
-# 	print(tmp.T.ravel())
-# 	array = np.random.normal(size=(dim_1,dim_2))
-# 	array_2 = np.copy(array.T.ravel()[shuffle_idx])
-# 	print(array)
-# 	print(array.ravel()[tmp.T].reshape((dim_1,dim_2)))
-
-# 	# print(array_2.ravel()[tmp.T])
-# 	assert 1
 
 #probably can move this to a 'fake' data call
 @pytest.mark.parametrize("dim_1", list(range(1,20,3)))

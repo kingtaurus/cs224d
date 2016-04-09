@@ -71,7 +71,7 @@ def test_sigmoid_range(count=100):
 
 @pytest.mark.parametrize('execution_number', list(range(COUNT)))
 @pytest.mark.parametrize("dim_1", list(range(1,20)))
-def test_sigmoid_permutation(dim_1, execution_number):
+def test_sigmoid_permutation_axis0(dim_1, execution_number):
     """ sigmoid needs to be applied element-wise;"""
     a1          = np.random.normal(size=(dim_1,1))
     s1          = sigmoid(a1)
@@ -82,6 +82,17 @@ def test_sigmoid_permutation(dim_1, execution_number):
     s1_perm     = sigmoid(a1[permutation])
     assert rel_error(s1_perm[inverse_permutation], s1) <= 1e-8
 
+@pytest.mark.parametrize("dim_1", list(range(1,20)))
+def test_sigmoid_permutation_axis1(dim_1):
+    a1          = np.random.normal(size=(1,dim_1))
+    s1          = sigmoid(a1)
+
+    permutation = np.random.permutation(dim_1)
+    inverse_permutation = np.argsort(permutation)
+
+    s1_perm     = sigmoid(a1.ravel()[permutation])
+    assert rel_error(s1_perm.ravel()[inverse_permutation], s1) <= 1e-8
+#note: permutation(sigmoid(x)) = sigmoid(permutation(x))
 
 @pytest.mark.parametrize("dim_1", list(range(1,20)))
 @pytest.mark.parametrize("dim_2", list(range(1,20)))
