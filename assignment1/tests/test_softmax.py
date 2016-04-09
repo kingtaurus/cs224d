@@ -33,6 +33,10 @@ def array_2():
 	return np.array([1001,1002])
 
 @pytest.fixture(scope='module')
+def array_3():
+	return np.array([-1001,-1002])
+
+@pytest.fixture(scope='module')
 def fake_data_normal(in_dim_1, in_dim_2, mean=0., sigma=1.):
 	return np.random.normal(loc=mean, scale=sigma, size=(in_dim_1,in_dim_2))
 
@@ -49,11 +53,24 @@ def vector_shift(in_dim, low=-100., high=100.):
 	return np.random.uniform(low=low,high=high,size=(in_dim,1))
 
 #starting with some simple fixed test
-def test_array_1(array_1):
+def test_softmax_array_1(array_1):
+	""" Original softmax test defined in q2_softmax.py; """
 	assert rel_error(softmax(array_1), np.array([0.26894142,  0.73105858])) < 1e-8
 
-def test_array_2(array_1, array_2):
+def test_softmax_array_2(array_1, array_2):
+	""" Original softmax test defined in q2_softmax.py; """
 	assert rel_error(softmax(array_2), softmax(array_1)) < 1e-8
+
+def test_softmax_array_3(array_3):
+	""" Original softmax test defined in q2_softmax.py; """
+	assert rel_error(softmax(array_3), np.array(
+        [0.73105858, 0.26894142]))
+
+@pytest.mark.parametrize("dim_1", list(range(1,20)))
+@pytest.mark.parametrize("dim_2", list(range(1,20)))
+def test_softmax_shape(dim_1, dim_2):
+	a1 = np.random.normal(size=(dim_1,dim_2))
+	assert a1.shape == softmax(a1).shape
 
 @pytest.mark.parametrize("dim_1", list(range(1,20,3)))
 @pytest.mark.parametrize("dim_2", list(range(1,20,3)))
@@ -63,6 +80,17 @@ def test_softmax_linearity(dim_1, dim_2):
 	a2    = a1 + shift
 	assert rel_error(np.max(shift), np.min(shift)) <1e-8
 	assert rel_error(softmax(a1),softmax(a2)) < 1e-8
+
+@pytest.mark.parametrize("dim_1", list(range(1,20)))
+def test_softmax_permutation(dim_1):
+	a1          = np.random.normal(size=(dim_1,1))
+	s1          = softmax(a1)
+
+	permutation = np.random.permutation(dim_1)
+	inverse_permutation = np.argsort(permutation)
+
+	s1_perm     = softmax(a1[permutation])
+	assert rel_error(s1_perm[inverse_permutation], s1) <= 1e-8
 
 #note: permutation(softmax(x)) = softmax(permutation(x))
 
@@ -90,23 +118,3 @@ def test_softmax_linearity_rowwise(dim_1, dim_2):
 	a2    = a1 + shift
 	assert rel_error(np.max(a2 - a1), np.max(shift)) < 1e-8
 	assert rel_error(softmax(a1),softmax(a2)) < 1e-8
-
-def test_matrix_1():
-    test1 = softmax(np.array([1,2]))
-    print(test1)
-    assert np.amax(np.fabs(test1 - np.array(
-        [0.26894142,  0.73105858]))) <= 1e-6
-
-    test2 = softmax(np.array([[1001,1002],[3,4]]))
-    print(test2)
-    assert np.amax(np.fabs(test2 - np.array(
-        [[0.26894142, 0.73105858], [0.26894142, 0.73105858]]))) <= 1e-6
-
-    test3 = softmax(np.array([[-1001,-1002]]))
-    print(test3)
-    assert np.amax(np.fabs(test3 - np.array(
-        [0.73105858, 0.26894142]))) <= 1e-6
-
-@pytest.fixture(scope='module')
-def random_2d_array():
-	assert 1
