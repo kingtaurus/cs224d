@@ -24,7 +24,7 @@ COUNT=5
 
 def rel_error(x,y):
     """ returns relative error """
-    return np.max(np.abs(x - y) / (np.maximum(1e-8, np.abs(x) + np.abs(y))))
+    return np.max(np.abs(x - y) / (np.maximum(1e-7, np.abs(x) + np.abs(y))))
 
 def test_sigmoid():
     """ Original sigmoid test defined in q2_sigmoid.py; """
@@ -82,5 +82,15 @@ def test_sigmoid_permutation(dim_1, execution_number):
     s1_perm     = sigmoid(a1[permutation])
     assert rel_error(s1_perm[inverse_permutation], s1) <= 1e-8
 
-def test_sigmoid_gradient(count=100):
-    assert 1
+
+@pytest.mark.parametrize("dim_1", list(range(1,20)))
+@pytest.mark.parametrize("dim_2", list(range(1,20)))
+def test_sigmoid_gradient(dim_1, dim_2):
+    a1    = np.random.normal(loc=0., scale=20., size=(dim_1,dim_2))
+    shift = np.random.uniform(low=1e-9, high=1e-5, size=(dim_1,dim_2))
+    ap = a1 + shift
+    am = a1 - shift
+
+    dsigmoid = (sigmoid(ap) - sigmoid(am)) / (2*shift)
+    assert np.abs(np.max(dsigmoid - sigmoid_grad(sigmoid(a1)))) <= 1e-7
+    assert np.abs(np.min(dsigmoid - sigmoid_grad(sigmoid(a1)))) <= 1e-7
