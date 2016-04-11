@@ -32,6 +32,37 @@
 \RequirePackage{amsmath}
 \RequirePackage{amsmath,amssymb,amsthm}
 \RequirePackage{tikz}
+\usepackage{listings}
+\usepackage{color}
+\usepackage{textcomp}
+
+\renewcommand{\lstlistlistingname}{Code Listings} 
+\renewcommand{\lstlistingname}{Code Listing} 
+\definecolor{gray}{gray}{0.5} 
+\definecolor{key}{rgb}{0,0.5,0} 
+\lstnewenvironment{python}[1][]{ 
+\lstset{ 
+language=python, 
+basicstyle=\ttfamily\small, 
+otherkeywords={1, 2, 3, 4, 5, 6, 7, 8 ,9 , 0, -, =, +, [, ], (, ), \{, \}, :, *, !}, 
+keywordstyle=\color{blue}, 
+stringstyle=\color{red}, 
+showstringspaces=false, 
+emph={class, pass, in, for, while, if, is, elif, else, not, and, or, 
+def, print, exec, break, continue, return}, 
+emphstyle=\color{black}\bfseries, 
+emph={[2]True, False, None, self}, 
+emphstyle=[2]\color{key}, 
+emph={[3]from, import, as}, 
+emphstyle=[3]\color{blue}, 
+upquote=true, 
+morecomment=[s]{"""}{"""}, 
+commentstyle=\color{gray}\slshape, 
+frame=tb, 
+rulesepcolor=\color{blue},#1 
+}}{}
+
+
 \usetikzlibrary{calc}
 \RequirePackage{tkz-euclide}
 \usetkzobj{all}
@@ -282,7 +313,17 @@ important to have a correct implementation. Your implementation should also be e
 whenever possible. A non-vectorized implementation will not receive full credit!\vspace{5mm}
 
 \noindent\rule{\textwidth}{0.4pt}\vspace{5mm}
+\begin{python}
+import numpy as np
+import random
 
+def softmax(x):
+    c = np.max(x, axis=x.ndim - 1, keepdims=True)
+    #for numerical stability
+    y = np.sum(np.exp(x - c), axis=x.ndim - 1, keepdims=True)
+    x = np.exp(x - c)/y
+    return x
+\end{python}
 \clearpage
 
 \myrunninghwhead{1}{2 (Neural Networks)}
