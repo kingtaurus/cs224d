@@ -10,7 +10,9 @@ def normalizeRows(x):
     # Implement a function that normalizes each row of a matrix to have unit length
     
     ### YOUR CODE HERE
-    raise NotImplementedError
+    # from sklearn.preprocessing import normalize
+    #normalize(matrix, axis=1, norm='l1')
+    x /= x.sum(axis=1,keepdims=True)
     ### END YOUR CODE
     
     return x
