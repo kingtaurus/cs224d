@@ -51,7 +51,7 @@ def softmaxRegression(features, labels, weights, regularization = 0.0, nopredict
     else:
         N = 1
     # A vectorized implementation of    1/N * sum(cross_entropy(x_i, y_i)) + 1/2*|w|^2
-    cost = np.sum(-np.log(prob[range(N), labels])) / N 
+    cost = np.sum(-np.log(prob[list(range(N)), labels])) / N 
     cost += 0.5 * regularization * np.sum(weights ** 2)
     
     ### YOUR CODE HERE: compute the gradients and predictions
@@ -91,15 +91,15 @@ def sanity_check():
     dummy_weights = 0.1 * np.random.randn(dimVectors, 5)
     dummy_features = np.zeros((10, dimVectors))
     dummy_labels = np.zeros((10,), dtype=np.int32)    
-    for i in xrange(10):
+    for i in range(10):
         words, dummy_labels[i] = dataset.getRandomTrainSentence()
         dummy_features[i, :] = getSentenceFeature(tokens, wordVectors, words)
-    print "==== Gradient check for softmax regression ===="
+    print("==== Gradient check for softmax regression ====")
     gradcheck_naive(lambda weights: softmaxRegression(dummy_features,
         dummy_labels, weights, 1.0, nopredictions = True), dummy_weights)
 
-    print "\n=== Results ==="
-    print softmaxRegression(dummy_features, dummy_labels, dummy_weights, 1.0)
+    print("\n=== Results ===")
+    print(softmaxRegression(dummy_features, dummy_labels, dummy_weights, 1.0))
 
 if __name__ == "__main__":
     sanity_check()
