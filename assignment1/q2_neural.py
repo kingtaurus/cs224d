@@ -16,6 +16,7 @@ def forward_backward_prop(data, labels, params, dimensions):
     ### Unpack network parameters (do not modify)
     ofs = 0
     Dx, H, Dy = (dimensions[0], dimensions[1], dimensions[2])
+    N = data.shape[0]
 
     W1 = np.reshape(params[ofs:ofs+ Dx * H], (Dx, H))
     ofs += Dx * H
@@ -32,10 +33,10 @@ def forward_backward_prop(data, labels, params, dimensions):
     layer2_a = sigmoid(layer2)
     # need to calculate the softmax loss
     probs = softmax(layer2_a)
-    cost  = -np.sum(np.log(probs[np.arange(Dy), labels.astype(int)] + 1e-16))/ Dy
+    cost  = -np.sum(np.log(probs[np.arange(N), np.argmax(labels)] + 1e-12)) / N
     dx    = probs.copy()
-    dx[np.arange(Dy), labels.astype(int)] -=1
-    dx /= Dy
+    dx[np.arange(N), np.argmax(labels)] -= 1
+    dx /= N
     # dx is the gradient of the loss w.r.t. y_{est}
     ### END YOUR CODE
     
@@ -43,6 +44,12 @@ def forward_backward_prop(data, labels, params, dimensions):
     #raise NotImplementedError
     #There is no regularization :/
     # dx -> sigmoid -> W2 * layer1_a + b -> sigmoid -> W1 * data + b1 -> ..
+    dlayer2   = np.zeros_like(dx)
+    gradW2    = np.zeros_like(W2)
+    gradW1    = np.zeros_like(W1)
+    gradb2    = np.zeros_like(b2)
+    gradb1    = np.zeros_like(b1)
+
     dlayer2   = sigmoid_grad(dx)
     gradW2    = np.dot(layer1_a.T, dlayer2)
     gradb2    = np.sum(dlayer2, axis=0)
@@ -65,7 +72,7 @@ def sanity_check():
     """
     print("Running sanity check...")
 
-    N = 20
+    N = 300
     dimensions = [10, 5, 10]
     data = np.random.randn(N, dimensions[0])   # each row will be a datum
     labels = np.zeros((N, dimensions[2]))
@@ -74,6 +81,11 @@ def sanity_check():
     
     params = np.random.randn((dimensions[0] + 1) * dimensions[1] + (
         dimensions[1] + 1) * dimensions[2], )
+
+    cost, _ = forward_backward_prop(data, labels, params, dimensions)
+    # # expect to get 1 in 10 correct
+    print(np.exp(-cost))
+    # #cost is roughly correct
 
     gradcheck_naive(lambda params: forward_backward_prop(data, labels, params,
         dimensions), params)
