@@ -60,7 +60,8 @@ def forward_backward_prop(data, labels, params, dimensions):
     layer2   = np.dot(layer1_a, W2) + b2
     # need to calculate the softmax loss
     probs = softmax(layer2)
-    cost  = -np.sum(np.log(probs[np.arange(N), np.argmax(labels)] + 1e-16)) / N
+    cost  = -np.sum(np.log(probs[np.arange(N), np.argmax(labels)] +
+                           1e-16)) / N
     dx    = probs.copy()
     dx[np.arange(N), np.argmax(labels)] -= 1
     dx /= N
@@ -68,7 +69,6 @@ def forward_backward_prop(data, labels, params, dimensions):
     ### END YOUR CODE
     
     ### YOUR CODE HERE: backward propagation
-    #raise NotImplementedError
     #There is no regularization :/
     # dx -> sigmoid -> W2 * layer1_a + b -> sigmoid -> W1 * data + b1 -> ..
     dlayer2   = np.zeros_like(dx)
