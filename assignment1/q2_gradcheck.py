@@ -5,7 +5,8 @@ import random
 def gradcheck_naive(f, x):
     """ 
     Gradient check for a function f 
-    - f should be a function that takes a single argument and outputs the cost and its gradients
+    - f should be a function that takes a single argument and outputs the cost
+      and its gradients
     - x is the point (numpy array) to check the gradient at
     """ 
 
@@ -24,15 +25,15 @@ def gradcheck_naive(f, x):
         ### possible to test cost functions with built in randomness later
         ### YOUR CODE HERE:
         old_xix = x[ix]
-        x[ix] += 0.5 * h
+        x[ix] = old_xix + h
         random.setstate(rndstate)
         fp = f(x)[0]
-        x[ix] -= h
+        x[ix] = old_xix - h
         random.setstate(rndstate)
         fm = f(x)[0]
         x[ix] = old_xix
 
-        numgrad = (fp - fm)/h
+        numgrad = (fp - fm)/(2* h)
         ### END YOUR CODE
 
         # Compare gradients
@@ -59,7 +60,7 @@ def grad_numerical(f, x, h=1e-4):
     rndstate = random.getstate()
     random.setstate(rndstate)  
     fx, grad = f(x) # Evaluate function value at original point
-    num_grad = np.zeros(fx.shape)
+    num_grad = np.zeros(x.shape)
 
     # Iterate over all indexes in x
     it = np.nditer(x, flags=['multi_index'], op_flags=['readwrite'])
@@ -84,6 +85,26 @@ def grad_numerical(f, x, h=1e-4):
         it.iternext() # Step to next dimension
     return num_grad
 
+def eval_numerical_gradient_array(f, x, df, h=1e-5):
+  """
+  Evaluate a numeric gradient for a function that accepts a numpy
+  array and returns a numpy array.
+  """
+  grad = np.zeros_like(x)
+  it = np.nditer(x, flags=['multi_index'], op_flags=['readwrite'])
+  while not it.finished:
+    ix = it.multi_index
+    
+    oldval = x[ix]
+    x[ix] = oldval + h
+    pos = f(x).copy()
+    x[ix] = oldval - h
+    neg = f(x).copy()
+    x[ix] = oldval
+    
+    grad[ix] = np.sum((pos - neg) * df) / (2 * h)
+    it.iternext()
+  return grad
 
 def sanity_check():
     """
@@ -106,7 +127,7 @@ def your_sanity_checks():
     """
     print("Running your sanity checks...")
     ### YOUR CODE HERE
-    #raise NotImplementedError
+    print("")
     ### END YOUR CODE
 
 if __name__ == "__main__":

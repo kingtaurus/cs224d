@@ -10,7 +10,7 @@ def affine_forward(x, w, b):
     N   = x.shape[0]
     D   = np.prod(x.shape[1:])
     M   = b.shape[1]
-    out = np.dot(x.reshape(N,D), w.reshape(D,M)) + b.reshape(-1)
+    out = np.dot(x.reshape(N,D), w.reshape(D,M)) + b.reshape(1,M)
     return out, (x,w,b)
 
 def affine_backward(dout, cache):
@@ -27,10 +27,11 @@ def affine_backward(dout, cache):
     return dx, dw, db
 
 def sigmoid_forward(x):
-    return sigmoid(x), x
+    return sigmoid(x), sigmoid(x)
 
 def sigmoid_backward(dout, cache):
-    return sigmoid_grad(dout)
+    x = cache
+    return sigmoid_grad(x) * dout
 
 def forward_backward_prop(data, labels, params, dimensions):
     """
@@ -57,10 +58,9 @@ def forward_backward_prop(data, labels, params, dimensions):
     layer1   = np.dot(data,W1) + b1
     layer1_a = sigmoid(layer1)
     layer2   = np.dot(layer1_a, W2) + b2
-    layer2_a = sigmoid(layer2)
     # need to calculate the softmax loss
-    probs = softmax(layer2_a)
-    cost  = -np.sum(np.log(probs[np.arange(N), np.argmax(labels)] + 1e-12)) / N
+    probs = softmax(layer2)
+    cost  = -np.sum(np.log(probs[np.arange(N), np.argmax(labels)] + 1e-16)) / N
     dx    = probs.copy()
     dx[np.arange(N), np.argmax(labels)] -= 1
     dx /= N
@@ -77,11 +77,10 @@ def forward_backward_prop(data, labels, params, dimensions):
     gradb2    = np.zeros_like(b2)
     gradb1    = np.zeros_like(b1)
 
-    dlayer2   = sigmoid_grad(dx)
-    gradW2    = np.dot(layer1_a.T, dlayer2)
-    gradb2    = np.sum(dlayer2, axis=0)
-    dlayer1_a = np.dot(dlayer2, W2.T)
-    dlayer1   = sigmoid_grad(dlayer1_a)
+    gradW2    = np.dot(layer1_a.T, dx)
+    gradb2    = np.sum(dx, axis=0)
+    dlayer2   = np.dot(dx, W2.T)
+    dlayer1   = sigmoid_grad(layer1_a) * dlayer2
     gradW1    = np.dot(data.T, dlayer1)
     gradb1    = np.sum(dlayer1, axis=0)
 
@@ -91,7 +90,6 @@ def forward_backward_prop(data, labels, params, dimensions):
     # scores, cache_1  = affine_forward(data, W1, b1)
     # scores, cache_s1 = sigmoid_forward(scores)
     # scores, cache_2  = affine_forward(scores, W2, b2)
-    # scores, cache_s2 = sigmoid_forward(scores)
 
     # # need to calculate the softmax loss
     # probs = softmax(scores)
@@ -102,16 +100,10 @@ def forward_backward_prop(data, labels, params, dimensions):
 
     # grads = {}
 
-    # dlayer2s = sigmoid_backward(softmax_dx, cache_s2)
-    # dlayer2, grads['W2'], grads['b2'] = affine_backward(dlayer2s, cache_2)
+    # dlayer2, grads['W2'], grads['b2'] = affine_backward(softmax_dx, cache_2)
     # dlayer1s                          = sigmoid_backward(dlayer2, cache_s1)
     # dlayer1, grads['W1'], grads['b1'] = affine_backward(dlayer1s, cache_1)
-    # softmax_dx is the gradient of the loss w.r.t. y_{est}
-
-    # print(np.any(gradW2 - grads['W2'] > 0))
-    # print(np.any(gradW1 - grads['W1'] > 0))
-    # print(np.any(gradb2 - grads['b2'] > 0))
-    # print(np.any(gradb1 - grads['b1'] > 0))
+    #softmax_dx is the gradient of the loss w.r.t. y_{est}
     ### END YOUR CODE
     
     ### Stack gradients (do not modify)
@@ -137,9 +129,9 @@ def sanity_check():
     params = np.random.randn((dimensions[0] + 1) * dimensions[1] + (
         dimensions[1] + 1) * dimensions[2], )
 
-    cost, _ = forward_backward_prop(data, labels, params, dimensions)
+    #cost, _ = forward_backward_prop(data, labels, params, dimensions)
     # # expect to get 1 in 10 correct
-    print(np.exp(-cost))
+    #print(np.exp(-cost))
     # #cost is roughly correct
 
     gradcheck_naive(lambda params: forward_backward_prop(data, labels, params,
