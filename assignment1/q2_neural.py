@@ -5,6 +5,33 @@ from q1_softmax import softmax
 from q2_sigmoid import sigmoid, sigmoid_grad
 from q2_gradcheck import gradcheck_naive
 
+def affine_forward(x, w, b):
+    out = None
+    N   = x.shape[0]
+    D   = np.prod(x.shape[1:])
+    M   = b.shape[1]
+    out = np.dot(x.reshape(N,D), w.reshape(D,M)) + b.reshape(-1)
+    return out, (x,w,b)
+
+def affine_backward(dout, cache):
+    x, w, b = cache
+    dx, dw, db = None, None, None
+    N   = x.shape[0]
+    D   = np.prod(x.shape[1:])
+    M   = b.shape[1]
+
+    dx = np.dot(dout, w.reshape(D,M).T).reshape(x.shape)
+    dw = np.dot( x.reshape(N,D).T, dout).reshape(w.shape)
+    db = np.sum(dout, axis=0)
+
+    return dx, dw, db
+
+def sigmoid_forward(x):
+    return sigmoid(x), x
+
+def sigmoid_backward(dout, cache):
+    return sigmoid_grad(dout)
+
 def forward_backward_prop(data, labels, params, dimensions):
     """
     Forward and backward propagation for a two-layer sigmoidal network
@@ -53,10 +80,38 @@ def forward_backward_prop(data, labels, params, dimensions):
     dlayer2   = sigmoid_grad(dx)
     gradW2    = np.dot(layer1_a.T, dlayer2)
     gradb2    = np.sum(dlayer2, axis=0)
-    dlayer1_a = np.dot(layer1_a, W2)
+    dlayer1_a = np.dot(dlayer2, W2.T)
     dlayer1   = sigmoid_grad(dlayer1_a)
     gradW1    = np.dot(data.T, dlayer1)
     gradb1    = np.sum(dlayer1, axis=0)
+
+    # Decided to implement affine (forward and backward function)
+    #                      sigmoid (forward and backward function)
+    # These should work properly;
+    # scores, cache_1  = affine_forward(data, W1, b1)
+    # scores, cache_s1 = sigmoid_forward(scores)
+    # scores, cache_2  = affine_forward(scores, W2, b2)
+    # scores, cache_s2 = sigmoid_forward(scores)
+
+    # # need to calculate the softmax loss
+    # probs = softmax(scores)
+    # cost  = -np.sum(np.log(probs[np.arange(N), np.argmax(labels)] + 1e-12)) / N
+    # softmax_dx    = probs.copy()
+    # softmax_dx[np.arange(N), np.argmax(labels)] -= 1
+    # softmax_dx /= N
+
+    # grads = {}
+
+    # dlayer2s = sigmoid_backward(softmax_dx, cache_s2)
+    # dlayer2, grads['W2'], grads['b2'] = affine_backward(dlayer2s, cache_2)
+    # dlayer1s                          = sigmoid_backward(dlayer2, cache_s1)
+    # dlayer1, grads['W1'], grads['b1'] = affine_backward(dlayer1s, cache_1)
+    # softmax_dx is the gradient of the loss w.r.t. y_{est}
+
+    # print(np.any(gradW2 - grads['W2'] > 0))
+    # print(np.any(gradW1 - grads['W1'] > 0))
+    # print(np.any(gradb2 - grads['b2'] > 0))
+    # print(np.any(gradb1 - grads['b1'] > 0))
     ### END YOUR CODE
     
     ### Stack gradients (do not modify)
