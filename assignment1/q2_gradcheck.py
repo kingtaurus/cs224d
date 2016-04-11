@@ -23,7 +23,16 @@ def gradcheck_naive(f, x):
         ### make sure you call random.setstate(rndstate) before calling f(x) each time, this will make it 
         ### possible to test cost functions with built in randomness later
         ### YOUR CODE HERE:
-        raise NotImplementedError
+        old_xix = x[ix]
+        x[ix] += 0.5 * h
+        random.setstate(rndstate)
+        fp = f(x)[0]
+        x[ix] -= h
+        random.setstate(rndstate)
+        fm = f(x)[0]
+        x[ix] = old_xix
+
+        numgrad = (fp - fm)/h
         ### END YOUR CODE
 
         # Compare gradients
@@ -37,6 +46,44 @@ def gradcheck_naive(f, x):
         it.iternext() # Step to next dimension
 
     print("Gradient check passed!")
+
+def grad_numerical(f, x, h=1e-4):
+    """ 
+    Gradient check for a function f 
+    - f should be a function that takes a single argument and outputs the cost
+      and its gradients
+    - x is the point (numpy array) to check the gradient at
+    - h is the size of the shift for all dimensions
+    """ 
+
+    rndstate = random.getstate()
+    random.setstate(rndstate)  
+    fx, grad = f(x) # Evaluate function value at original point
+    num_grad = np.zeros(fx.shape)
+
+    # Iterate over all indexes in x
+    it = np.nditer(x, flags=['multi_index'], op_flags=['readwrite'])
+    while not it.finished:
+        ix = it.multi_index
+
+        ### try modifying x[ix] with h defined above to compute numerical gradients
+        ### make sure you call random.setstate(rndstate) before calling f(x) each time, this will make it 
+        ### possible to test cost functions with built in randomness later
+        ### YOUR CODE HERE:
+        old_xix = x[ix]
+        x[ix] += 0.5 * h
+        random.setstate(rndstate)
+        fp = f(x)[0]
+        x[ix] -= h
+        random.setstate(rndstate)
+        fm = f(x)[0]
+        x[ix] = old_xix
+
+        num_grad += (fp - fm)/h
+        ### END YOUR CODE
+        it.iternext() # Step to next dimension
+    return num_grad
+
 
 def sanity_check():
     """
@@ -59,7 +106,7 @@ def your_sanity_checks():
     """
     print("Running your sanity checks...")
     ### YOUR CODE HERE
-    raise NotImplementedError
+    #raise NotImplementedError
     ### END YOUR CODE
 
 if __name__ == "__main__":

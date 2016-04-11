@@ -6,8 +6,8 @@ from q2_sigmoid import sigmoid, sigmoid_grad
 from q2_gradcheck import gradcheck_naive
 
 def forward_backward_prop(data, labels, params, dimensions):
-    """ 
-    Forward and backward propagation for a two-layer sigmoidal network 
+    """
+    Forward and backward propagation for a two-layer sigmoidal network
     
     Compute the forward propagation and for the cross entropy cost,
     and backward propagation for the gradients for all parameters.
@@ -26,11 +26,30 @@ def forward_backward_prop(data, labels, params, dimensions):
     b2 = np.reshape(params[ofs:ofs + Dy], (1, Dy))
 
     ### YOUR CODE HERE: forward propagation
-    raise NotImplementedError
+    layer1   = np.dot(data,W1) + b1
+    layer1_a = sigmoid(layer1)
+    layer2   = np.dot(layer1_a, W2) + b2
+    layer2_a = sigmoid(layer2)
+    # need to calculate the softmax loss
+    probs = softmax(layer2_a)
+    cost  = -np.sum(np.log(probs[np.arange(Dy), labels.astype(int)] + 1e-16))/ Dy
+    dx    = probs.copy()
+    dx[np.arange(Dy), labels.astype(int)] -=1
+    dx /= Dy
+    # dx is the gradient of the loss w.r.t. y_{est}
     ### END YOUR CODE
     
     ### YOUR CODE HERE: backward propagation
-    raise NotImplementedError
+    #raise NotImplementedError
+    #There is no regularization :/
+    # dx -> sigmoid -> W2 * layer1_a + b -> sigmoid -> W1 * data + b1 -> ..
+    dlayer2   = sigmoid_grad(dx)
+    gradW2    = np.dot(layer1_a.T, dlayer2)
+    gradb2    = np.sum(dlayer2, axis=0)
+    dlayer1_a = np.dot(layer1_a, W2)
+    dlayer1   = sigmoid_grad(dlayer1_a)
+    gradW1    = np.dot(data.T, dlayer1)
+    gradb1    = np.sum(dlayer1, axis=0)
     ### END YOUR CODE
     
     ### Stack gradients (do not modify)
@@ -41,7 +60,7 @@ def forward_backward_prop(data, labels, params, dimensions):
 
 def sanity_check():
     """
-    Set up fake data and parameters for the neural network, and test using 
+    Set up fake data and parameters for the neural network, and test using
     gradcheck.
     """
     print("Running sanity check...")
@@ -59,16 +78,16 @@ def sanity_check():
     gradcheck_naive(lambda params: forward_backward_prop(data, labels, params,
         dimensions), params)
 
-def your_sanity_checks(): 
+def your_sanity_checks():
     """
     Use this space add any additional sanity checks by running:
-        python q2_neural.py 
+        python q2_neural.py
     This function will not be called by the autograder, nor will
     your additional tests be graded.
     """
     print("Running your sanity checks...")
     ### YOUR CODE HERE
-    raise NotImplementedError
+    #raise NotImplementedError
     ### END YOUR CODE
 
 if __name__ == "__main__":
