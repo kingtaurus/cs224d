@@ -1,16 +1,32 @@
 language: python
-sudo: required
 # Whitelisting master
 branches:
   only:
     - master
+git:
+  depth: 10
+virtualenv:
+    system_site_packages: true
 python:
   - "3.5"
 before_install:
- - sudo apt-get install -qq python3-numpy python3-scipy
-virtualenv:
-  system_site_packages: true
+  - echo "before_install"
+  - echo $VIRTUAL_ENV
+  - df -h
+  - date
+  - pwd
+  - uname -m
+  - python -V
+  - git --version
+  - git tag
+  - SITE_PKG_DIR=$VIRTUAL_ENV/lib/python$TRAVIS_PYTHON_VERSION/site-packages
+  - rm -f $VIRTUAL_ENV/lib/python$TRAVIS_PYTHON_VERSION/no-global-site-packages.txt
+  - apt-get build-dep -qq python3-numpy python3-scipy python3-matplotlib
 install:
+  - echo "install start"
+  - pip install seaborn
+before_script:
+  - echo "before_script"
 script:
   cd assignment1
   python -m py.test tests/
