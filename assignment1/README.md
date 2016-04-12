@@ -1,6 +1,7 @@
 [`CS224d: Deep Learning for Natural Language Processing`](http://cs224d.stanford.edu/)
 ======================================================================================
 [![Build Status](https://travis-ci.com/kingtaurus/cs224d.svg?token=S5K3fgjLh8cmmfpF6ZLy&branch=master)](https://travis-ci.com/kingtaurus/cs224d)
+
 **Due Date: 4/19/2016 (Thursday) 11:59 PM PST. Hard deadline: 4/22 (Sun) 11:59 PM PST with 3 late days**
 
 In this assignment we will familiarize you with basic concepts of neural networks, word vectors, and their application to sentiment analysis.
