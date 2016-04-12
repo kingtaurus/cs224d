@@ -1,0 +1,14 @@
+language: python
+# Whitelisting master
+branches:
+  only:
+    - master
+python:
+  - "3.4"
+  - "3.5"
+before_install:
+ - sudo apt-get install -qq python3-numpy python3-scipy
+virtualenv:
+  system_site_packages: true
+install:
+script:
