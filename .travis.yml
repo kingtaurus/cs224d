@@ -5,6 +5,7 @@ addons:
     packages:
       python3-scipy
       python3-numpy
+      python3-matplotlib
 # Whitelisting master
 branches:
   only:
@@ -21,9 +22,12 @@ before_install:
   - pwd
   - uname -m
   - python -V
+  - which python2
+  - which python3
   - git --version
   - git tag
   - pip install pytest-cov
+  - apt-cache show python3-matplotlib python3-numpy python3-scipy
 install:
   - echo "install start"
 # - wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh
