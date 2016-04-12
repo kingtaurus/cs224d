@@ -18,7 +18,7 @@ before_install:
   - python -V
   - git --version
   - git tag
-  - pip install numpy scipy matplotlib
+  - pip install wheel atlas numpy scipy matplotlib
 install:
   - echo "install start"
   - pip install seaborn
