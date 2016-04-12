@@ -1,7 +1,5 @@
 language: python
 sudo: false
-virtualenv: 
-  system_site_packages: true
 # Whitelisting master
 branches:
   only:
@@ -20,7 +18,7 @@ before_install:
   - python -V
   - git --version
   - git tag
-  - apt-get build-dep -qq python3-numpy python3-scipy python3-matplotlib
+  - pip install numpy scipy matplotlib
 install:
   - echo "install start"
   - pip install seaborn
