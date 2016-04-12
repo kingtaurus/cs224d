@@ -1,5 +1,7 @@
 language: python
 sudo: false
+virtualenv: 
+  system_site_packages: true
 # Whitelisting master
 branches:
   only:
@@ -19,10 +21,8 @@ before_install:
   - git --version
   - git tag
   - apt-get build-dep -qq python3-numpy python3-scipy python3-matplotlib
-  - virtualenv venv --system-site-packages -p `which python3`
 install:
   - echo "install start"
-  - source activate venv/bin/activate
   - pip install seaborn
 before_script:
   - echo "before_script"
