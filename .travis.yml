@@ -5,7 +5,6 @@ addons:
     packages:
       python3-scipy
       python3-numpy
-      python3-matplotlib
 # Whitelisting master
 branches:
   only:
