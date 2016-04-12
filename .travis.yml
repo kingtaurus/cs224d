@@ -34,3 +34,4 @@ before_script:
 script:
   - cd assignment1
   - python -m py.test tests/ -vv -s --durations=10
+##PYTHONPATH=assignment1 py.test --cov=assignment1 --cov-report term assignment1/tests/ -s --durations=10
