@@ -18,7 +18,8 @@ before_install:
   - python -V
   - git --version
   - git tag
-  - pip install wheel atlas numpy scipy matplotlib
+  - apt-get build-dep python3-numpy python3-scipy python3-matplotlib
+  - apt-get install python3-numpy python3-scipy python3-matplotlib
 install:
   - echo "install start"
   - pip install seaborn
