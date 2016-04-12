@@ -12,3 +12,5 @@ virtualenv:
   system_site_packages: true
 install:
 script:
+  cd assignment1
+  python -m py.test tests/
