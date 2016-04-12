@@ -2,7 +2,9 @@ language: python
 sudo: false
 addons:
   apt:
-    python3-scipy
+    packages:
+      python3-scipy
+      python3-numpy
 # Whitelisting master
 branches:
   only:
