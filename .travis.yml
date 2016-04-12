@@ -23,5 +23,5 @@ install:
 before_script:
   - echo "before_script"
 script:
-  cd assignment1
-  python -m py.test tests/
+  - cd assignment1
+  - python -m py.test tests/ -vv -s --durations=10
