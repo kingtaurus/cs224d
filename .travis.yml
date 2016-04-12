@@ -1,5 +1,6 @@
 language: python
 sudo: false
+dist: trusty
 # Whitelisting master
 branches:
   only:
@@ -18,6 +19,7 @@ before_install:
   - python -V
   - git --version
   - git tag
+  - pip install pytest-cov seaborn
 install:
   - echo "install start"
 before_script:
