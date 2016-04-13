@@ -754,15 +754,15 @@ This follows immediately from the chain rule:
 %\hat{\boldsymbol r} -> {\boldsymbol v}_{c}
 % {\boldsymbol w}^{\top}_{i} -> {\boldsymbol u}^{\top}_{0}
 % (in sum) {\boldsymbol w}^{\top}_{k} -> {\boldsymbol u}^{\top}_{k}
-\noindent Repeat part (a) and (b) assuming we are using the negative sampling loss for the predicted vector $\hat{\boldsymbol r}$, and 
-the expected output word is ${\boldsymbol w}_{i}$. Assume that $K$ negative samples are drawn, and they are ${\boldsymbol w}_{1},...,{\boldsymbol w}_{k}$, respectively for simplicity of notation ($k\in\{1,...,K\}$). Recall that the negative sampling loss function in this case is,
+\noindent Repeat part (a) and (b) assuming we are using the negative sampling loss for the predicted vector ${\boldsymbol v}_{c}$, and 
+the expected output word is ${\boldsymbol o}({\boldsymbol u}_{o})$. Assume that $K$ negative samples (words) are drawn, and they are ${\boldsymbol u}_{1},...,{\boldsymbol u}_{k}$, respectively for simplicity of notation ($k\in\{1,...,K\}$ and $o\notin\{1,...,K\}$). Again for a given word, ${\boldsymbol o}$, denote its output vector as ${\boldsymbol u}_{o}$. The negative sampling loss function in this case is,
 \begin{equation}
-J(\hat{\boldsymbol r}, {\boldsymbol w}_{i}, {\boldsymbol w}_{1..K}) = -\log(\sigma( {\boldsymbol w}^{\top}_{i}\hat{\boldsymbol r})) - \sum^{K}_{k=1}\log(\sigma(- {\boldsymbol w}^{\top}_{k}\hat{\boldsymbol r}))
+J({\boldsymbol u}_{o}, {\boldsymbol v}_{c}, {\boldsymbol U}) = -\log(\sigma( {\boldsymbol u}^{\top}_{o}{\boldsymbol v}_{c})) - \sum^{K}_{k=1}\log(\sigma(- {\boldsymbol u}^{\top}_{k}{\boldsymbol v}_{c}))
 \end{equation}
 where $\sigma(\cdot)$ is the sigmoid function.\\
 
 \noindent After you've done this, describe with one sentence why this cost function is much more efficient to
-compute than the softmax-CE (you could provide a speed-up ratio, i.e. the runtime of the softmax-CE loss divided by the
+compute than the softmax-CE loss (you could provide a speed-up ratio, i.e. the runtime of the softmax-CE loss divided by the
 runtime of the negative sampling loss).\\
 
 \noindent {\bf Note}: the cost function here is the negative of what Mikolov \textit{et. al.} had in their original paper,
@@ -781,14 +781,14 @@ If $i \in \{1,...,K\}$ then we need to take the derivative of the second term. I
                                               =&  \frac{\sigma(-z_{i})(1 - \sigma(-z_{i}))}{\sigma(-z_{i})} \\
                                               =& 1 - \sigma(-z_{i}) = \sigma(z_{i})
 \end{align}
-Which yields the following, where $j\in{1,...,K}$,
+Which yields the following, where $j\in{{\boldsymbol o},1,...,K}$,
 \begin{equation*}
 \frac{\partial{J}}{\partial{z_{i}}} = \sigma(z_{i}) - \delta^{i}_{j}
 \end{equation*}
 
 \begin{align}
-\frac{\partial J}{\partial{\boldsymbol w}_{i}} &= (\sigma(z_{i}) - \delta^{i}_{j})\hat{\boldsymbol r}\\
-\frac{\partial J}{\partial\hat{\boldsymbol r}}  &= (\sigma(z_{i}) - \delta^{i}_{j}){\boldsymbol w}_{i}
+\frac{\partial J}{\partial{\boldsymbol u}_{j}} &= (\sigma(z_{j}) - \delta^{j}_{o}){\boldsymbol v}_{c}\\
+\frac{\partial J}{\partial{\boldsymbol v}_{c}}  &= (\sigma(z_{j}) - \delta^{j}_{o}){\boldsymbol u}_{j}
 \end{align}
 
 \clearpage
@@ -796,40 +796,60 @@ Which yields the following, where $j\in{1,...,K}$,
 %TODO FIX this 
 \bigskip
 \noindent Derive the gradients for all of the word vectors for \texttt{skip-gram} and \texttt{CBOW} (optional)
-given a set of context words [$\texttt{word}_{i-\textbf{c}},...,\texttt{word}_{i-\textbf{1}},\texttt{word}_{i},\texttt{word}_{i+\textbf{1}},...,\texttt{word}_{i+\textbf{c}}$ ], where \textbf{c} is the context size. You can denote 
-the `input' and `output' word vectors for $\texttt{word}_{k}$ as ${\boldsymbol v}_{w_{k}}$ and ${\boldsymbol v}^{\prime}_{w_{k}}$ respectively for
+given a set of context words [$\texttt{word}_{c-\textbf{m}},...,\texttt{word}_{c-\textbf{1}},\texttt{word}_{c},\texttt{word}_{c+\textbf{1}},...,\texttt{word}_{c+\textbf{m}}$ ], where \textbf{m} is the context size. You can denote 
+the `input' and `output' word vectors for $\texttt{word}_{k}$ as ${\boldsymbol v}_{k}$ and ${\boldsymbol u}_{k}$ respectively for
 convenience. \\
 
-{\bf Hint}: feel free to use $F({\boldsymbol v}_{w_{0}}\vert\hat{\boldsymbol r})$ as a placeholder for softmax-CE or negative sampling in this part - you'll
-see that this is a useful abstraction for the coding part.\\
+\noindent {\bf Hint}: feel free to use $F({\boldsymbol o}\vert {\boldsymbol v}_{c})$ (where ${\boldsymbol o}$ is the expected word) as a placeholder for $J_{\texttt{softmax-CE}}({\boldsymbol o}, {\boldsymbol v}_{c}, ...)$ or $J_{\texttt{neg-sampling}}({\boldsymbol o}, {\boldsymbol v}_{c}, ...)$ cost functions in this part --- you'll see that this is a useful abstraction for the coding part. That is, your solution may contain terms of the form $\frac{\partial{F_{i}}}{\partial\lambda}$.\\
 
-{\bf Recall}: that for a \texttt{skip-gram}, the cost for a context is:
+\noindent Recall that for \texttt{skip-gram}, the cost for a context centered around $c$ is
 \begin{equation}
-J_{\texttt{skip-gram}}(\texttt{word}_{i-\textbf{c}},...,\texttt{word}_{i+\textbf{c}}) = \sum_{-c\leq j\leq c, j\neq 0} F({\boldsymbol v}^{\prime}_{w_{i+j}}\vert{\boldsymbol v}_{w_{i}})
+J_{\texttt{skip-gram}}
 \end{equation}
-For a simpler variant of \texttt{CBOW}, we sum up the input word vectors in the context,
+where ${\boldsymbol w}_{c+j}$ refers to the word at the $j$-th index from the center.\\
+
+\noindent \texttt{CBOW} is slighltly different. Instead of using ${\boldsymbol v}_{c}$ as the prediction vector, we use $\hat{\boldsymbol v}$ defined below. For (a simpler variant of) \texttt{CBOW}, we sum up the input word vectors in the context:\\
 \begin{equation}
-\hat{\boldsymbol r} = \sum_{-c\leq j\leq c, j\neq 0} {\boldsymbol v}_{w_{i+j}}\label{eq:3d r def}
-\end{equation}\vspace{5mm}
+\hat{\boldsymbol v} = \sum_{-m\le j\le m, j\neq0}{\boldsymbol v}_{c+j}
+\end{equation}
+then the \texttt{CBOW} cost is 
+\begin{equation}
+J_{\texttt{CBOW}}
+\end{equation}
+\noindent\textbf{Note}: To be consistent with the $\hat{\boldsymbol v}$ notation such as for the code portion, for \texttt{skip-gram} $\hat{\boldsymbol v} = {\boldsymbol v_{c}}$
+
+%for softmax-CE or negative sampling in this part - you'll
+%see that this is a useful abstraction for the coding part.\\
+%
+%{\bf Recall}: that for a \texttt{skip-gram}, the cost for a context is:
+%\begin{equation}
+%J_{\texttt{skip-gram}}(\texttt{word}_{i-\textbf{c}},...,\texttt{word}_{i+\textbf{c}}) = \sum_{-c\leq j\leq c, j\neq 0} F({\boldsymbol v}^{\prime}_{w_{i+j}}\vert{\boldsymbol v}_{w_{i}})
+%\end{equation}
+%For a simpler variant of \texttt{CBOW}, we sum up the input word vectors in the context,
+%\begin{equation}
+%\hat{\boldsymbol r} = \sum_{-c\leq j\leq c, j\neq 0} {\boldsymbol v}_{w_{i+j}}\label{eq:3d r def}
+%\end{equation}
+
+\vspace{5mm}
 
 \noindent\rule{\textwidth}{0.4pt}\vspace{5mm}
-The \texttt{skip-gram} model involves summing over context (and treating each word as having a conditional probability). This yields
-\begin{equation*}
-\frac{\partial{J}}{\partial{{\boldsymbol v}_{w_{i}}}} = \frac{\partial}{\partial{{\boldsymbol v}_{w_{i}}}} \sum_{-c\leq j\leq c, j\neq 0} F({\boldsymbol v}^{\prime}_{w_{k+j}}\vert{\boldsymbol v}_{w_{k}}) = 
-\begin{cases}
- \sum\frac{\partial F({\boldsymbol v}^{\prime}_{w_{j}}\vert{\boldsymbol v}_{w_{i}})}{\partial{{\boldsymbol v}_{w_{i}}}}\\
- \frac{\partial F({\boldsymbol v}^{\prime}_{w_{k}}\vert{\boldsymbol v}_{w_{i}})}{\partial{{\boldsymbol v}_{w_{k}}}}
-\end{cases}
-\end{equation*}
-Whereas in the \texttt{CBOW} model, the summing over context is handled internally to the probability model (in other words, the context vector is represented by the sum of the word vectors and the conditional probability is with respect to this sum). This means that cost, $J$, is represented as (with $\hat{\boldsymbol r}$ defined by Equation~\ref{eq:3d r def}),
-\begin{equation}
-J_{\texttt{CBOW}} =  F({\boldsymbol v}^{\prime}_{w_{i+j}}\vert\hat{\boldsymbol r})
-\end{equation}
-
-\begin{align}
-\frac{\partial J_{\texttt{CBOW}}}{\partial{\boldsymbol v}_{w_{k}}} &= \\
-\frac{\partial J_{\texttt{CBOW}}}{\partial\hat{\boldsymbol r}}         &=
-\end{align}
+%The \texttt{skip-gram} model involves summing over context (and treating each word as having a conditional probability). This yields
+%\begin{equation*}
+%\frac{\partial{J}}{\partial{{\boldsymbol v}_{w_{i}}}} = \frac{\partial}{\partial{{\boldsymbol v}_{w_{i}}}} \sum_{-c\leq j\leq c, j\neq 0} F({\boldsymbol v}^{\prime}_{w_{k+j}}\vert{\boldsymbol v}_{w_{k}}) = 
+%\begin{cases}
+% \sum\frac{\partial F({\boldsymbol v}^{\prime}_{w_{j}}\vert{\boldsymbol v}_{w_{i}})}{\partial{{\boldsymbol v}_{w_{i}}}}\\
+% \frac{\partial F({\boldsymbol v}^{\prime}_{w_{k}}\vert{\boldsymbol v}_{w_{i}})}{\partial{{\boldsymbol v}_{w_{k}}}}
+%\end{cases}
+%\end{equation*}
+%Whereas in the \texttt{CBOW} model, the summing over context is handled internally to the probability model (in other words, the context vector is represented by the sum of the word vectors and the conditional probability is with respect to this sum). This means that cost, $J$, is represented as (with $\hat{\boldsymbol r}$ defined by Equation~\ref{eq:3d r def}),
+%\begin{equation}
+%J_{\texttt{CBOW}} =  F({\boldsymbol v}^{\prime}_{w_{i+j}}\vert\hat{\boldsymbol r})
+%\end{equation}
+%
+%\begin{align}
+%\frac{\partial J_{\texttt{CBOW}}}{\partial{\boldsymbol v}_{w_{k}}} &= \\
+%\frac{\partial J_{\texttt{CBOW}}}{\partial\hat{\boldsymbol r}}         &=
+%\end{align}
 
 \clearpage
 \myhwtitle{1}{3(e)}{Gregory King}

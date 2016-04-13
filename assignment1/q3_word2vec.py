@@ -10,11 +10,25 @@ def normalizeRows(x):
     # Implement a function that normalizes each row of a matrix to have unit length
     
     ### YOUR CODE HERE
-    # from sklearn.preprocessing import normalize
-    #normalize(matrix, axis=1, norm='l1')
-    x /= x.sum(axis=1,keepdims=True)
+    y = np.linalg.norm(x,axis=1,keepdims=True)
+    x /= y
     ### END YOUR CODE
-    
+    return x
+
+def l1_normalize_rows(x):
+    """ l1 row normalization function """
+    y = None
+
+    y = np.sum(x,axis=1,keepdims=True)
+    x /= y
+    return x
+
+def l2_normalize_rows(x):
+    """ l1 row normalization function """
+    y = None
+
+    y = np.linalg.norm(x,axis=1,keepdims=True)
+    x /= y
     return x
 
 def test_normalize_rows():
