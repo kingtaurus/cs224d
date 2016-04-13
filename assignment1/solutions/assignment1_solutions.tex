@@ -558,9 +558,7 @@ def sigmoid(x):
     """
     Compute the sigmoid function for the input here.
     """
-    
     x = 1 / (1 + np.exp(-x))
-    
     return x
 
 def sigmoid_grad(f):
@@ -569,9 +567,7 @@ def sigmoid_grad(f):
     for this implementation, the input f should be the sigmoid
     function value of your original input x. 
     """
-    
     f *= (1-f)
-    
     return f
 \end{python}
 \clearpage
@@ -580,18 +576,51 @@ def sigmoid_grad(f):
 \noindent To make debugging easier, we will now implement a gradient checker. Fill in the implementation
 for \texttt{gradcheck\_naive} in \texttt{q2\_gradcheck.py}. Test your code using python \texttt{q2\_gradcheck.py}\vspace{5mm}
 
-\noindent\rule{\textwidth}{0.4pt}\vspace{5mm}
+\noindent\rule{\textwidth}{0.4pt}
 \begin{python}
 import numpy as np
+import random
 
-def sigmoid(x):
-    """
-    Compute the sigmoid function for the input here.
-    """
+def gradcheck_naive(f, x):
+    """ 
+    Gradient check for a function f 
+    - f should be a function that takes a single argument and
+      outputs the cost and its gradients
+    - x is the point (numpy array) to check the gradient at
+    """ 
+    rndstate = random.getstate()
+    random.setstate(rndstate)  
+    fx, grad = f(x) # Evaluate function value at original point
+    h = 1e-4
+
+    # Iterate over all indexes in x
+    it = np.nditer(x, flags=['multi_index'], op_flags=['readwrite'])
+    while not it.finished:
+        ix = it.multi_index
+        ### YOUR CODE HERE:
+        old_xix = x[ix]
+        x[ix] = old_xix + h
+        random.setstate(rndstate)
+        fp = f(x)[0]
+        x[ix] = old_xix - h
+        random.setstate(rndstate)
+        fm = f(x)[0]
+        x[ix] = old_xix
+
+        numgrad = (fp - fm)/(2* h)
+        ### END YOUR CODE
+
+        # Compare gradients
+        reldiff = abs(numgrad - grad[ix]) / max(1, abs(numgrad), abs(grad[ix]))
+        if reldiff > 1e-5:
+            print("Gradient check failed.")
+            print("First gradient error found at index %s" % str(ix))
+            print("Your gradient: %f \t Numerical gradient: %f" % (grad[ix], numgrad))
+            return
     
-    x = 1 / (1 + np.exp(-x))
-    
-    return x
+        it.iternext() # Step to next dimension
+
+    print("Gradient check passed!")
 \end{python}
 \clearpage
 \myhwtitle{1}{2(g)}{Gregory King}
@@ -885,3 +914,4 @@ which are represented by 0 to 4 in the code, respectively. For this part, you wi
 %%%% End solution and document %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \end{document}
 
+33
