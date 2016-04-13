@@ -5,6 +5,9 @@ addons:
     packages:
       python3-scipy
       python3-numpy
+      python3-pip
+      libatlas-dev
+      libatlas3gf-base
 # Whitelisting master
 branches:
   only:
@@ -25,7 +28,7 @@ before_install:
   - which python3
   - git --version
   - git tag
-  - pip install pytest-cov pylint
+  - pip install pytest-cov pylint sklearn
   - apt-cache show python3-numpy python3-scipy
 install:
   - echo "install start"
