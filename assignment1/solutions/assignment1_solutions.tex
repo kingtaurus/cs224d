@@ -312,7 +312,7 @@ Write your implementation in \texttt{q1\_softmax.py}. You may test by executing 
 important to have a correct implementation. Your implementation should also be efficient and vectorized
 whenever possible. A non-vectorized implementation will not receive full credit!\vspace{5mm}
 
-\noindent\rule{\textwidth}{0.4pt}\vspace{5mm}
+\noindent\rule{\textwidth}{0.4pt}
 \begin{python}
 import numpy as np
 
@@ -527,7 +527,7 @@ Finally, using the results from Equation~\ref{eq: 2c 1} (but for the first layer
 \noindent How many parameters are there in this neural network, assuming the input is $\textrm{D}_{x}$-dimensional,
 the output is $\textrm{D}_{y}$-dimensional, and there are H hidden units?\vspace{5mm}
 
-\noindent\rule{\textwidth}{0.4pt}\vspace{5mm}
+\noindent\rule{\textwidth}{0.4pt}
 
 \noindent $\bf{\textrm{W}}_{1}$ must have dimensions:  $\textrm{D}_{x}\times\textrm{H}$. The bias ($\bf{b}_{1}$) for the first layer must have
 dimensions $\textrm{H}$. Adding these two together, yields $(\textrm{D}_{x} + 1)\times\textrm{H}$. Proceeding to the second layer,
@@ -550,7 +550,7 @@ weights, for each input vector of dimensions $\textrm{D}_{x}$.
 Test your implementation using python \texttt{q2\_sigmoid.py}. \textbf{Note:} Again, thoroughly test your code as the provided
 tests may not be exhaustive.\vspace{5mm}
 
-\noindent\rule{\textwidth}{0.4pt}\vspace{5mm}
+\noindent\rule{\textwidth}{0.4pt}
 \begin{python}
 import numpy as np
 
@@ -628,7 +628,7 @@ def gradcheck_naive(f, x):
 \noindent  Now, implement the forward and backward passes for a neural network with one sigmoid
 hidden layer. Fill in your implementation in \texttt{q2\_neural.py}. Sanity check your implementation with
 \texttt{q2\_neural.py}. \\
-\noindent\rule{\textwidth}{0.4pt}\vspace{5mm}
+\noindent\rule{\textwidth}{0.4pt}
 \begin{python}
 import numpy as np
 
@@ -724,9 +724,9 @@ Let $z_{j}={\boldsymbol u}_{j}^{\top}{\boldsymbol v}_{c}$, and $\delta^{i}_{j}$ 
 \end{equation}
 Now, using the chain rule, we can calculate,
 \begin{align}
-\frac{\partial J}{\partial{{\boldsymbol v}_{c}}} =&\frac{\partial J}{\partial{{\boldsymbol z}}}\frac{\partial{{\boldsymbol z}}}{\partial{{\boldsymbol v}_{c}}} \\
+\frac{\partial J}{\partial{{\boldsymbol v}_{c}}} =& \frac{\partial J}{\partial{{\boldsymbol z}}}\frac{\partial{{\boldsymbol z}}}{\partial{{\boldsymbol v}_{c}}} \\
                                                                     =& \sum^{\vert{V}\vert}_{j=1}{\boldsymbol u}_{j}^{\top}\left(\frac{e^{z_{j}}}{\sum^{\vert{V}\vert}_{k=1}e^{z_{k}}} -  1\right) \\
-                                                                    =&\sum^{\vert{V}\vert}_{k=1}{\boldsymbol P}({\boldsymbol u}_{j} \vert {\boldsymbol v}_{c} ){\boldsymbol u}_{j} - {\boldsymbol u}_{j}
+                                                                    =& \sum^{\vert{V}\vert}_{k=1}{\boldsymbol P}({\boldsymbol u}_{j} \vert {\boldsymbol v}_{c} ){\boldsymbol u}_{j} - {\boldsymbol u}_{j}
 \end{align}
 
 \clearpage
@@ -735,22 +735,29 @@ Now, using the chain rule, we can calculate,
 
 \bigskip
 \noindent As in the previous problem, derive gradients for the `output' word vectors ${\boldsymbol u}_{w}$'s (including ${\boldsymbol u}_{o}$)\vspace{5mm}
-%TODO FIX this 
+%TODO
+%\hat{\boldsymbol r} -> {\boldsymbol v}_{c}
+% {\boldsymbol w}^{\top}_{i} -> {\boldsymbol u}^{\top}_{0}
+% (in sum) {\boldsymbol w}^{\top}_{k} -> {\boldsymbol u}^{\top}_{k}
+% {\boldsymbol w}_{j} -> {\boldsymbol u}_{j}
 \noindent\rule{\textwidth}{0.4pt}\vspace{5mm}
 This follows immediately from the chain rule:
 \begin{align}
-\frac{\partial J}{\partial{\boldsymbol w}_{j}} = &\frac{\partial J}{\partial{{\boldsymbol z}}}\frac{\partial{{\boldsymbol z}}}{\partial{\boldsymbol w}_{j}} \\
-                                                                  = & \hat{\boldsymbol r}\left(\frac{\exp{({\boldsymbol w}^{\top}_{i}\hat{\boldsymbol r})}}{\sum^{\vert{V}\vert}_{j=1}\exp{({\boldsymbol w}^{\top}_{j}\hat{\boldsymbol r})}} - \delta^{i}_{j}\right)
+\frac{\partial J}{\partial{\boldsymbol u}_{j}} = &\frac{\partial J}{\partial{{\boldsymbol z}}}\frac{\partial{{\boldsymbol z}}}{\partial{\boldsymbol u}_{j}} \\
+                                                                  = &{\boldsymbol v}_{c}\left(\frac{\exp{({\boldsymbol u}^{\top}_{0}{\boldsymbol v}_{c})}}{\sum^{\vert{V}\vert}_{j=1}\exp{({\boldsymbol u}^{\top}_{j}{\boldsymbol v}_{c})}} - \delta^{0}_{j}\right)
 \end{align}
 \clearpage
 
 \myhwtitle{1}{3(c)}{Gregory King}
 \bigskip
-%TODO FIX this 
+%TODO
+%\hat{\boldsymbol r} -> {\boldsymbol v}_{c}
+% {\boldsymbol w}^{\top}_{i} -> {\boldsymbol u}^{\top}_{0}
+% (in sum) {\boldsymbol w}^{\top}_{k} -> {\boldsymbol u}^{\top}_{k}
 \noindent Repeat part (a) and (b) assuming we are using the negative sampling loss for the predicted vector $\hat{\boldsymbol r}$, and 
 the expected output word is ${\boldsymbol w}_{i}$. Assume that $K$ negative samples are drawn, and they are ${\boldsymbol w}_{1},...,{\boldsymbol w}_{k}$, respectively for simplicity of notation ($k\in\{1,...,K\}$). Recall that the negative sampling loss function in this case is,
 \begin{equation}
-J(\hat{\boldsymbol r}, {\boldsymbol w}_{i}, {\boldsymbol w}_{1..K}) = -\log(\sigma( {\boldsymbol w}^{\top}_{i}\hat{\boldsymbol r})) - \sum^{K}_{k=1}\log(\sigma(- {\boldsymbol w}^{\top}_{i}\hat{\boldsymbol r}))
+J(\hat{\boldsymbol r}, {\boldsymbol w}_{i}, {\boldsymbol w}_{1..K}) = -\log(\sigma( {\boldsymbol w}^{\top}_{i}\hat{\boldsymbol r})) - \sum^{K}_{k=1}\log(\sigma(- {\boldsymbol w}^{\top}_{k}\hat{\boldsymbol r}))
 \end{equation}
 where $\sigma(\cdot)$ is the sigmoid function.\\
 
