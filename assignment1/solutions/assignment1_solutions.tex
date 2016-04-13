@@ -800,11 +800,11 @@ given a set of context words [$\texttt{word}_{c-\textbf{m}},...,\texttt{word}_{c
 the `input' and `output' word vectors for $\texttt{word}_{k}$ as ${\boldsymbol v}_{k}$ and ${\boldsymbol u}_{k}$ respectively for
 convenience. \\
 
-\noindent {\bf Hint}: feel free to use $F({\boldsymbol o}\vert {\boldsymbol v}_{c})$ (where ${\boldsymbol o}$ is the expected word) as a placeholder for $J_{\texttt{softmax-CE}}({\boldsymbol o}, {\boldsymbol v}_{c}, ...)$ or $J_{\texttt{neg-sampling}}({\boldsymbol o}, {\boldsymbol v}_{c}, ...)$ cost functions in this part --- you'll see that this is a useful abstraction for the coding part. That is, your solution may contain terms of the form $\frac{\partial{F_{i}}}{\partial\lambda}$.\\
+\noindent {\bf Hint}: feel free to use $F({\boldsymbol o}, {\boldsymbol v}_{c})$ (where ${\boldsymbol o}$ is the expected word) as a placeholder for $J_{\texttt{softmax-CE}}({\boldsymbol o}, {\boldsymbol v}_{c}, ...)$ or $J_{\texttt{neg-sampling}}({\boldsymbol o}, {\boldsymbol v}_{c}, ...)$ cost functions in this part --- you'll see that this is a useful abstraction for the coding part. That is, your solution may contain terms of the form $\frac{\partial{F_{i}({\boldsymbol o}, {\boldsymbol v}_{c})}}{\partial\lambda}$.\\
 
 \noindent Recall that for \texttt{skip-gram}, the cost for a context centered around $c$ is
 \begin{equation}
-J_{\texttt{skip-gram}}
+J_{\texttt{skip-gram}} =   \sum_{-m\le j\le m, j\neq0}F({\boldsymbol w}_{c+j}, {\boldsymbol v}_{c})
 \end{equation}
 where ${\boldsymbol w}_{c+j}$ refers to the word at the $j$-th index from the center.\\
 
@@ -814,7 +814,7 @@ where ${\boldsymbol w}_{c+j}$ refers to the word at the $j$-th index from the ce
 \end{equation}
 then the \texttt{CBOW} cost is 
 \begin{equation}
-J_{\texttt{CBOW}}
+J_{\texttt{CBOW}}(\texttt{word}_{c-\textbf{m}} ,...,\texttt{word}_{c+\textbf{m}}) = F({\boldsymbol w}_{c}, \hat{\boldsymbol v})
 \end{equation}
 \noindent\textbf{Note}: To be consistent with the $\hat{\boldsymbol v}$ notation such as for the code portion, for \texttt{skip-gram} $\hat{\boldsymbol v} = {\boldsymbol v_{c}}$
 
@@ -863,6 +863,29 @@ so that your tests will complete.\vspace{5mm}
 \noindent\rule{\textwidth}{0.4pt}\vspace{5mm}
 \begin{python}
 import numpy as np
+import random
+
+from q1_softmax import softmax
+from q2_gradcheck import gradcheck_naive
+from q2_sigmoid import sigmoid, sigmoid_grad
+
+def l2_normalize_rows(x):
+    """ l1 row normalization function """
+    y = None
+
+    y = np.linalg.norm(x,axis=1,keepdims=True)
+    x /= y
+    return x
+
+def normalizeRows(x):
+    """ Row normalization function """
+    # Implement a function that normalizes each row of a matrix to have unit length
+    
+    ### YOUR CODE HERE
+    y = np.linalg.norm(x,axis=1,keepdims=True)
+    x /= y
+    ### END YOUR CODE
+    return x
 \end{python}
 \clearpage
 \myhwtitle{1}{3(f)}{Gregory King}
