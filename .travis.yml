@@ -28,7 +28,7 @@ before_install:
   - which python3
   - git --version
   - git tag
-  - pip install pytest-cov pylint sklearn
+  - pip install pytest-cov pylint scipy numpy sklearn
   - apt-cache show python3-numpy python3-scipy
 install:
   - echo "install start"
