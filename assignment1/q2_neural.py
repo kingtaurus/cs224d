@@ -79,7 +79,7 @@ def sigmoid_backward(dout, cache):
             to the sigmoid layer (x)
     - cache: sigmoid(x)
     Returns a tuple of:
-    - dx: Gradient with respect to x, of the same shape as x
+    - dx: back propagated gradient with respect to x
     """
     x = cache
     return sigmoid_grad(x) * dout
