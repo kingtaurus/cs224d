@@ -6,30 +6,81 @@ from q2_sigmoid import sigmoid, sigmoid_grad
 from q2_gradcheck import gradcheck_naive
 
 def affine_forward(x, w, b):
+    """
+    Computes the forward pass for an affine (fully-connected) layer.
+
+    The input x has shape (N, d_1, ..., d_k) and contains a minibatch of N
+    examples, where each example x[i] has shape (d_1, ..., d_k). We will
+    reshape each input into a vector of dimension D = d_1 * ... * d_k, and
+    then transform it to an output vector of dimension M.
+
+    Inputs:
+    - x: A numpy array containing input data, of shape (N, d_1, ..., d_k)
+    - w: A numpy array of weights, of shape (D, M)
+    - b: A numpy array of biases, of shape (M,)
+
+    Returns a tuple of:
+    - out: output, of shape (N, M)
+    - cache: (x, w, b)
+    """
     out = None
     N   = x.shape[0]
     D   = np.prod(x.shape[1:])
     M   = b.shape[1]
-    out = np.dot(x.reshape(N,D), w.reshape(D,M)) + b.reshape(1,M)
+    out = np.dot(x.reshape(N, D), w.reshape(D, M)) + b.reshape(1, M)
     return out, (x,w,b)
 
 def affine_backward(dout, cache):
+    """
+    Computes the backward pass for an affine layer.
+
+    Inputs:
+    - dout: Upstream derivative, of shape (N, M)
+    - cache: Tuple of:
+    - x: Input data, of shape (N, d_1, ... d_k)
+    - w: Weights, of shape (D, M)
+
+    Returns a tuple of:
+    - dx: Gradient with respect to x, of shape (N, d1, ..., d_k)
+    - dw: Gradient with respect to w, of shape (D, M)
+    - db: Gradient with respect to b, of shape (M,)
+    """
     x, w, b = cache
     dx, dw, db = None, None, None
     N   = x.shape[0]
     D   = np.prod(x.shape[1:])
     M   = b.shape[1]
 
-    dx = np.dot(dout, w.reshape(D,M).T).reshape(x.shape)
-    dw = np.dot( x.reshape(N,D).T, dout).reshape(w.shape)
+    dx = np.dot(dout, w.reshape(D, M).T).reshape(x.shape)
+    dw = np.dot(x.reshape(N, D).T, dout).reshape(w.shape)
     db = np.sum(dout, axis=0)
 
     return dx, dw, db
 
 def sigmoid_forward(x):
+    """
+    Computes the forward pass for a sigmoid activation.
+
+    Inputs:
+    - x: Input data, numpy array of arbitary shape;
+
+    Returns a tuple (out, cache)
+    - out: output of the same shape as x
+    - cache: identical to out; required for backpropagation
+    """
     return sigmoid(x), sigmoid(x)
 
 def sigmoid_backward(dout, cache):
+    """
+    Computes the backward pass for an sigmoid layer.
+
+    Inputs:
+    - dout: Upstream derivative, same shape as the input
+            to the sigmoid layer (x)
+    - cache: sigmoid(x)
+    Returns a tuple of:
+    - dx: Gradient with respect to x, of the same shape as x
+    """
     x = cache
     return sigmoid_grad(x) * dout
 
@@ -107,7 +158,7 @@ def forward_backward_prop(data, labels, params, dimensions):
     ### END YOUR CODE
     
     ### Stack gradients (do not modify)
-    grad = np.concatenate((gradW1.flatten(), gradb1.flatten(), 
+    grad = np.concatenate((gradW1.flatten(), gradb1.flatten(),
         gradW2.flatten(), gradb2.flatten()))
     
     return cost, grad

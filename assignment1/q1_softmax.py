@@ -1,5 +1,7 @@
+"""Solution to the coding part for question (1) of CS224D.
+"""
+
 import numpy as np
-import random
 
 def softmax(x):
     """
@@ -16,36 +18,34 @@ def softmax(x):
     dimensional inputs (treat the vector as a row), you might find
     it helpful for your later problems.
 
-    You must implement the optimization in problem 1(a) of the 
+    You must implement the optimization in problem 1(a) of the
     written assignment!
     """
-
     ### YOUR CODE HERE
-    c = np.max(x, axis=x.ndim - 1, keepdims=True)
+    log_c = np.max(x, axis=x.ndim - 1, keepdims=True)
     #for numerical stability
-    y = np.sum(np.exp(x - c), axis=x.ndim - 1, keepdims=True)
-    x = np.exp(x - c)/y
+    y = np.sum(np.exp(x - log_c), axis=x.ndim - 1, keepdims=True)
+    x = np.exp(x - log_c)/y
     ### END YOUR CODE
-    
     return x
 
 def test_softmax_basic():
     """
-    Some simple tests to get you started. 
+    Some simple tests to get you started.
     Warning: these are not exhaustive.
     """
     print("Running basic tests...")
-    test1 = softmax(np.array([1,2]))
+    test1 = softmax(np.array([1, 2]))
     print(test1)
     assert np.amax(np.fabs(test1 - np.array(
-        [0.26894142,  0.73105858]))) <= 1e-6
+        [0.26894142, 0.73105858]))) <= 1e-6
 
-    test2 = softmax(np.array([[1001,1002],[3,4]]))
+    test2 = softmax(np.array([[1001, 1002], [3, 4]]))
     print(test2)
     assert np.amax(np.fabs(test2 - np.array(
         [[0.26894142, 0.73105858], [0.26894142, 0.73105858]]))) <= 1e-6
 
-    test3 = softmax(np.array([[-1001,-1002]]))
+    test3 = softmax(np.array([[-1001, -1002]]))
     print(test3)
     assert np.amax(np.fabs(test3 - np.array(
         [0.73105858, 0.26894142]))) <= 1e-6
@@ -53,16 +53,15 @@ def test_softmax_basic():
     print("You should verify these results!\n")
 
 def test_softmax():
-    """ 
+    """
     Use this space to test your softmax implementation by running:
-        python q1_softmax.py 
+        python q1_softmax.py
     This function will not be called by the autograder, nor will
     your tests be graded.
     """
     print("Running your tests...")
     ### YOUR CODE HERE
-    
-    ### END YOUR CODE  
+    ### END YOUR CODE
 
 if __name__ == "__main__":
     test_softmax_basic()
