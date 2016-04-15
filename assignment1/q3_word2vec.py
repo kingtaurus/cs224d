@@ -151,6 +151,13 @@ def skipgram(currentWord, C, contextWords, tokens, inputVectors, outputVectors,
 
     c_idx = tokens[currentWord]
     predicted = inputVectors[c_idx, :]
+
+    #__TODO__: this can be switched to vectorized;
+    # target (need to know shape; think its just a number)
+    # hence target = np.zeros(len(contextWords))?
+    # target = tokens
+    # can add a newaxis(?) to allow for broadcasting
+
     for j in contextWords:
         target = tokens[j]
         c_cost, c_gradPred, c_grad = word2vecCostAndGradient(predicted, target, outputVectors, dataset)
