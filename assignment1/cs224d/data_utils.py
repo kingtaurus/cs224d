@@ -60,6 +60,7 @@ class StanfordSentiment:
 
                 splitted = line.strip().split()[1:]
                 # Deal with some peculiar encoding issues with this file
+                #sentences += [[w.lower().encode('latin1','replace').encode('utf-8') for w in splitted]]
                 sentences += [[w.lower().encode('latin1','replace') for w in splitted]]
                 
         self._sentences = sentences
