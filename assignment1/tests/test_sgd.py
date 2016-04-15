@@ -27,20 +27,16 @@ def rel_error(x,y):
 def quad():
 	return lambda x: (np.sum(x**2), x * 2)
 
-def test_sgd(quad):
+def test_sgd_1(quad):
     """ Original normalization test defined in q3_word2vec.py; """
-    
-    print("Running sanity checks...")
-    t1 = sgd(quad, 0.5, 0.01, 1000, PRINT_EVERY=100)
-    print("test 1 result:", t1)
+
+    t1 = sgd(quad, 0.5, 0.01, 1000, PRINT_EVERY=None)
     assert abs(t1) <= 1e-6
 
-    t2 = sgd(quad, 0.0, 0.01, 1000, PRINT_EVERY=100)
-    print("test 2 result:", t2)
+def test_sgd_2(quad):
+    t2 = sgd(quad, 0.0, 0.01, 1000, PRINT_EVERY=None)
     assert abs(t2) <= 1e-6
 
-    t3 = sgd(quad, -1.5, 0.01, 1000, PRINT_EVERY=100)
-    print("test 3 result:", t3)
+def test_sgd_3(quad):
+    t3 = sgd(quad, -1.5, 0.01, 1000, PRINT_EVERY=None)
     assert abs(t3) <= 1e-6
-    
-    print("")
