@@ -226,20 +226,21 @@ def cbow(currentWord, C, contextWords, tokens, inputVectors, outputVectors,
     gradIn  = np.zeros_like(inputVectors)
     gradOut = np.zeros_like(outputVectors)
     ### YOUR CODE HERE
-    # c_idx     = tokens[currentWord]
-    # onehot    = np.zeros((2*C, len(tokens)))
+    c_idx     = tokens[currentWord]
+    onehot    = np.zeros((2*C, len(tokens)))
 
-    # for i, word in enumerate(contextWords):
-    #     onehot[i, tokens[word]] = 1.
+    for i, word in enumerate(contextWords):
+        onehot[i, tokens[word]] += 1.
 
-    # d = np.dot(onehot, inputVectors)
-    # predicted = 0.5 / C * np.sum(d, axis=0)
+    # print(onehot)
+    d = np.dot(onehot, inputVectors)
+    predicted = 0.5 / C * np.sum(d, axis=0)
 
-    # cost, gradPred, gradOut = word2vecCostAndGradient(predicted, c_idx, outputVectors, dataset)
+    cost, gradPred, gradOut = word2vecCostAndGradient(predicted, c_idx, outputVectors, dataset)
 
-    # gradIn = np.zeros(inputVectors.shape)
-    # for word in contextWords:
-    #     gradIn[tokens[word]] += 0.5 / C * gradPred[0]
+    gradIn = np.zeros(inputVectors.shape)
+    for word in contextWords:
+        gradIn[tokens[word]] += 0.5 / C * gradPred
     ### END YOUR CODE
     
     return cost, gradIn, gradOut
@@ -292,14 +293,14 @@ def test_word2vec():
     gradcheck_naive(lambda vec: word2vec_sgd_wrapper(skipgram, dummy_tokens, vec, dataset, 5), dummy_vectors)
     gradcheck_naive(lambda vec: word2vec_sgd_wrapper(skipgram, dummy_tokens, vec, dataset, 5, negSamplingCostAndGradient), dummy_vectors)
     print("\n==== Gradient check for CBOW      ====")
-    #gradcheck_naive(lambda vec: word2vec_sgd_wrapper(cbow, dummy_tokens, vec, dataset, 5), dummy_vectors)
-    #gradcheck_naive(lambda vec: word2vec_sgd_wrapper(cbow, dummy_tokens, vec, dataset, 5, negSamplingCostAndGradient), dummy_vectors)
+    gradcheck_naive(lambda vec: word2vec_sgd_wrapper(cbow, dummy_tokens, vec, dataset, 5), dummy_vectors)
+    gradcheck_naive(lambda vec: word2vec_sgd_wrapper(cbow, dummy_tokens, vec, dataset, 5, negSamplingCostAndGradient), dummy_vectors)
 
     print("\n=== Results ===")
     print(skipgram("c", 3, ["a", "b", "e", "d", "b", "c"], dummy_tokens, dummy_vectors[:5,:], dummy_vectors[5:,:], dataset))
     print(skipgram("c", 1, ["a", "b"], dummy_tokens, dummy_vectors[:5,:], dummy_vectors[5:,:], dataset, negSamplingCostAndGradient))
-    #print(cbow("a", 2, ["a", "b", "c", "a"], dummy_tokens, dummy_vectors[:5,:], dummy_vectors[5:,:], dataset))
-    #print(cbow("a", 2, ["a", "b", "a", "c"], dummy_tokens, dummy_vectors[:5,:], dummy_vectors[5:,:], dataset, negSamplingCostAndGradient))
+    print(cbow("a", 2, ["a", "b", "c", "a"], dummy_tokens, dummy_vectors[:5,:], dummy_vectors[5:,:], dataset))
+    print(cbow("a", 2, ["a", "b", "a", "c"], dummy_tokens, dummy_vectors[:5,:], dummy_vectors[5:,:], dataset, negSamplingCostAndGradient))
 
 if __name__ == "__main__":
     test_normalize_rows()
