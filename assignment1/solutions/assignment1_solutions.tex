@@ -772,23 +772,23 @@ because we are doing a minimization instead of maximization in our code.\vspace{
 Define $z_{i} \equiv {\boldsymbol w}^{\top}_{i}\hat{\boldsymbol r}$ and let $\delta^{i}_{j}$ be the Kronecker delta. If $i \notin \{1,...,K\}$
 \begin{align}
 \frac{\partial J}{\partial{z_{i}}} =& ~-\frac{\partial}{\partial{z_{i}}}(\log(\sigma(z_{i})) = -\frac{\sigma^{\prime}(z_{i})}{\sigma(z_{i})} \\
-                                               =& ~-\frac{\sigma(z_{i})(1 - \sigma(z_{i}))}{\sigma(z_{i})} \\
-                                               =& ~\sigma(z_{i}) - 1
+                                   =& ~-\frac{\sigma(z_{i})(1 - \sigma(z_{i}))}{\sigma(z_{i})} \\
+                                   =& ~\sigma(z_{i}) - 1
 \end{align}
 If $i \in \{1,...,K\}$ then we need to take the derivative of the second term. It follows,
 \begin{align}
 \frac{\partial J}{\partial{z_{i}}} =& -\frac{\partial}{\partial{z_{i}}}\log(\sigma(-z_{i})) = -\frac{\sigma^{\prime}(-z_{i})}{\sigma(-z_{i})}\\
-                                              =&  \frac{\sigma(-z_{i})(1 - \sigma(-z_{i}))}{\sigma(-z_{i})} \\
-                                              =& 1 - \sigma(-z_{i}) = \sigma(z_{i})
+                                   =&  \frac{\sigma(-z_{i})(1 - \sigma(-z_{i}))}{\sigma(-z_{i})} \\
+                                   =& 1 - \sigma(-z_{i}) = \sigma(z_{i})
 \end{align}
 Which yields the following, where $j\in{{\boldsymbol o},1,...,K}$,
 \begin{equation*}
-\frac{\partial{J}}{\partial{z_{i}}} = \sigma(z_{i}) - \delta^{i}_{j}
+\frac{\partial{J}}{\partial{z_{i}}} = \sigma(z_{i}) - \delta^{i}_{o}
 \end{equation*}
 
 \begin{align}
 \frac{\partial J}{\partial{\boldsymbol u}_{j}} &= (\sigma(z_{j}) - \delta^{j}_{o}){\boldsymbol v}_{c}\\
-\frac{\partial J}{\partial{\boldsymbol v}_{c}}  &= (\sigma(z_{j}) - \delta^{j}_{o}){\boldsymbol u}_{j}
+\frac{\partial J}{\partial{\boldsymbol v}_{c}} &= \sum^{K}_{j=1}(\sigma(z_{j}) - \delta^{j}_{o}){\boldsymbol u}_{j}
 \end{align}
 
 \clearpage
@@ -833,18 +833,18 @@ J_{\texttt{CBOW}}(\texttt{word}_{c-\textbf{m}} ,...,\texttt{word}_{c+\textbf{m}}
 \vspace{5mm}
 
 \noindent\rule{\textwidth}{0.4pt}\vspace{5mm}
-%The \texttt{skip-gram} model involves summing over context (and treating each word as having a conditional probability). This yields
-%\begin{equation*}
-%\frac{\partial{J}}{\partial{{\boldsymbol v}_{w_{i}}}} = \frac{\partial}{\partial{{\boldsymbol v}_{w_{i}}}} \sum_{-c\leq j\leq c, j\neq 0} F({\boldsymbol v}^{\prime}_{w_{k+j}}\vert{\boldsymbol v}_{w_{k}}) = 
-%\begin{cases}
+
+The \texttt{skip-gram} model involves summing over context (and treating each expected word as being associated with a conditional probability of ${\boldsymbol v}_{c}$). This yields
+% \begin{equation*}
+% \frac{\partial{J}}{\partial{{\boldsymbol v}_{w_{i}}}} = \frac{\partial}{\partial{{\boldsymbol v}_{w_{i}}}} \sum_{-c\leq j\leq c, j\neq 0} F({\boldsymbol v}^{\prime}_{w_{k+j}}\vert{\boldsymbol v}_{w_{k}}) = 
+% \begin{cases}
 % \sum\frac{\partial F({\boldsymbol v}^{\prime}_{w_{j}}\vert{\boldsymbol v}_{w_{i}})}{\partial{{\boldsymbol v}_{w_{i}}}}\\
 % \frac{\partial F({\boldsymbol v}^{\prime}_{w_{k}}\vert{\boldsymbol v}_{w_{i}})}{\partial{{\boldsymbol v}_{w_{k}}}}
-%\end{cases}
-%\end{equation*}
-%Whereas in the \texttt{CBOW} model, the summing over context is handled internally to the probability model (in other words, the context vector is represented by the sum of the word vectors and the conditional probability is with respect to this sum). This means that cost, $J$, is represented as (with $\hat{\boldsymbol r}$ defined by Equation~\ref{eq:3d r def}),
-%\begin{equation}
-%J_{\texttt{CBOW}} =  F({\boldsymbol v}^{\prime}_{w_{i+j}}\vert\hat{\boldsymbol r})
-%\end{equation}
+% \end{cases}
+% \end{equation*}
+Whereas in the \texttt{CBOW} model, the summing over context is handled internally to the probability model (in other words, the context vector is represented by the sum of the word vectors and the conditional probability is with respect to this sum). This yields,
+J_{\texttt{CBOW}} =  
+\end{equation}
 %
 %\begin{align}
 %\frac{\partial J_{\texttt{CBOW}}}{\partial{\boldsymbol v}_{w_{k}}} &= \\
