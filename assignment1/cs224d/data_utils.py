@@ -6,6 +6,11 @@ import numpy as np
 import os
 import random
 
+from unidecode import unidecode
+
+def remove_non_ascii(text):
+    return unidecode(text)
+
 class StanfordSentiment:
     def __init__(self, path=None, tablesize = 1000000):
         if not path:
@@ -60,8 +65,8 @@ class StanfordSentiment:
 
                 splitted = line.strip().split()[1:]
                 # Deal with some peculiar encoding issues with this file
-                #sentences += [[w.lower().encode('latin1','replace').encode('utf-8') for w in splitted]]
-                sentences += [[w.lower().encode('latin1','replace') for w in splitted]]
+                #sentences += [[w.lower().encode('latin1','replace').decode('utf-8') for w in splitted]]
+                sentences += [[remove_non_ascii(w.replace(u"\u00A0", " ").lower()) for w in splitted]]
                 
         self._sentences = sentences
         self._sentlengths = np.array([len(s) for s in sentences])
@@ -122,7 +127,13 @@ class StanfordSentiment:
                 line = line.strip()
                 if not line: continue
                 splitted = line.split("|")
-                dictionary[splitted[0].lower()] = int(splitted[1])
+                dictionary[remove_non_ascii(splitted[0].w.replace(u"\u00A0", " ").lower())] = int(splitted[1])
+                # import re
+                # prog = re.compile('Vera \'s')
+                # if prog.match(splitted[0]):
+                #     print(splitted[0])
+                #     print(remove_non_ascii(splitted[0].lower()))
+                #     print("--end match--")
                 phrases += 1
 
         labels = [0.0] * phrases
@@ -133,7 +144,7 @@ class StanfordSentiment:
                     first = False
                     continue
 
-                line = line.strip()
+                line = remove_non_ascii(line.strip())
                 if not line: continue
                 splitted = line.split("|")
                 labels[int(splitted[0])] = float(splitted[1])
@@ -143,7 +154,11 @@ class StanfordSentiment:
         for i in range(self.numSentences()):
             sentence = sentences[i]
             full_sent = " ".join(sentence).replace('-lrb-', '(').replace('-rrb-', ')')
-            sent_labels[i] = labels[dictionary[full_sent]]
+            try:
+                sent_labels[i] = labels[dictionary[full_sent]]
+            except KeyError:
+                print('KeyError')
+                print(full_sent)
             
         self._sent_labels = sent_labels
         return self._sent_labels
