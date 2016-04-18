@@ -127,7 +127,7 @@ class StanfordSentiment:
                 line = line.strip()
                 if not line: continue
                 splitted = line.split("|")
-                dictionary[remove_non_ascii(splitted[0].w.replace(u"\u00A0", " ").lower())] = int(splitted[1])
+                dictionary[remove_non_ascii(splitted[0].replace(u"\u00A0", " ").lower())] = int(splitted[1])
                 # import re
                 # prog = re.compile('Vera \'s')
                 # if prog.match(splitted[0]):
