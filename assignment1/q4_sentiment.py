@@ -6,11 +6,14 @@ from cs224d.data_utils import *
 from q3_sgd import load_saved_params, sgd
 from q4_softmaxreg import softmaxRegression, getSentenceFeature, accuracy, softmax_wrapper
 
+import seaborn as sns
+sns.set(style='whitegrid', context='talk')
+
 # Try different regularizations and pick the best!
 # NOTE: fill in one more "your code here" below before running!
 REGULARIZATION = None   # Assign a list of floats in the block below
 ### YOUR CODE HERE
-REGULARIZATION = np.logspace(-5,2,8)
+REGULARIZATION = np.logspace(-5,0,12)
 REGULARIZATION = np.hstack([0,REGULARIZATION])
 ### END YOUR CODE
 
@@ -53,7 +56,7 @@ for regularization in REGULARIZATION:
 
     # We will do batch optimization
     weights = sgd(lambda weights: softmax_wrapper(trainFeatures, trainLabels, 
-        weights, regularization), weights, 0.01, 10000, PRINT_EVERY=100)
+        weights, regularization), weights, 0.3, 10000, PRINT_EVERY=100)
 
     # Test on train set
     _, _, pred = softmaxRegression(trainFeatures, trainLabels, weights)
@@ -84,12 +87,13 @@ for result in results:
 print("")
 
 # Pick the best regularization parameters
-print(sorted(results, key=lambda x: x['dev'],reverse=True)[0]['reg'])
 BEST_REGULARIZATION = None
 BEST_WEIGHTS = None
 
 ### YOUR CODE HERE 
-raise NotImplementedError
+sorted_results = sorted(results, key=lambda x: x['dev'],reverse=True)
+BEST_REGULARIZATION = sorted_results[0]['reg']
+BEST_WEIGHTS = sorted_results[0]['weights']
 ### END YOUR CODE
 
 # Test your findings on the test set

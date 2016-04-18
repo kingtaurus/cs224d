@@ -52,7 +52,7 @@ def softmaxRegression(features, labels, weights, regularization = 0.0, nopredict
     else:
         N = 1
     # A vectorized implementation of    1/N * sum(cross_entropy(x_i, y_i)) + 1/2*|w|^2
-    cost = np.sum(-np.log(prob[np.arange(N), labels])) / N
+    cost = np.sum(-np.log(prob[np.arange(N), labels] + 1e-12)) / N
     cost += 0.5 * regularization * np.sum(weights ** 2)
     
     ### YOUR CODE HERE: compute the gradients and predictions
