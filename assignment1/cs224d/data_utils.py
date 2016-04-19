@@ -56,7 +56,7 @@ class StanfordSentiment:
             return self._sentences
 
         sentences = []
-        with open(self.path + "/datasetSentences.txt", "r") as f:
+        with open(self.path + "/datasetSentences.txt", "r", encoding='utf-8') as f:
             first = True
             for line in f:
                 if first:
@@ -65,8 +65,7 @@ class StanfordSentiment:
 
                 splitted = line.strip().split()[1:]
                 # Deal with some peculiar encoding issues with this file
-                #sentences += [[w.lower().encode('latin1','replace').decode('utf-8') for w in splitted]]
-                sentences += [[remove_non_ascii(w.replace(u"\u00A0", " ").lower()) for w in splitted]]
+                sentences += [[w.lower() for w in splitted]]
                 
         self._sentences = sentences
         self._sentlengths = np.array([len(s) for s in sentences])
@@ -127,13 +126,7 @@ class StanfordSentiment:
                 line = line.strip()
                 if not line: continue
                 splitted = line.split("|")
-                dictionary[remove_non_ascii(splitted[0].replace(u"\u00A0", " ").lower())] = int(splitted[1])
-                # import re
-                # prog = re.compile('Vera \'s')
-                # if prog.match(splitted[0]):
-                #     print(splitted[0])
-                #     print(remove_non_ascii(splitted[0].lower()))
-                #     print("--end match--")
+                dictionary[splitted[0].lower()] = int(splitted[1])
                 phrases += 1
 
         labels = [0.0] * phrases
@@ -159,6 +152,7 @@ class StanfordSentiment:
             except KeyError:
                 print('KeyError')
                 print(full_sent)
+                print(full_sent.encode('utf-8'))
             
         self._sent_labels = sent_labels
         return self._sent_labels

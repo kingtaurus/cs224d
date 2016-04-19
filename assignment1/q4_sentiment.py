@@ -13,7 +13,7 @@ sns.set(style='whitegrid', context='talk')
 # NOTE: fill in one more "your code here" below before running!
 REGULARIZATION = None   # Assign a list of floats in the block below
 ### YOUR CODE HERE
-REGULARIZATION = np.logspace(-5,0,12)
+REGULARIZATION = np.logspace(-5,0.5,40)
 REGULARIZATION = np.hstack([0,REGULARIZATION])
 ### END YOUR CODE
 
@@ -25,7 +25,8 @@ nWords = len(tokens)
 # Load the word vectors we trained earlier 
 _, wordVectors0, _ = load_saved_params()
 N = wordVectors0.shape[0]//2
-wordVectors = (wordVectors0[:N,:] + wordVectors0[N:,:])
+assert nWords == N
+wordVectors = (wordVectors0[:nWords,:] + wordVectors0[nWords:,:])
 dimVectors = wordVectors.shape[1]
 
 # Load the train set
@@ -56,7 +57,7 @@ for regularization in REGULARIZATION:
 
     # We will do batch optimization
     weights = sgd(lambda weights: softmax_wrapper(trainFeatures, trainLabels, 
-        weights, regularization), weights, 0.3, 10000, PRINT_EVERY=100)
+        weights, regularization), weights, 0.75, 10000, PRINT_EVERY=100)
 
     # Test on train set
     _, _, pred = softmaxRegression(trainFeatures, trainLabels, weights)

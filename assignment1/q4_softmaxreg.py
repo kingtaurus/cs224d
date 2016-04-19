@@ -94,6 +94,8 @@ def sanity_check():
     nWords = len(tokens)
 
     _, wordVectors0, _ = load_saved_params()
+    N = wordVectors0.shape[0]//2
+    assert N == nWords
     wordVectors = (wordVectors0[:nWords,:] + wordVectors0[nWords:,:])
     dimVectors = wordVectors.shape[1]
 
