@@ -121,7 +121,7 @@ class StanfordSentiment:
 
         dictionary = dict()
         phrases = 0
-        with open(self.path + "/dictionary.txt", "r") as f:
+        with open(self.path + "/dictionary.txt", "r", encoding='utf-8') as f:
             for line in f:
                 line = line.strip()
                 if not line: continue
@@ -130,7 +130,7 @@ class StanfordSentiment:
                 phrases += 1
 
         labels = [0.0] * phrases
-        with open(self.path + "/sentiment_labels.txt", "r") as f:
+        with open(self.path + "/sentiment_labels.txt", "r", encoding='utf-8') as f:
             first = True
             for line in f:
                 if first:

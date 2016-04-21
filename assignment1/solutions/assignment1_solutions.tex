@@ -35,6 +35,7 @@
 \usepackage{listings}
 \usepackage{color}
 \usepackage{textcomp}
+\usepackage{graphicx}
 
 \renewcommand{\lstlistlistingname}{Code Listings} 
 \renewcommand{\lstlistingname}{Code Listing} 
@@ -834,7 +835,20 @@ J_{\texttt{CBOW}}(\texttt{word}_{c-\textbf{m}} ,...,\texttt{word}_{c+\textbf{m}}
 
 \noindent\rule{\textwidth}{0.4pt}\vspace{5mm}
 
-The \texttt{skip-gram} model involves summing over context (and treating each expected word as being associated with a conditional probability of ${\boldsymbol v}_{c}$). This yields
+\noindent The \texttt{skip-gram} model involves summing over context (and treating each expected word as being associated with a conditional probability of ${\boldsymbol v}_{c}$). This is,
+\begin{equation}
+J_{\texttt{skip-gram}} =   \sum_{-m\le j\le m, j\neq0}F({\boldsymbol w}_{c+j}, {\boldsymbol v}_{c})
+\end{equation}
+The derivative of the loss has two terms, ${\boldsymbol w}_{c+j}$ and ${\boldsymbol v}_{c}$, which yields the following,
+\begin{align}
+\frac{\partial{J_{\texttt{skip-gram}}}}{\partial{\boldsymbol w}_{k}} & = \frac{\partial}{\partial{\boldsymbol w}_{k}}\sum_{-m\le j\le m, j\neq0}F({\boldsymbol w}_{c+j}, {\boldsymbol v}_{c})
+     & = \sum_{-m\le j\le m, j\neq0} \frac{\partial{F}}{\partial{\boldsymbol w}_{i+j}}\delta^{i+j}_{k}
+\end{align}
+and
+\begin{equation}
+\frac{\partial{J_{\texttt{skip-gram}}}}{\partial{\boldsymbol v}_{c}} = \sum_{-m\le j\le m, j\neq0} \frac{\partial{F}}{\partial{\boldsymbol v}_{c}}
+\end{equation}
+
 % \begin{equation*}
 % \frac{\partial{J}}{\partial{{\boldsymbol v}_{w_{i}}}} = \frac{\partial}{\partial{{\boldsymbol v}_{w_{i}}}} \sum_{-c\leq j\leq c, j\neq 0} F({\boldsymbol v}^{\prime}_{w_{k+j}}\vert{\boldsymbol v}_{w_{k}}) = 
 % \begin{cases}
@@ -842,9 +856,15 @@ The \texttt{skip-gram} model involves summing over context (and treating each ex
 % \frac{\partial F({\boldsymbol v}^{\prime}_{w_{k}}\vert{\boldsymbol v}_{w_{i}})}{\partial{{\boldsymbol v}_{w_{k}}}}
 % \end{cases}
 % \end{equation*}
-Whereas in the \texttt{CBOW} model, the summing over context is handled internally to the probability model (in other words, the context vector is represented by the sum of the word vectors and the conditional probability is with respect to this sum). This yields,
-J_{\texttt{CBOW}} =  
+\noindent Whereas in the \texttt{CBOW} model, the summing over context is handled internally to the probability model (in other words, the context vector is represented by the sum of the word vectors and the conditional probability is with respect to this sum). This yields,
+\begin{equation}
+\frac{\partial J_{\texttt{CBOW}}}{\partial{\boldsymbol w}_{i}} = \frac{\partial{F}}{\partial{\boldsymbol w}_{i}}
 \end{equation}
+and
+\begin{equation}
+\frac{\partial J_{\texttt{CBOW}}}{\partial{\hat{\boldsymbol r}}}\frac{\partial{\hat{\boldsymbol r}}}{\partial{\boldsymbol w}_{k}} = \frac{\partial{F}}{\partial{\hat{\boldsymbol r}}} \sum_{-m\le j\le m, j\neq0} \frac{\partial{\hat{\boldsymbol r}}}{\partial{\boldsymbol w}_{j}}\delta^{j}_{k}
+\end{equation}
+It is important to notice that the above is equivalent to doing a one-hot encoding of the \texttt{CBOW} vector (and applying the gradient to all components of the \texttt{CBOW} vector).
 %
 %\begin{align}
 %\frac{\partial J_{\texttt{CBOW}}}{\partial{\boldsymbol v}_{w_{k}}} &= \\
@@ -971,6 +991,13 @@ for this part; just run \texttt{python q3\_run.py}.
 
 \noindent\rule{\textwidth}{0.4pt}\vspace{5mm}
 
+\begin{figure}
+\begin{center}
+\includegraphics[scale=0.5]{../q3_word_vectors.png}
+\caption{Plot of the first two components of 10 dimensional $\cal{R}^{\texttt{n}}$ word embedding for the \textbf{SST}. The words \texttt{a}, \texttt{the}, '\texttt{.}', '\texttt{,}' appear to have a distinct location away from the adjectives.}
+\end{center}
+\end{figure}
+
 \clearpage
 \myhwtitle{1}{3(h)}{Gregory King}
 \bigskip
@@ -1005,9 +1032,11 @@ which are represented by 0 to 4 in the code, respectively. For this part, you wi
 \noindent Explain in fewer than three sentences why we want to introduce regularization when doing classification (in fact, most machine learning tasks).\vspace{5mm}
 
 \noindent\rule{\textwidth}{0.4pt}\vspace{5mm}
+Regularization helps prevent over-fitting. By limiting the parameter space it forces the model to have a higher chance of learning features (rather than memorizing the training data).
 \clearpage
 
 \myhwtitle{1}{4(c)}{Gregory King}
+
 \bigskip
 \noindent Fill in the hyperparameter selection code in \texttt{q4\_sentiment.py} to search for the `optimal' regularization parameter. \textbf{What values did you select? Report your train, dev, and test accuracies. Justify your hyperparameter search methodology in at most one sentence.}. \\
 
@@ -1015,15 +1044,99 @@ which are represented by 0 to 4 in the code, respectively. For this part, you wi
 
 \noindent\rule{\textwidth}{0.4pt}\vspace{5mm}
 
+\begin{table}[!h!p]
+\begin{center}
+\begin{tabular}{c c c}
+\hline\hline
+Reg & Train & Dev \\
+\hline
+0.00e+00 & 28.68 & 25.89 \\
+1.00e-06 & 28.68 & 25.89 \\
+2.14e-06 & 28.68 & 25.89 \\
+4.57e-06 & 28.65 & 25.89 \\
+9.77e-06 & 28.64 & 25.79 \\
+2.09e-05 & 28.63 & 25.7 \\
+4.47e-05 & 28.65 & 25.89 \\
+9.55e-05 & 28.5 & 26.07 \\
+2.04e-04 & 28.04 & 26.16 \\
+4.37e-04 & 27.43 & 25.43 \\
+9.33e-04 & 27.22 & 25.43 \\
+2.00e-03 & 27.22 & 25.52 \\
+4.27e-03 & 27.24 & 25.52 \\
+9.12e-03 & 27.25 & 25.52 \\
+1.95e-02 & 27.25 & 25.52 \\
+4.17e-02 & 27.25 & 25.52 \\
+8.91e-02 & 27.25 & 25.52 \\
+1.91e-01 & 27.25 & 25.52 \\
+4.07e-01 & 27.25 & 25.52 \\
+8.71e-01 & 27.25 & 25.52 \\
+1.86e+00 & 27.25 & 25.52 \\
+3.98e+00 & 27.25 & 25.52 \\
+\hline\hline
+\end{tabular}
+\end{center}
+\end{table}
+% Reg   Train   Dev
+% 0.000000E+00  28.745318 27.066303
+% 1.000000E-05  28.710206 26.612171
+% 1.383648E-05  28.698502 26.793824
+% 1.914482E-05  28.628277 26.702997
+% 2.648969E-05  28.639981 26.793824
+% 3.665241E-05  28.651685 26.793824
+% 5.071404E-05  28.663390 27.066303
+% 7.017038E-05  28.757022 26.975477
+% 9.709111E-05  28.850655 26.612171
+% 1.343399E-04  28.827247 26.612171
+% 1.858792E-04  28.370787 25.703906
+% 2.571914E-04  28.019663 25.522252
+% 3.558624E-04  27.610019 25.794732
+% 4.923883E-04  27.364232 25.613079
+% 6.812921E-04  27.247191 25.249773
+% 9.426685E-04  27.223783 25.340599
+% 1.304321E-03  27.235487 25.431426
+% 1.804722E-03  27.223783 25.431426
+% 2.497100E-03  27.235487 25.522252
+% 3.455107E-03  27.235487 25.522252
+% 4.780653E-03  27.235487 25.522252
+% 6.614741E-03  27.247191 25.522252
+% 9.152473E-03  27.247191 25.522252
+% 1.266380E-02  27.247191 25.522252
+% 1.752224E-02  27.247191 25.522252
+% 2.424462E-02  27.247191 25.522252
+% 3.354602E-02  27.247191 25.522252
+% 4.641589E-02  27.247191 25.522252
+% 6.422325E-02  27.247191 25.522252
+% 8.886238E-02  27.247191 25.522252
+% 1.229543E-01  27.247191 25.522252
+% 1.701254E-01  27.247191 25.522252
+% 2.353937E-01  27.247191 25.522252
+% 3.257021E-01  27.247191 25.522252
+% 4.506570E-01  27.247191 25.522252
+% 6.235507E-01  27.247191 25.522252
+% 8.627748E-01  27.247191 25.522252
+% 1.193777E+00  27.247191 25.522252
+% 1.651767E+00  27.247191 25.522252
+% 2.285464E+00  27.247191 25.522252
+% 3.162278E+00  12.816011 12.806540
+
+% Best regularization value: 0.000000E+00
+% Test accuracy (%): 26.289593
+
 \clearpage
 
 \myhwtitle{1}{4(d)}{Gregory King}
+
 \bigskip
 \noindent Plot the classification accuracy on the train and dev set with respect to the regularization value, using a logarithmic scale on the x-axis. This should have been done automatically. \textbf{Include \texttt{q4\_reg\_acc.png} in your homework write up.} Briefly explain in at most three sentences what you see in the plot.\vspace{5mm}
 
 \noindent\rule{\textwidth}{0.4pt}\vspace{5mm}
 
+\begin{figure}[!h!p]
+\begin{center}
+\includegraphics[scale=0.5]{../q4_reg_v_acc.png}
+\end{center}
+\end{figure}
+
+
 %%%% End solution and document %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \end{document}
-
-33

@@ -56,6 +56,8 @@ for i in range(len(visualizeWords)):
         bbox=dict(facecolor='green', alpha=0.1))
 plt.xlim((np.min(coord[:,0])-0.1, np.max(coord[:,0])+0.1))
 plt.ylim((np.min(coord[:,1])-0.1, np.max(coord[:,1])+0.1))
+plt.xlabel("SVD[0]")
+plt.ylabel("SVD[1]")
 
 plt.savefig('q3_word_vectors.png')
 plt.show()

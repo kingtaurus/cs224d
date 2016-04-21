@@ -95,8 +95,8 @@ def sanity_check():
 
     _, wordVectors0, _ = load_saved_params()
     N = wordVectors0.shape[0]//2
-    assert N == nWords
-    wordVectors = (wordVectors0[:nWords,:] + wordVectors0[nWords:,:])
+    #assert N == nWords
+    wordVectors = (wordVectors0[:N,:] + wordVectors0[N:,:])
     dimVectors = wordVectors.shape[1]
 
     dummy_weights = 0.1 * np.random.randn(dimVectors, 5)
