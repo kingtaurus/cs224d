@@ -52,7 +52,9 @@ def cross_entropy_loss(y, yhat):
           tensor in the problem.
   """
   ### YOUR CODE HERE
-  out = tf.reduce_sum(- tf.reduce_sum(y * tf.log(yhat + 1e-12), reduction_indices=[len(yhat.get_shape()) - 1]))
+  out = - tf.reduce_sum(y * tf.log(yhat + 1e-12))
+  # out = tf.reduce_sum(- tf.reduce_sum(y * tf.log(yhat + 1e-12), reduction_indices=[len(yhat.get_shape()) - 1]))
+
   ### END YOUR CODE
   return out
 
