@@ -162,7 +162,7 @@ class StanfordSentiment:
             return self._split
 
         split = [[] for i in range(3)]
-        with open(self.path + "/datasetSplit.txt", "r") as f:
+        with open(self.path + "/datasetSplit.txt", "r", encoding="utf-8") as f:
             first = True
             for line in f:
                 if first:
