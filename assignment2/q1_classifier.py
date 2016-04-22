@@ -233,7 +233,7 @@ def test_SoftmaxModel():
   # If ops are implemented correctly, the average loss should fall close to zero
   # rapidly.
   assert losses[-1] < .5
-  print "Basic (non-exhaustive) classifier tests pass\n"
+  print("Basic (non-exhaustive) classifier tests pass\n")
 
 if __name__ == "__main__":
     test_SoftmaxModel()
