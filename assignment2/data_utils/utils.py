@@ -58,7 +58,7 @@ def load_wv_raw(fname):
 
 def load_dataset(fname):
     docs = []
-    with open(fname) as fd:
+    with open(fname, encoding="utf-8") as fd:
         cur = []
         for line in fd:
             # new sentence on -DOCSTART- or blank line

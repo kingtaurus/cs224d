@@ -44,7 +44,7 @@ def calculate_perplexity(log_probs):
 
 def get_ptb_dataset(dataset='train'):
   fn = 'data/ptb/ptb.{}.txt'
-  for line in open(fn.format(dataset)):
+  for line in open(fn.format(dataset), encoding="utf-8"):
     for word in line.split():
       yield word
     # Add token to the end of the line
