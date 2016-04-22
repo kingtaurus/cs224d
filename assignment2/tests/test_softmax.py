@@ -55,9 +55,16 @@ def test_get_session(sess, input_array):
 
 def test_CE_loss(sess, CE_arrays):
     y, y_hat = CE_arrays
-    y = tf.convert_to_tensor(y)
-    y_hat = tf.convert_to_tensor(y_hat)
+    y = tf.convert_to_tensor(y, dtype=tf.float64)
+    y_hat = tf.convert_to_tensor(y_hat, dtype=tf.float64)
     sess.run(cross_entropy_loss(y,y_hat))
     assert 1
     print("CE_loss ran to completion")
+
+def test_CE_loss_validation(sess, CE_arrays):
+    y, y_hat = CE_arrays
+    y = tf.convert_to_tensor(y, dtype=tf.float64)
+    y_hat = tf.convert_to_tensor(y_hat, dtype=tf.float64)
+    value = sess.run(cross_entropy_loss(y,y_hat))
+    assert rel_error(value, -3 * np.log(0.5)) <= 1e-7
 

@@ -52,10 +52,37 @@ def cross_entropy_loss(y, yhat):
           tensor in the problem.
   """
   ### YOUR CODE HERE
-  out = tf.constant(0.)
-  
+  out = tf.reduce_sum(- tf.reduce_sum(y * tf.log(yhat + 1e-12), reduction_indices=[len(yhat.get_shape()) - 1]))
   ### END YOUR CODE
   return out
+
+def cross_entropy_mean_loss(y, yhat):
+  """
+  Compute the cross entropy loss in tensorflow.
+
+  y is a one-hot tensor of shape (n_samples, n_classes) and yhat is a tensor
+  of shape (n_samples, n_classes). y should be of dtype tf.int32, and yhat should
+  be of dtype tf.float32.
+
+  The functions tf.to_float, tf.reduce_sum, and tf.log might prove useful. (Many
+  solutions are possible, so you may not need to use all of these functions).
+
+  Note: You are NOT allowed to use the tensorflow built-in cross-entropy
+        functions.
+
+  Args:
+    y:    tf.Tensor with shape (n_samples, n_classes). One-hot encoded.
+    yhat: tf.Tensorwith shape (n_sample, n_classes). Each row encodes a
+          probability distribution and should sum to 1.
+  Returns:
+    out:  tf.Tensor with shape (1,) (Scalar output). You need to construct this
+          tensor in the problem.
+  """
+  ### YOUR CODE HERE
+  out = tf.reduce_mean(- tf.reduce_sum(y * tf.log(yhat + 1e-12), reduction_indices=[len(yhat.get_shape()) - 1]))
+  ### END YOUR CODE
+  return out
+
 
 
 def test_softmax_basic():
