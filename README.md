@@ -17,8 +17,12 @@ See [`Assignment1 README.md`](https://github.com/kingtaurus/cs224d/blob/master/a
 * **`word2vec`**
 * **Sentiment Analysis**
 
-`Assignment 2`
+[`Assignment 2`](https://github.com/kingtaurus/cs224d/blob/master/assignment1/assignment1.pdf)
 -------------
+See [`Assignment2 README.md`](https://github.com/kingtaurus/cs224d/blob/master/assignment2/README.md)
+* **TensorFlow Softmax**
+* **TensorFlow NER Window Model**
+* **TensorFlow RNN Language Model**
 
 `Assignment 3`
 -------------
