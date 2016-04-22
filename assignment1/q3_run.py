@@ -23,6 +23,7 @@ C = 5
 # Reset the random seed to make sure that everyone gets the same results
 random.seed(31415)
 np.random.seed(9265)
+print("creating initial word vectors")
 wordVectors = np.concatenate(((np.random.rand(nWords, dimVectors) - .5) / \
     dimVectors, np.zeros((nWords, dimVectors))), axis=0)
 wordVectors0 = sgd(
