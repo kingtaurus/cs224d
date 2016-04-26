@@ -5,7 +5,7 @@ from numpy import *
 
 def print_scores(scores, words):
     for i in range(len(scores)):
-        print "[%d]: (%.03f) %s" % (i, scores[i], words[i])
+        print("[%d]: (%.03f) %s" % (i, scores[i], words[i]))
 
 
 def part_a(clf, num_to_word, verbose=True):
@@ -37,7 +37,7 @@ def part_a(clf, num_to_word, verbose=True):
     # topwords[i]: list of words
     if verbose == True:
         for i in neurons:
-            print "Neuron %d" % i
+            print("Neuron %d" % i)
             print_scores(topscores[i], topwords[i])
 
     return topscores, topwords
@@ -70,9 +70,9 @@ def part_b(clf, num_to_word, num_to_tag, verbose=True):
     # topwords[i]: list of words
     if verbose == True:
         for i in range(1,5):
-            print "Output neuron %d: %s" % (i, num_to_tag[i])
+            print("Output neuron %d: %s" % (i, num_to_tag[i]))
             print_scores(topscores[i], topwords[i])
-            print ""
+            print("")
 
     return topscores, topwords
 
@@ -104,9 +104,9 @@ def part_c(clf, num_to_word, num_to_tag, verbose=True):
     # topwords[i]: list of words
     if verbose == True:
         for i in range(1,5):
-            print "Output neuron %d: %s" % (i, num_to_tag[i])
+            print("Output neuron %d: %s" % (i, num_to_tag[i]))
             print_scores(topscores[i], topwords[i])
-            print ""
+            print("")
 
     return topscores, topwords
 
@@ -128,19 +128,19 @@ if __name__ == '__main__':
     clf = WindowMLP(wv, windowsize=3,
                     dims = [None, 100, 5], rseed=10)
 
-    print "\n=== Testing Part (a) ===\n"
+    print("\n=== Testing Part (a) ===\n")
     s,w = part_a(clf, num_to_word, verbose=True)
     assert(len(s) == len(w))
     if type(s) == dict: # some students may have done this
-        for k in s.keys(): assert(k in w)
-        for k in w.keys(): assert(k in s)
+        for k in list(s.keys()): assert(k in w)
+        for k in list(w.keys()): assert(k in s)
         assert(len(s) >= 5)
     else: # list
         assert(len(s[0]) == len(w[0]))
         assert(len(s[0]) == 10)
         assert(type(w[0][0]) == str)
 
-    print "\n=== Testing Part (b) ===\n"
+    print("\n=== Testing Part (b) ===\n")
     s,w = part_b(clf, num_to_word, num_to_tag, verbose=True)
     assert(len(s) == len(w))
     assert(len(s) == 5)
@@ -148,7 +148,7 @@ if __name__ == '__main__':
     assert(len(s[0]) == 10)
     assert(type(w[0][0]) == str)
 
-    print "\n=== Testing Part (c) ===\n"
+    print("\n=== Testing Part (c) ===\n")
     s,w = part_c(clf, num_to_word, num_to_tag, verbose=True)
     assert(len(s) == len(w))
     assert(len(s) == 5)

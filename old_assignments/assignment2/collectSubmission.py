@@ -18,7 +18,7 @@ from functools import wraps
 import traceback
 
 def prompt(msg):
-    yn = raw_input(msg + " [y/n]: ")
+    yn = input(msg + " [y/n]: ")
     return yn.lower().startswith('y')
 
 class testcase(object):
@@ -33,13 +33,13 @@ class testcase(object):
             global counter
             global fail
             counter += 1
-            print ">> Test %d (%s)" % (counter, self.name)
+            print(">> Test %d (%s)" % (counter, self.name))
             try:
                 func()
-                print "[ok] Passed test %d (%s)" % (counter, self.name)
+                print("[ok] Passed test %d (%s)" % (counter, self.name))
             except Exception as e:
                 fail += 1
-                print "[!!] Error on test %d (%s):" % (counter, self.name)
+                print("[!!] Error on test %d (%s):" % (counter, self.name))
                 traceback.print_exc()
 
         testcases.append(wrapper)
@@ -85,9 +85,9 @@ def ner_predict_proba():
     clf = WindowMLP(wv, windowsize=3,
                     dims = [None, 15, 3], rseed=10)
     J = clf.compute_loss([1,2,3], 1)
-    print "  dummy: J = %g" % J
+    print("  dummy: J = %g" % J)
     J = clf.compute_loss([[1,2,3], [2,3,4]], [0,1])
-    print "  dummy: J = %g" % J
+    print("  dummy: J = %g" % J)
 
 @testcase("Part1: NER prediction - dev set")
 def ner_pred_dev():
@@ -120,8 +120,8 @@ def ner_probe_a():
     s,w = part_a(clf, num_to_word, verbose=False)
     assert(len(s) == len(w))
     if type(s) == dict: # some students may have done this
-        for k in s.keys(): assert(k in w)
-        for k in w.keys(): assert(k in s)
+        for k in list(s.keys()): assert(k in w)
+        for k in list(w.keys()): assert(k in s)
         assert(len(s) >= 5)
     else: # list
         assert(len(s[0]) == len(w[0]))
@@ -166,11 +166,11 @@ def rnnlm_init():
 def rnnlm_load():
     from rnnlm import RNNLM
     L = np.load('rnnlm.L.npy')
-    print "  loaded L: %s" % str(L.shape)
+    print("  loaded L: %s" % str(L.shape))
     H = np.load('rnnlm.H.npy')
-    print "  loaded H: %s" % str(H.shape)
+    print("  loaded H: %s" % str(H.shape))
     U = np.load('rnnlm.U.npy')
-    print "  loaded U: %s" % str(U.shape)
+    print("  loaded U: %s" % str(U.shape))
     assert(L.shape[0] == U.shape[0])
     assert(L.shape[1] == H.shape[1])
     assert(H.shape[0] == U.shape[1])
@@ -185,22 +185,22 @@ def rnnlm_generate_sequence():
     model = RNNLM(L0 = L)
     model.H = np.random.randn(20,20)
     s, J = model.generate_sequence(0,1, maxlen=15)
-    print "dummy J: %g" % J
-    print "dummy seq: len(s) = %d" % len(s)
+    print("dummy J: %g" % J)
+    print("dummy seq: len(s) = %d" % len(s))
     assert(len(s) <= 15+1)
     assert(s[0] == 0)
     assert(J > 0)
 
 ##
 # Execute sanity check
-print "=== Running sanity check ==="
+print("=== Running sanity check ===")
 for f in testcases:
     f()
 
 if fail <= 0:
-    print "=== Sanity check passed! ==="
+    print("=== Sanity check passed! ===")
 else:
-    print "=== Sanity check failed %d tests :( ===" % fail
+    print("=== Sanity check failed %d tests :( ===" % fail)
     if not prompt("Continue submission anyway?"):
         sys.exit(1)
 
@@ -227,16 +227,16 @@ files_ok = []
 files_missing = []
 
 # Verify required files present
-print "=== Verifying file list ==="
+print("=== Verifying file list ===")
 for fname in filelist:
-    print ("File: %s ? -" % fname),
+    print(("File: %s ? -" % fname), end=' ')
     if os.path.isfile(fname):
-        print "ok"; files_ok.append(fname)
+        print("ok"); files_ok.append(fname)
     else:
-        print "NOT FOUND"; files_missing.append(fname)
+        print("NOT FOUND"); files_missing.append(fname)
 if len(files_missing) > 0:
-    print "== Error: missing files =="
-    print " ".join(files_missing)
+    print("== Error: missing files ==")
+    print(" ".join(files_missing))
     if not prompt("Continue submission anyway?"):
         sys.exit(1)
 
@@ -249,27 +249,27 @@ sunetid = ""
 fail = -1
 while not re.match(r'[\w\d]+', sunetid):
     fail += 1
-    sunetid = raw_input("=== Please enter your SUNet ID ===\nSUNet ID: ").lower()
-    if fail > 3: print "Error: invalid ID"; sys.exit(1)
+    sunetid = input("=== Please enter your SUNet ID ===\nSUNet ID: ").lower()
+    if fail > 3: print("Error: invalid ID"); sys.exit(1)
 
 # Pack in files
 zipname = "%s.zip" % sunetid
 with ZipFile(zipname, 'w') as zf:
-    print "=== Generating submission file '%s' ===" % zipname
+    print("=== Generating submission file '%s' ===" % zipname)
     for fname in files_ok:
-        print ("  %s" % fname),
+        print(("  %s" % fname), end=' ')
         zf.write(fname)
-        print ("(%.02f kB)" % ((1.0/1024) * zf.getinfo(fname).file_size))
+        print(("(%.02f kB)" % ((1.0/1024) * zf.getinfo(fname).file_size)))
 
 # Check size
 fsize = os.path.getsize(zipname)
 SIZE_LIMIT = 3*(2**30) # 30 MB
-print "Submission size: %.02f kB -" % ((1.0/1024) * fsize),
+print("Submission size: %.02f kB -" % ((1.0/1024) * fsize), end=' ')
 if fsize < SIZE_LIMIT:
-    print "ok!"
+    print("ok!")
 else:
-    print "too large! (limit = %.02f kB" % ((1.0/1024) * SIZE_LIMIT)
+    print("too large! (limit = %.02f kB" % ((1.0/1024) * SIZE_LIMIT))
     sys.exit(1)
 
-print "=== Successfully generated submission zipfile! ==="
-print "Please upload '%s' to Box, and don't forget to submit your writeup PDF via Scoryst!" % zipname
+print("=== Successfully generated submission zipfile! ===")
+print("Please upload '%s' to Box, and don't forget to submit your writeup PDF via Scoryst!" % zipname)
