@@ -142,7 +142,7 @@ rulesepcolor=\color{blue},#1
 
 \pagestyle{plain}
 \setcounter{page}{1}
-\myhwtitle{1}{1 {\bf Tensorflow Softmax} (a)}{Gregory King}
+\myhwtitle{2}{1 {\bf Tensorflow Softmax}}{Gregory King}
 
 \bigskip
 
@@ -215,9 +215,9 @@ def softmax(x):
 
 \clearpage
 \pagestyle{myheadings}
-\myrunninghwhead{1}{1 (Tensorflow Softmax) (b)}
+\myrunninghwhead{2}{1 (Tensorflow Softmax)}
 
-\myhwtitle{1}{1(b)}{Gregory King}
+\myhwtitle{2}{1(b)}{Gregory King}
 
 \bigskip
 
@@ -235,9 +235,9 @@ import numpy as np
 \end{python}
 \clearpage
 
-\myrunninghwhead{1}{1 (Tensorflow Softmax) (c)}
+\myrunninghwhead{2}{1 (Tensorflow Softmax)}
 
-\myhwtitle{1}{1(c)}{Gregory King}
+\myhwtitle{2}{1(c)}{Gregory King}
 
 \bigskip
 
@@ -257,9 +257,9 @@ def softmax(x):
     return x
 \end{python}
 \clearpage
-\myrunninghwhead{1}{1 (Tensorflow Softmax) (d)}
+\myrunninghwhead{2}{1 (Tensorflow Softmax)}
 
-\myhwtitle{1}{1(d)}{Gregory King}
+\myhwtitle{2}{1(d)}{Gregory King}
 
 \bigskip
 
@@ -271,9 +271,9 @@ def softmax(x):
 import numpy as np
 \end{python}
 \clearpage
-\myrunninghwhead{1}{1 (Tensorflow Softmax) (e)}
+\myrunninghwhead{2}{1 (Tensorflow Softmax)}
 
-\myhwtitle{1}{1(e)}{Gregory King}
+\myhwtitle{2}{1(e)}{Gregory King}
 
 \bigskip
 
@@ -288,8 +288,74 @@ import numpy as np
 
 \end{python}
 \clearpage
+\myrunninghwhead{2}{2 (Deep Networks for NER)}
+
+\myhwtitle{2}{2(a)}{Gregory King}
+
+\bigskip
+
+\noindent In this section, we'll get to practice backpropagation and training deep networks to attack the task of \textbf{Named Entity Recognition} (\textbf{NER}): predicting whether a given word, in context, represets one of four categories:
+\begin{itemize}
+\item{Person (\texttt{PER})}
+\item{Organization (\texttt{ORG})}
+\item{Location (\texttt{LOC})}
+\item{Miscellaneous (\texttt{MISC})}
+\end{itemize}
+\noindent We formulate this as a 5-class classification problem, using the four above classes and a null-class (\texttt{0}) for words that do not represent a named entity (\textbf{NOTE}: most words fall into this category).
+
+\noindent The model is a 1-hidden-layer neural network, with an additional representation layer similar to what you saw with $\texttt{word2vec}$. Rather than averaging or sampling, here we explicitly represent context as a "window" consisting of a word concatenated with its immediate neighbours:
+
+\begin{equation}
+{\boldsymbol x}^{(t)} = [ {\boldsymbol x}_{t-1}\textbf{L}, {\boldsymbol x}_{t}\textbf{L}, {\boldsymbol x}_{t+1}\textbf{L}]\in\mathbb{R}^{3\textrm{d}}
+\end{equation}
+where the input ${\boldsymbol x}_{t-1}$, ${\boldsymbol x}_{t}$, ${\boldsymbol x}_{t+1}$ are one-hot row vectors into an embedding matrix $\textbf{L}\in\mathbb{R}^{|\textrm{V}|\times\textrm{d}}$, which each row $\textbf{L}_{i}$ as the vector for a particular word $i={\boldsymbol x}_{t}$. We then compute our prediction as:
+\begin{align}
+1 &=
+2 &=
+\end{align}
+And evaluate by cross-entropy loss,
+\begin{equation}
+J(\theta) = CE({\boldsymbol y},\hat{\boldsymbol y}) = - \sum^{\textrm{d}}_{i=1} y_{i}\log({\hat{y}}_{i})
+\end{equation}
+To compute the loss for the training set, we sum (or average) this $J(\theta)$ as computed with respect to each training example.
+
+\noindent For this problem, we let $\textrm{d} = 50$ be the length of our word vectors, which are concatenated into a window of width $3\times5=150$. The hidden layer has dimensions of 100, and the output layer $\hat{y}$ has dimension of 5.
+
+\noindent (a) Compute the gradients of $J(\theta)$ with respect to all the model parameters:
+\begin{equation}
+\frac{\partial J}{\partial{\boldsymbol U}}
+\end{equation}
+where,
+\begin{equation}
+{\boldsymbol U}\in\mathbb{R}^{100\times5}
+\end{equation}
+
+\noindent In the spirit of backpropagation, you should express the derivative of activation functions ($\tanh,\texttt{softmax}$) in terms of their function values (as with sigmoid in Assignment~1). This identity may be helpful:
+\begin{equation}
+\tanh(z) = 2\sigma(2z)-1
+\end{equation}
+
+\noindent Furthermore, you should express the gradients by using an "error vector" propagated back to each layer; this just amounts to putting parentheses around factors in the chain rule, and will greatly simplify your analysis. All resulting gradients should have simple, closed-form expressions in terms of matrix operations. (\textbf{Hint}: you've already done most of the work here as part of Assignment~1.)
+
+\vspace{5mm}
+\noindent\rule{\textwidth}{0.4pt}
+
+\clearpage
+\myrunninghwhead{2}{2 (Deep Networks for NER)}
+
+\myhwtitle{2}{2(b)}{Gregory King}
+
+\bigskip
+
+\noindent alksdjfas
+\noindent \textbf{Hint}: laskdjfslj.
+
+\vspace{5mm}
+\noindent\rule{\textwidth}{0.4pt}
+\begin{python}
+import numpy as np
+
+\end{python}
+\clearpage
+
 \end{document}
-
-
-
-
