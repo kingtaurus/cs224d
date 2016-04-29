@@ -142,50 +142,109 @@ rulesepcolor=\color{blue},#1
 
 \pagestyle{plain}
 \setcounter{page}{1}
-\myhwtitle{1}{1(a)}{Gregory King}
+\myhwtitle{1}{1 {\bf Tensorflow Softmax} (a)}{Gregory King}
 
 \bigskip
 
-\noindent {\bf Softmax} Prove that softmax (denoted $\textrm{softmax}({\bf x})$)
-is invariant to a constant offset in the input, that is, for any input vector
-$\bf x$ and any constant $c$,
+\noindent In this question, we will implement a linear classifier with loss function
 \begin{equation}
-\textrm{softmax}({\bf x}) = \textrm{softmax}({\bf x} + c),
+J_{\texttt{softmax-CE}}({\textbf{W}}) = CE({\boldsymbol y}, \texttt{softmax}({\boldsymbol x}\textbf{W}))
 \end{equation}
-where $({\bf x} + c)$ means adding the constant $c$ to every dimension of ${\bf x}$.
+Here the rows of ${\boldsymbol x}$ are feature vectors. We will use \texttt{tensorflow}'s automatic
+differentiation capability to fit this model to provided data.\\
 
-{\bf Note}: In practice, we make use of this property and choose $c = -\textrm{max}_{i}({\bf x_i})$, when computing $\textrm{softmax}$ probabilities for numerical stability (i.e. subtracting the maximum element from all elements of ${\bf x}$).\vspace{5mm}
-
+\noindent (a) Implement the softmax function using \texttt{tensorflow} in \texttt{q1\_softmax.py}. Remember that,
+\begin{equation}
+\texttt{softmax}({\boldsymbol x})_{i} = \frac{e^{{\boldsymbol x}_{i}}}{\sum_{j} e^{{\boldsymbol x}_j}}
+\end{equation}
+\textbf{Note}: that you may \textbf{NOT} use \texttt{tf.nn.softmax} or related build-in functions. You can run basic (non-exhaustive tests) by running: \texttt{python q1\_softmax.py}.\\
+\vspace{5mm}
 \noindent\rule{\textwidth}{0.4pt}\vspace{5mm}
 
-\noindent Starting from the definition of softmax,
-\begin{equation}
-\textrm{softmax}({\bf x})_{i} = \frac{e^{x_{i}}}{\sum_{j=1}{e^{x_{j}}}}
-\end{equation}
-it follows, the linear shift, ${\bf x} + c$, yields the following (for the $i$ element):
-\begin{align}
-\textrm{softmax}({\bf x} + c)_{i} & = \frac{e^{(x_{i} + c)}}{\sum_{j=1}{e^{(x_{j} + c)}}}\\
-                                                 & = \frac{e^{c}}{e^{c}}\frac{e^{(x_{i})}}{\sum_{j=1}{e^{(x_{j})}}}\\
-                                                 & = \textrm{softmax}({\bf x})_{i}
-\end{align}
-since this is true for an arbitary $i$, it follows immediately that the linear shift has no affect on the softmax probabilities.
+\noindent Implementation in \texttt{numpy}:
+\begin{python}
+import numpy as np
 
+def softmax(x):
+    c = np.max(x, axis=x.ndim - 1, keepdims=True)
+    #for numerical stability
+    y = np.sum(np.exp(x - c), axis=x.ndim - 1, keepdims=True)
+    x = np.exp(x - c)/y
+    return x
+\end{python}
+The implementation in \texttt{tensorflow}:
+\begin{python}
+import numpy as np
+import tensorflow as tf
+
+def softmax(x):
+  """
+  Compute the softmax function in tensorflow.
+
+  You might find the tensorflow functions tf.exp, 
+  tf.reduce_max, tf.reduce_sum, tf.expand_dims useful. (Many
+  solutions are possible, so you may not need to use all of
+  these functions). Recall also that many common tensorflow
+  operations are sugared (e.g. x * y does a tensor
+  multiplication if x and y are both tensors). Make sure to
+  implement the numerical stability fixes as in the previous
+  homework!
+
+  Args:
+    x:   tf.Tensor with shape (n_samples, n_features). Note
+         feature vectors are represented by row-vectors. (For
+         simplicity, no need to handle 1-d input as in the 
+         previous homework)
+  Returns:
+    out: tf.Tensor with shape (n_sample, n_features). You
+         need to construct this tensor in this problem.
+  """
+
+  ### YOUR CODE HERE
+  log_c = tf.reduce_max(x,
+                        reduction_indices=[len(x.get_shape()) - 1],
+                        keep_dims=True)
+  y     = tf.reduce_sum(tf.exp(x - log_c),
+                        reduction_indices=[len(x.get_shape()) - 1],
+                        keep_dims=True)
+  out   = tf.exp(x - log_c) / y
+  ### END YOUR CODE
+  
+  return out 
+\end{python}
 
 \clearpage
 \pagestyle{myheadings}
-\myrunninghwhead{1}{1 (Softmax)}
+\myrunninghwhead{1}{1 (Tensorflow Softmax) (b)}
 
 \myhwtitle{1}{1(b)}{Gregory King}
 
 \bigskip
 
-\noindent Given an input matrix of \texttt{N}-rows and \texttt{d}-columns, compute the softmax prediction for each row.
-Write your implementation in \texttt{q1\_softmax.py}. You may test by executing python \texttt{q1\_softmax.py}.\\
+\noindent Implement the cross-entropy loss using \texttt{tensorflow} in \texttt{q1\_softmax.py}. Remember that:
+\begin{equation}
+CE({\boldsymbol y}, \hat{\boldsymbol y}) = - \sum^{\textrm{N}_{c}}_{i=1} y_{i}\log(\hat{y}_{i})
+\end{equation}
+where ${\boldsymbol y}\in\mathbb{R}^{5}$ is a one-hot label vector and $\textrm{N}_{c}$ is the number of classes. \textbf{Note}: that you may \textbf{NOT} use \texttt{tensorflow}'s built-in cross-entropy functions for this question. You can run basic (non-exhaustive tests) by running \texttt{python q1\_softmax.py}.
 
-\noindent \textbf{Note:} The provided tests are not exhaustive. Later parts of the assignment will reference this code so it is
-important to have a correct implementation. Your implementation should also be efficient and vectorized
-whenever possible. A non-vectorized implementation will not receive full credit!\vspace{5mm}
+\vspace{5mm}
+\noindent\rule{\textwidth}{0.4pt}
+\begin{python}
+import numpy as np
 
+\end{python}
+\clearpage
+
+\myrunninghwhead{1}{1 (Tensorflow Softmax) (c)}
+
+\myhwtitle{1}{1(c)}{Gregory King}
+
+\bigskip
+
+\noindent Carefully stude the \texttt{Model} class in \texttt{model.py}. Briefly explain the purpose of placeholder variables and feed dictionaries in \texttt{tensorflow} computations. Fill in the implementation for the \texttt{add\_placeholders}, \texttt{create\_feed\_dict} in \texttt{q1\_classifier.py}.
+
+\noindent \textbf{Hint}: that configuration variables are stored in \texttt{Config} class. You will need to use these configuartion variables in the code.
+\vspace{5mm}
 \noindent\rule{\textwidth}{0.4pt}
 \begin{python}
 import numpy as np
@@ -198,13 +257,37 @@ def softmax(x):
     return x
 \end{python}
 \clearpage
+\myrunninghwhead{1}{1 (Tensorflow Softmax) (d)}
 
-\myrunninghwhead{1}{2 (Neural Networks)}
-
-\myhwtitle{1}{2(a)}{Gregory King}
+\myhwtitle{1}{1(d)}{Gregory King}
 
 \bigskip
 
+\noindent Implement the transformatoin for a softmax classifier in function \texttt{add\_model} in \texttt{q1\_classifier.py}. Add cross-entropy loss in function \texttt{add\_loss\_op} in the same file. Use the implementation form earlier pars of the problem, \textbf{NOT} \texttt{tensorflow} built-ins.
+
+\vspace{5mm}
+\noindent\rule{\textwidth}{0.4pt}
+\begin{python}
+import numpy as np
+\end{python}
+\clearpage
+\myrunninghwhead{1}{1 (Tensorflow Softmax) (e)}
+
+\myhwtitle{1}{1(e)}{Gregory King}
+
+\bigskip
+
+\noindent Fill in the implementation for \texttt{add\_training\_op} in \texttt{q1\_classifier.py}. Explain how \texttt{tensorflow}'s automatic differentiation removes the need for us to define gradients explicitly. Verify that your model is able to fit to synthetic data by running \texttt{python q1\_classifier.py} and make sure that the tests pass.
+
+\noindent \textbf{Hint}: Make sure to use the learning rate specified in \texttt{Config}.
+
+\vspace{5mm}
+\noindent\rule{\textwidth}{0.4pt}
+\begin{python}
+import numpy as np
+
+\end{python}
+\clearpage
 \end{document}
 
 
