@@ -37,6 +37,7 @@
 \usepackage{color}
 \usepackage{textcomp}
 \usepackage{graphicx}
+\usepackage{hyperref}
 
 \renewcommand{\lstlistlistingname}{Code Listings} 
 \renewcommand{\lstlistingname}{Code Listing} 
@@ -248,13 +249,6 @@ import numpy as np
 \noindent\rule{\textwidth}{0.4pt}
 \begin{python}
 import numpy as np
-
-def softmax(x):
-    c = np.max(x, axis=x.ndim - 1, keepdims=True)
-    #for numerical stability
-    y = np.sum(np.exp(x - c), axis=x.ndim - 1, keepdims=True)
-    x = np.exp(x - c)/y
-    return x
 \end{python}
 \clearpage
 \myrunninghwhead{2}{1 (Tensorflow Softmax)}
@@ -285,7 +279,6 @@ import numpy as np
 \noindent\rule{\textwidth}{0.4pt}
 \begin{python}
 import numpy as np
-
 \end{python}
 \clearpage
 \myrunninghwhead{2}{2 (Deep Networks for NER)}
@@ -323,11 +316,11 @@ To compute the loss for the training set, we sum (or average) this $J(\theta)$ a
 
 \noindent (a) Compute the gradients of $J(\theta)$ with respect to all the model parameters:
 \begin{equation}
-\frac{\partial J}{\partial{\boldsymbol U}}
+\frac{\partial J}{\partial{\boldsymbol U}}\quad\frac{\partial J}{\partial{\boldsymbol b}_{2}}\quad\frac{\partial J}{\partial{\boldsymbol W}}\quad\frac{\partial J}{\partial{\boldsymbol b}_{1}}\quad\frac{\partial J}{\partial{\boldsymbol L}_{i}}
 \end{equation}
 where,
 \begin{equation}
-{\boldsymbol U}\in\mathbb{R}^{100\times5}
+{\boldsymbol U}\in\mathbb{R}^{100\times5}\quad{\boldsymbol b}_{2}\in\mathbb{R}^{5}\quad{\boldsymbol W}\in\mathbb{R}^{150\times100}\quad{\boldsymbol b}_{1}\in\mathbb{R}^{100}\quad{\boldsymbol L}_{i}\in\mathbb{R}^{50}
 \end{equation}
 
 \noindent In the spirit of backpropagation, you should express the derivative of activation functions ($\tanh,\texttt{softmax}$) in terms of their function values (as with sigmoid in Assignment~1). This identity may be helpful:
@@ -347,15 +340,35 @@ where,
 
 \bigskip
 
-\noindent alksdjfas
-\noindent \textbf{Hint}: laskdjfslj.
+\noindent To avoid parameters from exploding or becoming highly correlated, it is helpful to augment our cost function with a Gaussian prior: this tends to push parameter weights closer to zero, without constraining their direction, and often leads to classifiers with better generalization ability.
 
+\noindent If we maximize \textbf{log-likelihood} (as with the cross-entropy loss above), then the Gaussian prior becomes a quadratic term\footnote{Optional (\textbf{not graded}): The interested reader should prove that this is indeed the maximum-likelihood objective when we let ${\boldsymbol W}_{ij} \equiv \textrm{N}(0, 1/\lambda)$ for all $i$, $j$.} (L2 regularization):
+\begin{equation}
+J_{\textrm{reg}}(\theta) = \frac{\lambda}{2}\big[\sum_{i,j}{\boldsymbol W}^{2}_{ij} + \sum_{i\prime,j\prime}{\boldsymbol U}^{2}_{i\prime j\prime} \big]
+\end{equation}
+
+\noindent Update your gradients from part (a) to include the additional term in this loss function (i.e. compute $\frac{\partial J_{\textrm{full}}}{\partial{\boldsymbol W}}$, etc.).
 \vspace{5mm}
 \noindent\rule{\textwidth}{0.4pt}
-\begin{python}
-import numpy as np
 
-\end{python}
+\clearpage
+
+\myrunninghwhead{2}{2 (Deep Networks for NER)}
+
+\myhwtitle{2}{2(c)}{Gregory King}
+
+\bigskip
+
+\noindent In order to avoid neurons becoming too correlated and ending up in poor local minima, it is often helpful to randomly initialize parameters. One of the most frequent initializations used is called \textbf{Xavier} initialization\footnote{This is also referred to as \textbf{Glorot} initialization and was initially described in \url{http://jmlr.org/proceedings/papers/v9/glorot10a/glorot10a.pdf}~.}.
+
+\noindent Given a matrix ${\boldsymbol A}$ of dimensions $\textrm{m}\times\textrm{n}$, select values ${\boldsymbol A}_{ij}$ uniformly from $[-\epsilon,-\epsilon]$, where
+\begin{equation}
+\epsilon = \frac{\sqrt{6}}{\sqrt{m+n}}
+\end{equation}
+Implement the initialization for use in \texttt{xavier\_weight\_init} in \texttt{q2\_initialization.py} and use it for the weights ${\boldsymbol W}$ and ${\boldsymbol U}$.
+\vspace{5mm}
+\noindent\rule{\textwidth}{0.4pt}
+
 \clearpage
 
 \end{document}
