@@ -74,7 +74,7 @@ rulesepcolor=\color{blue},#1
 \setlength{\headheight}{.25in}
 \setlength{\headsep}{.25in}
 \setlength{\topmargin}{0in}
-\setlength{\textwidth}{6.5in}
+\setlength{\textwidth}{6.75in}
 \setlength{\oddsidemargin}{0in}
 \setlength{\evensidemargin}{0in}
 
@@ -147,18 +147,18 @@ rulesepcolor=\color{blue},#1
 
 \bigskip
 
-\noindent In this question, we will implement a linear classifier with loss function
+\noindent In this question, we will implement a linear classifier with loss function\\
 \begin{equation}
 J_{\texttt{softmax-CE}}({\textbf{W}}) = CE({\boldsymbol y}, \texttt{softmax}({\boldsymbol x}\textbf{W}))
 \end{equation}
 Here the rows of ${\boldsymbol x}$ are feature vectors. We will use \texttt{tensorflow}'s automatic
 differentiation capability to fit this model to provided data.\\
 
-\noindent (a) Implement the softmax function using \texttt{tensorflow} in \texttt{q1\_softmax.py}. Remember that,
+\noindent (a) Implement the softmax function using \texttt{tensorflow} in \texttt{q1\_softmax.py}. Remember that,\\
 \begin{equation}
 \texttt{softmax}({\boldsymbol x})_{i} = \frac{e^{{\boldsymbol x}_{i}}}{\sum_{j} e^{{\boldsymbol x}_j}}
 \end{equation}
-\textbf{Note}: that you may \textbf{NOT} use \texttt{tf.nn.softmax} or related build-in functions. You can run basic (non-exhaustive tests) by running: \texttt{python q1\_softmax.py}.\\
+\textbf{NOTE}: that you may \textbf{NOT} use \texttt{tf.nn.softmax} or related build-in functions. You can run basic (non-exhaustive tests) by running: \texttt{python q1\_softmax.py}.\\
 \vspace{5mm}
 \noindent\rule{\textwidth}{0.4pt}\vspace{5mm}
 
@@ -172,7 +172,7 @@ def softmax(x):
     y = np.sum(np.exp(x - c), axis=x.ndim - 1, keepdims=True)
     x = np.exp(x - c)/y
     return x
-\end{python}
+\end{python}\vspace{5mm}
 The implementation in \texttt{tensorflow}:
 \begin{python}
 import numpy as np
@@ -218,7 +218,7 @@ def softmax(x):
 \pagestyle{myheadings}
 \myrunninghwhead{2}{1 (Tensorflow Softmax)}
 
-\myhwtitle{2}{1(b)}{Gregory King}
+\myhwtitle{2}{1 (b)}{Gregory King}
 
 \bigskip
 
@@ -236,24 +236,21 @@ import numpy as np
 \end{python}
 \clearpage
 
-\myrunninghwhead{2}{1 (Tensorflow Softmax)}
-
-\myhwtitle{2}{1(c)}{Gregory King}
+\myhwtitle{2}{1 (c)}{Gregory King}
 
 \bigskip
 
-\noindent Carefully stude the \texttt{Model} class in \texttt{model.py}. Briefly explain the purpose of placeholder variables and feed dictionaries in \texttt{tensorflow} computations. Fill in the implementation for the \texttt{add\_placeholders}, \texttt{create\_feed\_dict} in \texttt{q1\_classifier.py}.
+\noindent Carefully stude the \texttt{Model} class in \texttt{model.py}. Briefly explain the purpose of placeholder variables and feed dictionaries in \texttt{tensorflow} computations. Fill in the implementation for the \texttt{add\_placeholders}, \texttt{create\_feed\_dict} in \texttt{q1\_classifier.py}.\\
 
-\noindent \textbf{Hint}: that configuration variables are stored in \texttt{Config} class. You will need to use these configuartion variables in the code.
-\vspace{5mm}
+\noindent \textbf{HINT}: that configuration variables are stored in \texttt{Config} class. You will need to use these configuartion variables in the code.\vspace{5mm}
+
 \noindent\rule{\textwidth}{0.4pt}
 \begin{python}
 import numpy as np
 \end{python}
 \clearpage
-\myrunninghwhead{2}{1 (Tensorflow Softmax)}
 
-\myhwtitle{2}{1(d)}{Gregory King}
+\myhwtitle{2}{1 (d)}{Gregory King}
 
 \bigskip
 
@@ -265,15 +262,14 @@ import numpy as np
 import numpy as np
 \end{python}
 \clearpage
-\myrunninghwhead{2}{1 (Tensorflow Softmax)}
 
-\myhwtitle{2}{1(e)}{Gregory King}
+\myhwtitle{2}{1 (e)}{Gregory King}
 
 \bigskip
 
-\noindent Fill in the implementation for \texttt{add\_training\_op} in \texttt{q1\_classifier.py}. Explain how \texttt{tensorflow}'s automatic differentiation removes the need for us to define gradients explicitly. Verify that your model is able to fit to synthetic data by running \texttt{python q1\_classifier.py} and make sure that the tests pass.
+\noindent Fill in the implementation for \texttt{add\_training\_op} in \texttt{q1\_classifier.py}. Explain how \texttt{tensorflow}'s automatic differentiation removes the need for us to define gradients explicitly. Verify that your model is able to fit to synthetic data by running \texttt{python q1\_classifier.py} and make sure that the tests pass.\\
 
-\noindent \textbf{Hint}: Make sure to use the learning rate specified in \texttt{Config}.
+\noindent \textbf{HINT}: Make sure to use the learning rate specified in \texttt{Config}.
 
 \vspace{5mm}
 \noindent\rule{\textwidth}{0.4pt}
@@ -283,7 +279,7 @@ import numpy as np
 \clearpage
 \myrunninghwhead{2}{2 (Deep Networks for NER)}
 
-\myhwtitle{2}{2(a)}{Gregory King}
+\myhwtitle{2}{2 (a)}{Gregory King}
 
 \bigskip
 
@@ -294,81 +290,174 @@ import numpy as np
 \item{Location (\texttt{LOC})}
 \item{Miscellaneous (\texttt{MISC})}
 \end{itemize}
-\noindent We formulate this as a 5-class classification problem, using the four above classes and a null-class (\texttt{0}) for words that do not represent a named entity (\textbf{NOTE}: most words fall into this category).
+\noindent We formulate this as a 5-class classification problem, using the four above classes and a null-class (\texttt{0}) for words that do not represent a named entity (\textbf{NOTE}: most words fall into this category).\\
 
-\noindent The model is a 1-hidden-layer neural network, with an additional representation layer similar to what you saw with $\texttt{word2vec}$. Rather than averaging or sampling, here we explicitly represent context as a "window" consisting of a word concatenated with its immediate neighbours:
+\noindent The model is a 1-hidden-layer neural network, with an additional representation layer similar to what you saw with $\texttt{word2vec}$. Rather than averaging or sampling, here we explicitly represent context as a `window' consisting of a word concatenated with its immediate neighbours:\\
 
 \begin{equation}
 {\boldsymbol x}^{(t)} = [ {\boldsymbol x}_{t-1}\textbf{L}, {\boldsymbol x}_{t}\textbf{L}, {\boldsymbol x}_{t+1}\textbf{L}]\in\mathbb{R}^{3\textrm{d}}
 \end{equation}
-where the input ${\boldsymbol x}_{t-1}$, ${\boldsymbol x}_{t}$, ${\boldsymbol x}_{t+1}$ are one-hot row vectors into an embedding matrix $\textbf{L}\in\mathbb{R}^{|\textrm{V}|\times\textrm{d}}$, which each row $\textbf{L}_{i}$ as the vector for a particular word $i={\boldsymbol x}_{t}$. We then compute our prediction as:
+where the input ${\boldsymbol x}_{t-1}$, ${\boldsymbol x}_{t}$, ${\boldsymbol x}_{t+1}$ are one-hot row vectors into an embedding matrix $\textbf{L}\in\mathbb{R}^{|\textrm{V}|\times\textrm{d}}$, which each row $\textbf{L}_{i}$ as the vector for a particular word $i={\boldsymbol x}_{t}$. We then compute our prediction as:\\
 \begin{align}
-1 &=
+1 &= \\
 2 &=
 \end{align}
-And evaluate by cross-entropy loss,
+And evaluate by cross-entropy loss,\\
 \begin{equation}
 J(\theta) = CE({\boldsymbol y},\hat{\boldsymbol y}) = - \sum^{\textrm{d}}_{i=1} y_{i}\log({\hat{y}}_{i})
 \end{equation}
-To compute the loss for the training set, we sum (or average) this $J(\theta)$ as computed with respect to each training example.
+To compute the loss for the training set, we sum (or average) this $J(\theta)$ as computed with respect to each training example.\\
 
 \noindent For this problem, we let $\textrm{d} = 50$ be the length of our word vectors, which are concatenated into a window of width $3\times5=150$. The hidden layer has dimensions of 100, and the output layer $\hat{y}$ has dimension of 5.
 
-\noindent (a) Compute the gradients of $J(\theta)$ with respect to all the model parameters:
+\noindent (a) Compute the gradients of $J(\theta)$ with respect to all the model parameters:\\
 \begin{equation}
 \frac{\partial J}{\partial{\boldsymbol U}}\quad\frac{\partial J}{\partial{\boldsymbol b}_{2}}\quad\frac{\partial J}{\partial{\boldsymbol W}}\quad\frac{\partial J}{\partial{\boldsymbol b}_{1}}\quad\frac{\partial J}{\partial{\boldsymbol L}_{i}}
 \end{equation}
-where,
+where,\\
 \begin{equation}
 {\boldsymbol U}\in\mathbb{R}^{100\times5}\quad{\boldsymbol b}_{2}\in\mathbb{R}^{5}\quad{\boldsymbol W}\in\mathbb{R}^{150\times100}\quad{\boldsymbol b}_{1}\in\mathbb{R}^{100}\quad{\boldsymbol L}_{i}\in\mathbb{R}^{50}
 \end{equation}
 
-\noindent In the spirit of backpropagation, you should express the derivative of activation functions ($\tanh,\texttt{softmax}$) in terms of their function values (as with sigmoid in Assignment~1). This identity may be helpful:
+\noindent In the spirit of backpropagation, you should express the derivative of activation functions ($\tanh,\texttt{softmax}$) in terms of their function values (as with sigmoid in Assignment~1). This identity may be helpful:\\
 \begin{equation}
 \tanh(z) = 2\sigma(2z)-1
 \end{equation}
 
-\noindent Furthermore, you should express the gradients by using an "error vector" propagated back to each layer; this just amounts to putting parentheses around factors in the chain rule, and will greatly simplify your analysis. All resulting gradients should have simple, closed-form expressions in terms of matrix operations. (\textbf{Hint}: you've already done most of the work here as part of Assignment~1.)
+\noindent Furthermore, you should express the gradients by using an `error vector' propagated back to each layer; this just amounts to putting parentheses around factors in the chain rule, and will greatly simplify your analysis. All resulting gradients should have simple, closed-form expressions in terms of matrix operations. (\textbf{Hint}: you've already done most of the work here as part of Assignment~1.)
 
 \vspace{5mm}
 \noindent\rule{\textwidth}{0.4pt}
 
 \clearpage
-\myrunninghwhead{2}{2 (Deep Networks for NER)}
 
-\myhwtitle{2}{2(b)}{Gregory King}
+\myhwtitle{2}{2 (b)}{Gregory King}
 
 \bigskip
 
-\noindent To avoid parameters from exploding or becoming highly correlated, it is helpful to augment our cost function with a Gaussian prior: this tends to push parameter weights closer to zero, without constraining their direction, and often leads to classifiers with better generalization ability.
+\noindent To avoid parameters from exploding or becoming highly correlated, it is helpful to augment our cost function with a Gaussian prior: this tends to push parameter weights closer to zero, without constraining their direction, and often leads to classifiers with better generalization ability.\\
 
 \noindent If we maximize \textbf{log-likelihood} (as with the cross-entropy loss above), then the Gaussian prior becomes a quadratic term\footnote{Optional (\textbf{not graded}): The interested reader should prove that this is indeed the maximum-likelihood objective when we let ${\boldsymbol W}_{ij} \equiv \textrm{N}(0, 1/\lambda)$ for all $i$, $j$.} (L2 regularization):
 \begin{equation}
 J_{\textrm{reg}}(\theta) = \frac{\lambda}{2}\big[\sum_{i,j}{\boldsymbol W}^{2}_{ij} + \sum_{i\prime,j\prime}{\boldsymbol U}^{2}_{i\prime j\prime} \big]
 \end{equation}
 
-\noindent Update your gradients from part (a) to include the additional term in this loss function (i.e. compute $\frac{\partial J_{\textrm{full}}}{\partial{\boldsymbol W}}$, etc.).
-\vspace{5mm}
+\noindent Update your gradients from part (a) to include the additional term in this loss function (i.e. compute $\frac{\partial J_{\textrm{full}}}{\partial{\boldsymbol W}}$, etc.).\vspace{5mm}
+
 \noindent\rule{\textwidth}{0.4pt}
 
 \clearpage
 
-\myrunninghwhead{2}{2 (Deep Networks for NER)}
-
-\myhwtitle{2}{2(c)}{Gregory King}
+\myhwtitle{2}{2 (c)}{Gregory King}
 
 \bigskip
 
-\noindent In order to avoid neurons becoming too correlated and ending up in poor local minima, it is often helpful to randomly initialize parameters. One of the most frequent initializations used is called \textbf{Xavier} initialization\footnote{This is also referred to as \textbf{Glorot} initialization and was initially described in \url{http://jmlr.org/proceedings/papers/v9/glorot10a/glorot10a.pdf}~.}.
+\noindent In order to avoid neurons becoming too correlated and ending up in poor local minima, it is often helpful to randomly initialize parameters. One of the most frequent initializations used is called \textbf{Xavier} initialization\footnote{This is also referred to as \textbf{Glorot} initialization and was initially described in \url{http://jmlr.org/proceedings/papers/v9/glorot10a/glorot10a.pdf}~.}.\\
 
-\noindent Given a matrix ${\boldsymbol A}$ of dimensions $\textrm{m}\times\textrm{n}$, select values ${\boldsymbol A}_{ij}$ uniformly from $[-\epsilon,-\epsilon]$, where
+\noindent Given a matrix ${\boldsymbol A}$ of dimensions $\textrm{m}\times\textrm{n}$, select values ${\boldsymbol A}_{ij}$ uniformly from $[-\epsilon,-\epsilon]$, where\\
 \begin{equation}
 \epsilon = \frac{\sqrt{6}}{\sqrt{m+n}}
 \end{equation}
 Implement the initialization for use in \texttt{xavier\_weight\_init} in \texttt{q2\_initialization.py} and use it for the weights ${\boldsymbol W}$ and ${\boldsymbol U}$.
+
 \vspace{5mm}
 \noindent\rule{\textwidth}{0.4pt}
 
 \clearpage
 
+\myhwtitle{2}{2 (d)}{Gregory King}
+
+\bigskip
+
+\noindent In \texttt{q2\_NER.py} implement the \textbf{NER} window model by filling in the appropriate sections. The gradients you derived in (a) and (b) will be computed for you automatically, showing the benefits that automatic differentiation can provide for rapid prototyping.\\
+
+\noindent Run \texttt{python q2\_NER.py} to evaluate your model's performance on the \textbf{dev} set, and compute predictions on the \textbf{test} data (make sure turn off debug settings when doing final evaluation). \textbf{Note}: the test set has only dummy labels; we'll compare your predictions against ground truth after you submit.\\
+
+{\Large \textbf{Deliverables:}}
+\begin{itemize}
+\item{Working implementation of the \textbf{NER} window model in \texttt{q2\_NER.py}.}
+\item{In your write-up, \textit{briefly} state the optimal hyperparameters you found for your model: \textbf{regularization}, \textbf{dimensions}, \textbf{learning rate} (including time-varying, such as \textbf{annealing}), \textbf{SGC batch size}, etc. Report the performance of your model on the \textbf{validiation} set. You should be able to get a validation loss below $\textbf{0.2}$.}
+\item{List of predicted labels for the \textbf{test} set, one per line, in the file \texttt{q2 test.predicted}.}
+\item{\textbf{HINT}: When debugging, set $\texttt{max\_epochs}=1$. Pass the keyword argument $\texttt{debug} = \texttt{True}$ to the call to $\texttt{load\_data}$ in the \texttt{\_\_init\_\_} method.}
+\item{\textbf{HINT}: The code should run within 15 minutes on a GPU and 1 hour on a CPU.}
+\end{itemize}
+\vspace{5mm}
+\noindent\rule{\textwidth}{0.4pt}
+
+\clearpage
+\myrunninghwhead{2}{3 (RNN: Language Modeling)}
+
+\myhwtitle{2}{3 (a)}{Gregory King}
+
+\bigskip
+
+\noindent In this section, you'll implement your first recurrent neural network (\textbf{RNN}) for building a language model.\\
+
+Language modeling is a central task in \texttt{NLP}, and language models can be found at the heart of speech recognition, machine translation, and many other systems. Give ${\boldsymbol x}_{1}, ..., {\boldsymbol x}_{t}$, a language model prdicts the following word ${\boldsymbol x}_{t+1}$ by modeling:\\
+\begin{equation}
+P({\boldsymbol x}_{t+1} = v_{j} | {\boldsymbol x}_{1}, ..., {\boldsymbol x}_{t})
+\end{equation}
+where $v_{j}$ is a word in the vocabulary.\\
+
+Your job is to implement a recurrent neural network language model, which use feedback informatoin in the hidden layer to model the `history' $x_{t}, x_{t-1}, ..., x_{1}$. Formally, the model\footnote{a footnote} is, for $t\in\{1,...,\textrm{n}-1\}$:
+
+\vspace{5mm}
+\noindent\rule{\textwidth}{0.4pt}
+
+\clearpage
+
+\myhwtitle{2}{3 (b)}{Gregory King}
+
+\bigskip
+
+\noindent In
+
+\vspace{5mm}
+\noindent\rule{\textwidth}{0.4pt}
+
+\clearpage
+
+\myhwtitle{2}{3 (c)}{Gregory King}
+
+\bigskip
+
+\noindent In
+
+\vspace{5mm}
+\noindent\rule{\textwidth}{0.4pt}
+
+\clearpage
+
+\myhwtitle{2}{3 (d)}{Gregory King}
+
+\bigskip
+
+\noindent In
+
+\vspace{5mm}
+\noindent\rule{\textwidth}{0.4pt}
+
+\clearpage
+
+\myhwtitle{2}{3 (e)}{Gregory King}
+
+\bigskip
+
+\noindent In
+
+\vspace{5mm}
+\noindent\rule{\textwidth}{0.4pt}
+
+\clearpage
+
+\myhwtitle{2}{3 (f)}{Gregory King}
+
+\bigskip
+
+\noindent In
+
+\vspace{5mm}
+\noindent\rule{\textwidth}{0.4pt}
+
+\clearpage
 \end{document}
