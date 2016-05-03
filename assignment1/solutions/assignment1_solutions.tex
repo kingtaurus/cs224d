@@ -784,12 +784,12 @@ If $i \in \{1,...,K\}$ then we need to take the derivative of the second term. I
 \end{align}
 Which yields the following, where $j\in{{\boldsymbol o},1,...,K}$,
 \begin{equation*}
-\frac{\partial{J}}{\partial{z_{i}}} = \sigma(z_{i}) - \delta^{i}_{o}
+\frac{\partial{J}}{\partial{z_{i}}} = \sigma(z_{i}) - \delta^{i}_{0}
 \end{equation*}
 
 \begin{align}
-\frac{\partial J}{\partial{\boldsymbol u}_{j}} &= (\sigma(z_{j}) - \delta^{j}_{o}){\boldsymbol v}_{c}\\
-\frac{\partial J}{\partial{\boldsymbol v}_{c}} &= \sum^{K}_{j=1}(\sigma(z_{j}) - \delta^{j}_{o}){\boldsymbol u}_{j}
+\frac{\partial J}{\partial{\boldsymbol u}_{j}} &= (\sigma(z_{j}) - \delta^{j}_{0}){\boldsymbol v}_{c}\\
+\frac{\partial J}{\partial{\boldsymbol v}_{c}} &= (\sigma(z_{0}) - 1){\boldsymbol u}_{0} - \sum^{K}_{j=1}(\sigma(z_{j}) - 1){\boldsymbol u}_{j}
 \end{align}
 
 \clearpage
