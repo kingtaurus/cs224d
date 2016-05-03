@@ -38,6 +38,7 @@
 \usepackage{textcomp}
 \usepackage{graphicx}
 \usepackage{hyperref}
+\usepackage{afterpage}
 
 \renewcommand{\lstlistlistingname}{Code Listings} 
 \renewcommand{\lstlistingname}{Code Listing} 
@@ -133,18 +134,28 @@ rulesepcolor=\color{blue},#1
 {\it {#3}} % Name goes here
 \end{center}}
 
+\newcommand{\myhwintro}[3]
+{\begin{center}
+{\large {\bf Assignment {#1}, Problem {#2}}}\\
+\medskip 
+{\it {#3}} % Name goes here
+\end{center}}
+
 \newcommand{\mysection}[1]
 {\noindent {\bf {#1}}}
 
+\newcommand{\solutionsAuthor}{Gregory King}
 %%%%%% Begin document with header and title %%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{document}
 
 \myalgsheader
+\myhwintro{2}{1 (Tensorflow Softmax)}{~}
 
-\pagestyle{plain}
+\pagestyle{myheadings}
+\thispagestyle{plain}
 \setcounter{page}{1}
-\myhwtitle{2}{1 {\bf Tensorflow Softmax}}{Gregory King}
 
+\myrunninghwhead{2}{1 (Tensorflow Softmax)}
 \bigskip
 
 \noindent In this question, we will implement a linear classifier with loss function\\
@@ -154,7 +165,8 @@ J_{\texttt{softmax-CE}}({\textbf{W}}) = CE({\boldsymbol y}, \texttt{softmax}({\b
 Here the rows of ${\boldsymbol x}$ are feature vectors. We will use \texttt{tensorflow}'s automatic
 differentiation capability to fit this model to provided data.\\
 
-\noindent (a) Implement the softmax function using \texttt{tensorflow} in \texttt{q1\_softmax.py}. Remember that,\\
+\myhwtitle{2}{1 (a)}{\solutionsAuthor}
+\noindent Implement the softmax function using \texttt{tensorflow} in \texttt{q1\_softmax.py}. Remember that,\\
 \begin{equation}
 \texttt{softmax}({\boldsymbol x})_{i} = \frac{e^{{\boldsymbol x}_{i}}}{\sum_{j} e^{{\boldsymbol x}_j}}
 \end{equation}
@@ -213,12 +225,12 @@ def softmax(x):
   
   return out 
 \end{python}
-
 \clearpage
-\pagestyle{myheadings}
 \myrunninghwhead{2}{1 (Tensorflow Softmax)}
 
-\myhwtitle{2}{1 (b)}{Gregory King}
+\myhwtitle{2}{1 (b)}{\solutionsAuthor}
+
+\pagestyle{myheadings}
 
 \bigskip
 
@@ -236,7 +248,7 @@ import numpy as np
 \end{python}
 \clearpage
 
-\myhwtitle{2}{1 (c)}{Gregory King}
+\myhwtitle{2}{1 (c)}{\solutionsAuthor}
 
 \bigskip
 
@@ -250,7 +262,7 @@ import numpy as np
 \end{python}
 \clearpage
 
-\myhwtitle{2}{1 (d)}{Gregory King}
+\myhwtitle{2}{1 (d)}{\solutionsAuthor}
 
 \bigskip
 
@@ -263,7 +275,7 @@ import numpy as np
 \end{python}
 \clearpage
 
-\myhwtitle{2}{1 (e)}{Gregory King}
+\myhwtitle{2}{1 (e)}{\solutionsAuthor}
 
 \bigskip
 
@@ -279,7 +291,7 @@ import numpy as np
 \clearpage
 \myrunninghwhead{2}{2 (Deep Networks for NER)}
 
-\myhwtitle{2}{2 (a)}{Gregory King}
+\myhwintro{2}{2 (Deep Networks for Named Entity Recognition (NER))}{~}
 
 \bigskip
 
@@ -310,7 +322,9 @@ To compute the loss for the training set, we sum (or average) this $J(\theta)$ a
 
 \noindent For this problem, we let $\textrm{d} = 50$ be the length of our word vectors, which are concatenated into a window of width $3\times5=150$. The hidden layer has dimensions of 100, and the output layer $\hat{y}$ has dimension of 5.
 
-\noindent (a) Compute the gradients of $J(\theta)$ with respect to all the model parameters:\\
+\myhwtitle{2}{2 (a)}{\solutionsAuthor}
+
+\noindent Compute the gradients of $J(\theta)$ with respect to all the model parameters:\\
 \begin{equation}
 \frac{\partial J}{\partial{\boldsymbol U}}\quad\frac{\partial J}{\partial{\boldsymbol b}_{2}}\quad\frac{\partial J}{\partial{\boldsymbol W}}\quad\frac{\partial J}{\partial{\boldsymbol b}_{1}}\quad\frac{\partial J}{\partial{\boldsymbol L}_{i}}
 \end{equation}
@@ -331,7 +345,7 @@ where,\\
 
 \clearpage
 
-\myhwtitle{2}{2 (b)}{Gregory King}
+\myhwtitle{2}{2 (b)}{\solutionsAuthor}
 
 \bigskip
 
@@ -339,7 +353,7 @@ where,\\
 
 \noindent If we maximize \textbf{log-likelihood} (as with the cross-entropy loss above), then the Gaussian prior becomes a quadratic term\footnote{Optional (\textbf{not graded}): The interested reader should prove that this is indeed the maximum-likelihood objective when we let ${\boldsymbol W}_{ij} \equiv \textrm{N}(0, 1/\lambda)$ for all $i$, $j$.} (L2 regularization):
 \begin{equation}
-J_{\textrm{reg}}(\theta) = \frac{\lambda}{2}\big[\sum_{i,j}{\boldsymbol W}^{2}_{ij} + \sum_{i\prime,j\prime}{\boldsymbol U}^{2}_{i\prime j\prime} \big]
+J_{\textrm{reg}}(\theta) = \frac{\lambda}{2}\big[\sum_{i,j}{\boldsymbol W}^{2}_{ij} + \sum_{i^{\prime},j^{\prime}}{\boldsymbol U}^{2}_{i^{\prime}j^{\prime}} \big]
 \end{equation}
 
 \noindent Update your gradients from part (a) to include the additional term in this loss function (i.e. compute $\frac{\partial J_{\textrm{full}}}{\partial{\boldsymbol W}}$, etc.).\vspace{5mm}
@@ -348,7 +362,7 @@ J_{\textrm{reg}}(\theta) = \frac{\lambda}{2}\big[\sum_{i,j}{\boldsymbol W}^{2}_{
 
 \clearpage
 
-\myhwtitle{2}{2 (c)}{Gregory King}
+\myhwtitle{2}{2 (c)}{\solutionsAuthor}
 
 \bigskip
 
@@ -365,7 +379,7 @@ Implement the initialization for use in \texttt{xavier\_weight\_init} in \texttt
 
 \clearpage
 
-\myhwtitle{2}{2 (d)}{Gregory King}
+\myhwtitle{2}{2 (d)}{\solutionsAuthor}
 
 \bigskip
 
@@ -382,79 +396,172 @@ Implement the initialization for use in \texttt{xavier\_weight\_init} in \texttt
 \item{\textbf{HINT}: The code should run within 15 minutes on a GPU and 1 hour on a CPU.}
 \end{itemize}
 \vspace{5mm}
+
 \noindent\rule{\textwidth}{0.4pt}
 
 \clearpage
 \myrunninghwhead{2}{3 (RNN: Language Modeling)}
 
-\myhwtitle{2}{3 (a)}{Gregory King}
+\myhwintro{2}{3 (Recurrent Neural Networks: Language Modeling)}
 
 \bigskip
 
 \noindent In this section, you'll implement your first recurrent neural network (\textbf{RNN}) for building a language model.\\
 
-Language modeling is a central task in \texttt{NLP}, and language models can be found at the heart of speech recognition, machine translation, and many other systems. Give ${\boldsymbol x}_{1}, ..., {\boldsymbol x}_{t}$, a language model prdicts the following word ${\boldsymbol x}_{t+1}$ by modeling:\\
+\noindent Language modeling is a central task in \texttt{NLP}, and language models can be found at the heart of speech recognition, machine translation, and many other systems. Give ${\boldsymbol x}_{1}, ..., {\boldsymbol x}_{t}$, a language model prdicts the following word ${\boldsymbol x}_{t+1}$ by modeling:\\
 \begin{equation}
 P({\boldsymbol x}_{t+1} = v_{j} | {\boldsymbol x}_{1}, ..., {\boldsymbol x}_{t})
 \end{equation}
 where $v_{j}$ is a word in the vocabulary.\\
 
-Your job is to implement a recurrent neural network language model, which use feedback informatoin in the hidden layer to model the `history' $x_{t}, x_{t-1}, ..., x_{1}$. Formally, the model\footnote{a footnote} is, for $t\in\{1,...,\textrm{n}-1\}$:
+\noindent Your job is to implement a recurrent neural network language model, which use feedback informatoin in the hidden layer to model the `history' $x_{t}, x_{t-1}, ..., x_{1}$. Formally, the model\footnote{This model is adapted from a paper by Toma Mikolov, et al. from 2010: \url{http://www.fit.vutbr.cz/research/groups/
+speech/publi/2010/mikolov_interspeech2010_IS100722.pdf}} is, for $t\in\{1,...,\textrm{n}-1\}$:
+
+\begin{align}
+{\boldsymbol e}^{(t)}       &= {\boldsymbol x}^{(t)}{\boldsymbol L} \\
+{\boldsymbol h}^{(t)}       &= \sigma({\boldsymbol h}^{(t-1)}{\boldsymbol H} + {e}^{(t)}{\boldsymbol I} + {\boldsymbol b}_{1})\\
+{\hat{\boldsymbol y}}^{(t)} &= \textrm{softmax}({\boldsymbol h}^{(t)}{\boldsymbol U} + {\boldsymbol b}_{2}) \\
+\bar{P}({\boldsymbol x}^{(t)} = {\boldsymbol v}_{j} | {\boldsymbol x}_{(t)}, ..., {\boldsymbol x}_{(1)}) &= {\hat{\boldsymbol y}}^{(t)}_{j} \\
+\end{align}
+\noindent where ${\boldsymbol h}^{0} = {\boldsymbol h}_{0}\in\mathbb{R}^{D_{h}}$ is some initialization vector for the hidden layer and ${\boldsymbol x}^{(t)}{\boldsymbol L}$ is the product of ${\boldsymbol L}$ with the one-hot row-vector ${\boldsymbol x}^{(t)}$ representing index of the current word. The parameters are:
+\begin{equation}
+\boldsymbol L\in\mathbb{R}^{|V|\times{d}}\label{eq:dimensions questions 3a}
+\end{equation}
+\noindent where ${\boldsymbol L}$ is the embedding matrix, ${\boldsymbol I}$ input word representation matrix, ${\boldsymbol H}$ the hidden transformation matrix, and ${\boldsymbol U}$ is the output word representation matrix, ${\boldsymbol b}_{1}$ and ${\boldsymbol b}_{2}$ are biases ($d$ is the embedding dimension, $|\textrm{V}|$ is the vocabulary size, and $D_{h}$ is the hidden layer dimension). \\
+
+\noindent The output vector ${\hat{\boldsymbol y}}^{(t)}\in\mathbb{R}^{|\textrm{V}|}$ is a probability distribution over the vocabulary, and we optimize the (unregularized) cross-entropy loss:
+\begin{equation}
+J(\theta) = CE({{\boldsymbol y}}^{(t)},{\hat{\boldsymbol y}}^{(t)}) = -\sum^{|\textrm{V}|}_{t=1} {{\boldsymbol y_{i}}}^{(t)}\log({\hat{\boldsymbol y}}^{(t)}_{i}
+\end{equation}
+\noindent where ${{\boldsymbol y}}^{(t)}$ is the one-hot vector corresponding to the target word (which here is equal to $x_{t+1}$). As in question 2, this is a point-wise loss, and we sum (or average) the cross-entropy loss across all examples in a sequence, across all sequences\footnote{We use the tensor function \texttt{sequence\_loss} to do this.} in the dataset in order to evaluate model performance. \\
+\clearpage
+\myhwtitle{2}{3 (a)}{\solutionsAuthor}
+
+\noindent Conventionally, when reporting performance of a language model, we evaluate on \textbf{perplexity}, which is defined as:
+\begin{equation}
+PP
+\end{equation}
+i.e. the inverse probability of the correct word, according to  the model distribution $\bar{P}$. Show how you can derive perplexity from the cross-entropy loss (\textbf{HINT}: remember that $y^{(t)?}$ is one-hot!), and thus argue that minimizing the (arithemtic) mean cross-entropy loss will also minimize the (geometric) mean perplexity across the training set. \footnote{\textbf{NOTE}: this should be a very short problem - not too perplexing!}\\
+
+\noindent For a vocabulary of $|\textrm{V}|$ words, what would you expect perplexity to be if your model predictions were completely random? Compute the corresponding cross-entropy loss $|\textrm{V}|=2000$ and $|\textrm{V}|=10,000$ and keep this in mind as a baseline.\vspace{5mm}\\
+
+\noindent\rule{\textwidth}{0.4pt}
+
+\clearpage
+
+\myhwtitle{2}{3 (b)}{\solutionsAuthor}
+
+\bigskip
+
+\noindent As you did in question 2, compute the gradients with respect to all the model parameters at a single point in time $t$:
+\begin{equation}
+\frac{\partial{J^(t)}}{\partial{\boldsymbol U}}
+\end{equation}
+where ${\boldsymbol L}_{{\boldsymbol x}^{(t)}}$ is the column of ${\boldsymbol L}$ corresponding to the current word ${{\boldsymbol x}^{(t)}}$, and $\big\rvert_{(t)}$ denotes the gradient for the appearance of that parameter at time $t$. Equivalently, ${\boldsymbol h}^{(t-1)}$ is taken to be fixed, and you need not backpropagate to earlier timesteps just yet - you'll do this in 3 (c). \\
+
+\noindent Additionally compute the derivative with respoect to the \textbf{previous} hidden layer value:
+\begin{equation}
+\frac{\partial{J^(t)}}{\partial{\boldsymbol h}^{(t-1)}}
+\end{equation}
+\vspace{5mm}
+\noindent\rule{\textwidth}{0.4pt}
+
+\clearpage
+
+\myhwtitle{2}{3 (c)}{\solutionsAuthor}
+
+\bigskip
+
+\noindent Below is a sketch of the network at a single timestep:
+\begin{center}
+\begin{tikzpicture}[scale=0.15]
+\tikzstyle{every node}+=[inner sep=0pt]
+\draw [black] (30.9,-38.5) circle (3);
+\draw (30.9,-38.5) node {$x^{(t)}$};
+\draw [black] (30.9,-27.3) circle (3);
+\draw (30.9,-27.3) node {$h^{(t)}$};
+\draw [black] (15.4,-27.3) circle (3);
+\draw (15.4,-27.3) node {$h^{(t-1)}$};
+\draw [black] (30.9,-16.7) circle (3);
+\draw (30.9,-16.7) node {$\hat{y}^{(t)}$};
+\draw [black] (46,-27.3) circle (3);
+\draw (46,-27.3) node {$...$};
+\draw [black] (18.4,-27.3) -- (27.9,-27.3);
+\fill [black] (27.9,-27.3) -- (27.1,-26.8) -- (27.1,-27.8);
+\draw [black] (30.9,-35.5) -- (30.9,-30.3);
+\fill [black] (30.9,-30.3) -- (30.4,-31.1) -- (31.4,-31.1);
+\draw [black] (30.9,-24.3) -- (30.9,-19.7);
+\fill [black] (30.9,-19.7) -- (30.4,-20.5) -- (31.4,-20.5);
+\draw [black] (33.9,-27.3) -- (43,-27.3);
+\fill [black] (43,-27.3) -- (42.2,-26.8) -- (42.2,-27.8);
+\end{tikzpicture}
+\end{center}
+
+\noindent Draw the `unrolled' network for 3 timesteps, and compute the backpropagation through time gradients:
+\begin{equation}
+\frac{\partial{J^(t)}}{\partial{\boldsymbol L}_{{\boldsymbol x}^{(t-1)}}}
+\end{equation}
+\noindent where $\big\rvert_{(t-1)}$ denotes the gradient for the appearance of that parameter at time $(t-1)$. Because parameters are used multiple times in feed-forward computation, we need to compute the gradient for each time they appear.\\
+
+\noindent You should use the backpropagation rules from Lecture 5\footnote{http://cs224d.stanford.edu/lectures/CS224d-Lecture5.pdf} to express these derivatives in terms of error term
+\begin{equation}
+\delta^{(t-1)} = \frac{\partial}{\partial}
+\end{equation}
+computed in the previous part. Doing so will allow for re-use of the expressions for $(t-2), (t-3),$ and so on.\\
+
+\noindent\textbf{NOTE}: that the true gradient with respect to a training example requires us to run backpropagation all the way back to $t=0$. In practice, however, we generally truncate this and only backpropagate for a fixed number of $\tau\approx3-5$ timesteps.
 
 \vspace{5mm}
 \noindent\rule{\textwidth}{0.4pt}
 
 \clearpage
 
-\myhwtitle{2}{3 (b)}{Gregory King}
+\myhwtitle{2}{3 (d)}{\solutionsAuthor}
 
 \bigskip
 
-\noindent In
+\noindent Given ${\boldsymbol h}^{(t-1)}$, how many operations are required to perform one step of forward propagation to compute $J^{(t)}(\theta)$? How about backpropagation for a single step in time? For $\tau$ steps in time? Express your answer in big-O notation in terms of the dimensions $d$, $D_{h}$ and $|\textrm{V}|$ (Equation~\ref{eq:dimensions questions 3a}). What is the slow step?
 
 \vspace{5mm}
 \noindent\rule{\textwidth}{0.4pt}
 
 \clearpage
 
-\myhwtitle{2}{3 (c)}{Gregory King}
+\myhwtitle{2}{3 (e)}{\solutionsAuthor}
 
 \bigskip
 
-\noindent In
+\noindent Implement the above model in \texttt{q3\_RNNLM.py}. Data loaders and other starter code are provided. Follow the directions in the code to understand which parts need to be filled in. Running \texttt{python q3\_RNNLM.py} will run the model. Note that you may \textbf{NOT} use built-in tensorflow functions such as those in the \texttt{rnn\_cell} module.\\
+
+\noindent Train a model on the \texttt{ptb-train} data, consisting of the first 20 sections of the WSJ corpus of the Penn Treebank. As in question 2, you should tune your model to maximize generalization performance (minimize cross-entropy loss) on the \texttt{dev} set. We'll evaluate your model on an unseen but similar set of sentences.\\
+
+{\Large \textbf{Deliverables:}}
+\begin{itemize}
+\item{In your writeup, include the best hyperparameters you used (train schedule, number of iterations, learning rate, backprop timesteps), and you perplexity score on the \texttt{ptb-dev} set. You should be able to get validiation perplexity below 175.}
+\item{Include your saved model parameters for your best model; we'll use these to test your model.}
+\item{\textbf{HINT}:When debugging, set $\texttt{max\_epochs} = 1$. Pass the keyword argument $\texttt{debug}=\texttt{True}$ to the call to \texttt{load\_data} in the \texttt{\_\_init\_\_} method.}
+\item{\textbf{HINT}:On a GPU this code should run quickly (below 30 minutes). On a CPU the code may take up to 4 hours to run.}
+\end{itemize}
 
 \vspace{5mm}
 \noindent\rule{\textwidth}{0.4pt}
 
 \clearpage
 
-\myhwtitle{2}{3 (d)}{Gregory King}
+\myhwtitle{2}{3 (f)}{\solutionsAuthor}
 
 \bigskip
 
-\noindent In
+\noindent The networks that you've seen in Assignment 1 and in question 2 of this assignment are discriminative models: they take data, and make a prediction. The \textbf{RNNLM} model you've just implemented is a \textbf{generative} model, in that it actually models the distribution of the \textbf{data} sequence $x_{1}, ...,x_{n}$. This means that not only can we use it to evaluate the likelihood of a sentence, but we can actually use it to generate one! \\
 
-\vspace{5mm}
-\noindent\rule{\textwidth}{0.4pt}
+\noindent After training, in \texttt{q3\_RNNLM.py}, implement the \texttt{generate\_text()} function. This should run the RNN forward in time, beginning with the index for the start token \texttt{<eos>}, and sampling a new word ${\boldsymbol x}_{t+1}$ from the distribution ${\hat{\boldsymbol y}}_{t+1}$ at each timestep. Then feed this word in as input at the next step, and repeat until the model emits an end token (index of \texttt{</eos>}).\\
 
-\clearpage
+{\Large \textbf{Deliverables:}}
+\begin{itemize}
+\item{Include 2-3 generated sentences in your write up. See if you can generate something humorour!}
+\end{itemize}
 
-\myhwtitle{2}{3 (e)}{Gregory King}
-
-\bigskip
-
-\noindent In
-
-\vspace{5mm}
-\noindent\rule{\textwidth}{0.4pt}
-
-\clearpage
-
-\myhwtitle{2}{3 (f)}{Gregory King}
-
-\bigskip
-
-\noindent In
+\noindent\textbf{COMPLETELY OPTIONAL}, (not graded): If you want to experiment further with language models you're welcome to load up your own texts and train on them - sometimes the results can be entertaining. See \url{http://kingjamesprogramming.tumblr.com/} for a great one\footnote{This one just uses a simple \texttt{n-gram Markov model}, but there's no reason an RNNLM can't compete!} trained on a mix of the King James Bible and the Structure and Interpretation of Computer Programs.
 
 \vspace{5mm}
 \noindent\rule{\textwidth}{0.4pt}
