@@ -66,6 +66,8 @@ def softmaxCostAndGradient(predicted, target, outputVectors, dataset):
     # assignment!
     
     ### YOUR CODE HERE
+    N, D     = outputVectors.shape
+
     r    = predicted
     prob = np.exp(np.dot(outputVectors, r)) / np.sum(np.exp(np.dot(outputVectors, r)))
     cost = -np.log(prob[target] + 1e-12)
@@ -97,20 +99,21 @@ def negSamplingCostAndGradient(predicted, target, outputVectors, dataset,
     # assignment!
 
     ### YOUR CODE HERE
+    N, D     = outputVectors.shape
+
     cost     = 0
     gradPred = np.zeros_like(predicted)
     grad     = np.zeros_like(outputVectors)
 
     negative_samples = np.array([dataset.sampleTokenIdx() for i in range(K)], dtype='int64')
- 
-    z        = np.dot(predicted, outputVectors.T)
+
+    z        = np.dot(outputVectors, predicted)
     probs    = sigmoid(z)
     cost     = - np.log(probs[target]+1e-12) - np.sum(np.log(1 - probs[negative_samples] + 1e-12) )
 
-    gradPred -=   outputVectors[target,:] * (1 - probs[target])
-    gradPred +=   np.dot(probs[negative_samples], outputVectors[negative_samples, :])
+    gradPred -=   outputVectors[target] * (1 - probs[target])
+    gradPred +=   np.sum(probs[negative_samples].reshape((K,1)) * outputVectors[negative_samples,:], axis=0)
 
-    # Z = np.zeros_like(probs)
     # Z[negative_samples] += 1.
     # First attempt to convert this to vectorized code
     grad[target, :] = predicted * (probs[target] - 1.)

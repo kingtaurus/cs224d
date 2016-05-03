@@ -13,7 +13,7 @@ sns.set(style='whitegrid', context='talk')
 # NOTE: fill in one more "your code here" below before running!
 REGULARIZATION = None   # Assign a list of floats in the block below
 ### YOUR CODE HERE
-REGULARIZATION = np.logspace(-6,0.6,21)
+REGULARIZATION = np.logspace(-6,0.1,41)
 REGULARIZATION = np.hstack([0,REGULARIZATION])
 ### END YOUR CODE
 
@@ -22,7 +22,7 @@ dataset = StanfordSentiment()
 tokens = dataset.tokens()
 nWords = len(tokens)
 
-# Load the word vectors we trained earlier 
+# Load the word vectors we trained earlier
 _, wordVectors0, _ = load_saved_params()
 N = wordVectors0.shape[0]//2
 #assert nWords == N
@@ -53,11 +53,11 @@ for regularization in REGULARIZATION:
     random.seed(3141)
     np.random.seed(59265)
     weights = np.random.randn(dimVectors, 5)
-    print("Training for reg=%f" % regularization) 
+    print("Training for reg=%f" % regularization)
 
     # We will do batch optimization
-    weights = sgd(lambda weights: softmax_wrapper(trainFeatures, trainLabels, 
-        weights, regularization), weights, 0.3, 10000, PRINT_EVERY=100)
+    weights = sgd(lambda weights: softmax_wrapper(trainFeatures, trainLabels,
+        weights, regularization), weights, 3.0, 10000, PRINT_EVERY=100)
 
     # Test on train set
     _, _, pred = softmaxRegression(trainFeatures, trainLabels, weights)
@@ -71,9 +71,9 @@ for regularization in REGULARIZATION:
 
     # Save the results and weights
     results.append({
-        "reg" : regularization, 
-        "weights" : weights, 
-        "train" : trainAccuracy, 
+        "reg" : regularization,
+        "weights" : weights,
+        "train" : trainAccuracy,
         "dev" : devAccuracy})
 
 # Print the accuracies
@@ -83,7 +83,7 @@ print("Reg\t\tTrain\t\tDev")
 for result in results:
     print("%E\t%0.4g\t%0.4g" % (
         result["reg"],
-        result["train"], 
+        result["train"],
         result["dev"]))
 for result in results:
     print("%0.2e & %0.4g & %0.4g \\\\" % (
@@ -96,7 +96,7 @@ print("")
 BEST_REGULARIZATION = None
 BEST_WEIGHTS = None
 
-### YOUR CODE HERE 
+### YOUR CODE HERE
 sorted_results = sorted(results, key=lambda x: x['dev'],reverse=True)
 BEST_REGULARIZATION = sorted_results[0]['reg']
 BEST_WEIGHTS = sorted_results[0]['weights']

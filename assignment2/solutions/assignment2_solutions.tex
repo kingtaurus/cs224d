@@ -70,7 +70,97 @@ rulesepcolor=\color{blue},#1
 \usetikzlibrary{calc}
 \RequirePackage{tkz-euclide}
 \usetkzobj{all}
+%\usepackage{minted}
+%\usepackage{fontspec}
+%\setsansfont{Calibri}
+%\setmonofont{Consolas}
+%    \begin{minted}[mathescape,
+%                   linenos,
+%                   numbersep=5pt,
+%                   gobble=2,
+%                   frame=lines,
+%                   framesep=2mm]{csharp}
+%      string title = "This is a Unicode π in the sky"
+%      /*
+%      Defined as $\pi=\lim_{n\to\infty}\frac{P_n}{d}$ where $P$ is the perimeter
+%      of an $n$-sided regular polygon circumscribing a
+%      circle of diameter $d$.
+%      */
+%      const double pi = 3.1415926535
+%    \end{minted}
 
+
+%\usepackage[utf8]{inputenc}
+%
+%% Default fixed font does not support bold face
+%\DeclareFixedFont{\ttb}{T1}{txtt}{bx}{n}{12} % for bold
+%\DeclareFixedFont{\ttm}{T1}{txtt}{m}{n}{12}  % for normal
+%
+%% Custom colors
+%\usepackage{color}
+%\definecolor{deepblue}{rgb}{0,0,0.5}
+%\definecolor{deepred}{rgb}{0.6,0,0}
+%\definecolor{deepgreen}{rgb}{0,0.5,0}
+%
+%\usepackage{listings}
+%
+%% Python style for highlighting
+%\newcommand\pythonstyle{\lstset{
+%language=Python,
+%basicstyle=\ttm,
+%otherkeywords={self},             % Add keywords here
+%keywordstyle=\ttb\color{deepblue},
+%emph={MyClass,__init__},          % Custom highlighting
+%emphstyle=\ttb\color{deepred},    % Custom highlighting style
+%stringstyle=\color{deepgreen},
+%frame=tb,                         % Any extra options here
+%showstringspaces=false            %
+%}}
+%
+%
+%% Python environment
+%\lstnewenvironment{python}[1][]
+%{
+%\pythonstyle
+%\lstset{#1}
+%}
+%{}
+%
+%% Python for external files
+%\newcommand\pythonexternal[2][]{{
+%\pythonstyle
+%\lstinputlisting[#1]{#2}}}
+%
+%% Python for inline
+%\newcommand\pythoninline[1]{{\pythonstyle\lstinline!#1!}}
+%
+%\begin{document}
+%
+%\section{``In-text'' listing highlighting}
+%
+%\begin{python}
+%class MyClass(Yourclass):
+%    def __init__(self, my, yours):
+%        bla = '5 1 2 3 4'
+%        print bla
+%\end{python}
+%
+%\section{External listing highlighting}
+%
+%\pythonexternal{demo.py}
+%
+%\section{Inline highlighting}
+%
+%Definition \pythoninline{class MyClass} means \dots
+%
+%\end{document}
+%    \begin{minted}{python}
+%    def boring(args = None):
+%    pass
+%    \end{minted}
+
+% Set the margins
+%
 \setlength{\textheight}{8.5in}
 \setlength{\headheight}{.25in}
 \setlength{\headsep}{.25in}
@@ -79,6 +169,16 @@ rulesepcolor=\color{blue},#1
 \setlength{\oddsidemargin}{0in}
 \setlength{\evensidemargin}{0in}
 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Macros
+
+% Math Macros.  It would be better to use the AMS LaTeX package,
+% including the Bbb fonts, but I'm showing how to get by with the most
+% primitive version of LaTeX.  I follow the naming convention to begin
+% user-defined macro and variable names with the prefix "my" to make it
+% easier to distiguish user-defined macros from LaTeX commands.
+%
 \newcommand{\myN}{\hbox{N\hspace*{-.9em}I\hspace*{.4em}}}
 \newcommand{\myZ}{\hbox{Z}^+}
 \newcommand{\myR}{\hbox{R}}
@@ -130,14 +230,14 @@ rulesepcolor=\color{blue},#1
 \newcommand{\myhwtitle}[3]
 {\begin{center}
 {\large {\bf Solution to Assignment {#1}, Problem {#2}}}\\
-\medskip 
+\medskip
 {\it {#3}} % Name goes here
 \end{center}}
 
 \newcommand{\myhwintro}[3]
 {\begin{center}
 {\large {\bf Assignment {#1}, Problem {#2}}}\\
-\medskip 
+\medskip
 {\it {#3}} % Name goes here
 \end{center}}
 

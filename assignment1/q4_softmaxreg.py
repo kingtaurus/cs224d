@@ -56,7 +56,7 @@ def softmaxRegression(features, labels, weights, regularization = 0.0, nopredict
     cost += 0.5 * regularization * np.sum(weights ** 2)
     
     ### YOUR CODE HERE: compute the gradients and predictions
-    pred = np.argmax(prob,axis=1)
+    pred = np.argmax(prob, axis=1)
     dx = prob
     dx[np.arange(N), labels] -= 1
     dx /= N
