@@ -24,33 +24,34 @@ def getSentenceFeature(tokens, wordVectors, sentence):
     
     ### YOUR CODE HERE
     array = np.fromiter( (tokens[word] for word in sentence), dtype='int')
-    sentVector = np.mean(wordVectors[array,:], axis=0)
+    sentVector = np.mean(wordVectors[array], axis=0)
     ### END YOUR CODE
     
     return sentVector
 
 def softmaxRegression(features, labels, weights, regularization = 0.0, nopredictions = False):
     """ Softmax Regression """
-    # Implement softmax regression with weight regularization.        
+    # Implement softmax regression with weight regularization.
     
     # Inputs:                                                         
-    # - features: feature vectors, each row is a feature vector     
-    # - labels: labels corresponding to the feature vectors         
-    # - weights: weights of the regressor                           
-    # - regularization: L2 regularization constant                  
+    # - features: feature vectors, each row is a feature vector
+    # - labels: labels corresponding to the feature vectors
+    # - weights: weights of the regressor
+    # - regularization: L2 regularization constant
     
-    # Output:                                                         
-    # - cost: cost of the regressor                                 
-    # - grad: gradient of the regressor cost with respect to its    
-    #        weights                                               
-    # - pred: label predictions of the regressor (you might find    
-    #        np.argmax helpful)  
+    # Output:
+    # - cost: cost of the regressor
+    # - grad: gradient of the regressor cost with respect to its
+    #        weights
+    # - pred: label predictions of the regressor (you might find
+    #        np.argmax helpful)
     
     prob = softmax(features.dot(weights))
     if len(features.shape) > 1:
         N = features.shape[0]
     else:
         N = 1
+
     # A vectorized implementation of    1/N * sum(cross_entropy(x_i, y_i)) + 1/2*|w|^2
     cost = np.sum(-np.log(prob[np.arange(N), labels] + 1e-12)) / N
     cost += 0.5 * regularization * np.sum(weights ** 2)
@@ -111,6 +112,32 @@ def sanity_check():
 
     print("\n=== Results ===")
     print(softmaxRegression(dummy_features, dummy_labels, dummy_weights, 1.0))
+
+    dummy_weights  = 0.1 * np.random.randn(40, 10) + 1.0
+    dummy_features = np.random.randn(2000, 40)
+    dummy_labels   = np.argmax(np.random.randn(2000, 10), axis=1)
+
+    print(-np.log(0.1))#expected correct classification (random) = 1 in 10;
+    #cost then becomes -np.log(0.1)
+    print(softmaxRegression(dummy_features, dummy_labels, dummy_weights, 0.0)[0])
+
+    dummy_weights  = 0.1 * np.random.randn(40, 80) + 1.0
+    dummy_features = np.random.randn(2000, 40)
+    dummy_labels   = np.argmax(np.random.randn(2000, 80), axis=1)
+
+    print(-np.log(1./80))#expected correct classification (random) = 1 in 80;
+    #cost then becomes -np.log(1./80)
+    print(softmaxRegression(dummy_features, dummy_labels, dummy_weights, 0.0)[0])
+
+    dummy_weights  = 0.1 * np.random.randn(40, 1000) + 1.0
+    dummy_features = np.random.randn(40000, 40)
+    dummy_labels   = np.argmax(np.random.randn(40000, 1000), axis=1)
+
+    print(-np.log(1./1000))#expected correct classification (random) = 1 in 80;
+    #cost then becomes -np.log(1./80)
+    print(softmaxRegression(dummy_features, dummy_labels, dummy_weights, 0.0)[0])
+    print(np.exp(-softmaxRegression(dummy_features, dummy_labels, dummy_weights, 0.0)[0]))
+
 
 if __name__ == "__main__":
     sanity_check()
