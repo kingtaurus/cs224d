@@ -13,7 +13,7 @@ sns.set(style='whitegrid', context='talk')
 # NOTE: fill in one more "your code here" below before running!
 REGULARIZATION = None   # Assign a list of floats in the block below
 ### YOUR CODE HERE
-REGULARIZATION = np.logspace(-6,0.1,41)
+REGULARIZATION = np.logspace(-6,0.1,21)
 REGULARIZATION = np.hstack([0,REGULARIZATION])
 ### END YOUR CODE
 
