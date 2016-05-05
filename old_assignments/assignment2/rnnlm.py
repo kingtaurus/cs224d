@@ -119,10 +119,10 @@ class RNNLM(NNBase):
         """
         bptt_old = self.bptt
         self.bptt = len(y)
-        print >> outfd, "NOTE: temporarily setting self.bptt = len(y) = %d to compute true gradient." % self.bptt
+        print("NOTE: temporarily setting self.bptt = len(y) = %d to compute true gradient." % self.bptt, file=outfd)
         NNBase.grad_check(self, x, y, outfd=outfd, **kwargs)
         self.bptt = bptt_old
-        print >> outfd, "Reset self.bptt = %d" % self.bptt
+        print("Reset self.bptt = %d" % self.bptt, file=outfd)
 
 
     def compute_seq_loss(self, xs, ys):
@@ -155,7 +155,7 @@ class RNNLM(NNBase):
             return self.compute_seq_loss(X, Y)
         else: # multiple examples
             return sum([self.compute_seq_loss(xs,ys)
-                       for xs,ys in itertools.izip(X, Y)])
+                       for xs,ys in zip(X, Y)])
 
     def compute_mean_loss(self, X, Y):
         """

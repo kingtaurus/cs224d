@@ -5,7 +5,7 @@ import itertools
 import time
 
 # math helpers
-from math import *
+from .math import *
 
 class PackedVector(object):
     _name_to_idx = {}
@@ -13,16 +13,16 @@ class PackedVector(object):
 
     def __init__(self, *shapes, **shapemap):
         # Prepend named shapes
-        names = range(len(shapes))
+        names = list(range(len(shapes)))
         if len(shapemap) > 0:
-            nn, ss = zip(*shapemap.items())
+            nn, ss = list(zip(*list(shapemap.items())))
             names = names + list(nn)
             shapes = shapes + ss
         self._name_to_idx = {n:i for i,n in enumerate(names)}
 
         # Generate endpoints
         self._dims = shapes
-        self._lens = map(prod, self._dims)
+        self._lens = list(map(prod, self._dims))
         self._ends = concatenate([[0], cumsum(self._lens)])
         self._vec = zeros(self._ends[-1]) # allocate storage
 
@@ -38,7 +38,7 @@ class PackedVector(object):
         self._views.append(self._vec[:]) # full
 
         # Generate attributes for direct access
-        for n,i in self._name_to_idx.iteritems():
+        for n,i in self._name_to_idx.items():
             object.__setattr__(self, str(n), self._views[i])
 
     # Overload setattr to write to views
@@ -60,7 +60,7 @@ class PackedVector(object):
         self._views[key][:] = value # in-place update
 
     def names(self):
-        return [k for k in self._name_to_idx.keys() if not k == 'full']
+        return [k for k in list(self._name_to_idx.keys()) if not k == 'full']
 
     def reset(self):
         self.full.fill(0)
@@ -150,9 +150,9 @@ class SparseDeltas(object):
 
     def __init__(self, *shapes, **shapemap):
         # Prepend named shapes
-        names = range(len(shapes))
+        names = list(range(len(shapes)))
         if len(shapemap) > 0:
-            nn, ss = zip(*shapemap.items())
+            nn, ss = list(zip(*list(shapemap.items())))
             names = names + list(nn)
         self._names = set(map(str, names))
 
@@ -316,12 +316,12 @@ class NNBase(object):
                 grad_approx[ij] = (Jplus - Jminus)/(2*eps)
             # Compute Frobenius norm
             grad_delta = linalg.norm(grad_approx - grad_computed)
-            print >> outfd, "grad_check: dJ/d%s error norm = %.04g" % (name, grad_delta),
-            print >> outfd, ("[ok]" if grad_delta < tol else "**ERROR**")
-            print >> outfd, "    %s dims: %s = %d elem" % (name, str(list(theta.shape)), prod(theta.shape))
+            print("grad_check: dJ/d%s error norm = %.04g" % (name, grad_delta), end=' ', file=outfd)
+            print(("[ok]" if grad_delta < tol else "**ERROR**"), file=outfd)
+            print("    %s dims: %s = %d elem" % (name, str(list(theta.shape)), prod(theta.shape)), file=outfd)
             if verbose and (grad_delta > tol): # DEBUG
-                print >> outfd, "Numerical: \n" + str(grad_approx)
-                print >> outfd, "Computed:  \n" + str(grad_computed)
+                print("Numerical: \n" + str(grad_approx), file=outfd)
+                print("Computed:  \n" + str(grad_computed), file=outfd)
 
         ##
         # Loop over sparse parameters
@@ -335,7 +335,7 @@ class NNBase(object):
                 # therefore, can't use views for aliasing here
                 # Solution: generate index arrays, select indices
                 # then use these for sparse grad check
-                idxtuples = zip(*[d[idx].flat for d in idxblocks])
+                idxtuples = list(zip(*[d[idx].flat for d in idxblocks]))
                 # idxtuples = zip(*[idxblocks[i][idx].flat
                 #                   for i in range(idxblocks.shape[0])])
 
@@ -374,12 +374,12 @@ class NNBase(object):
                 #     grad_approx[ij] = (Jplus - Jminus)/(2*eps)
                 # Compute Frobenius norm
                 grad_delta = linalg.norm(grad_approx - grad_computed)
-                print >> outfd, "grad_check: dJ/d%s[%s] error norm = %.04g" % (name, idx, grad_delta),
-                print >> outfd, ("[ok]" if grad_delta < tol else "**ERROR**")
-                print >> outfd, "    %s[%s] dims: %s = %d elem" % (name, idx, str(list(grad_computed.shape)), prod(grad_computed.shape))
+                print("grad_check: dJ/d%s[%s] error norm = %.04g" % (name, idx, grad_delta), end=' ', file=outfd)
+                print(("[ok]" if grad_delta < tol else "**ERROR**"), file=outfd)
+                print("    %s[%s] dims: %s = %d elem" % (name, idx, str(list(grad_computed.shape)), prod(grad_computed.shape)), file=outfd)
                 if verbose and (grad_delta > tol): # DEBUG
-                    print >> outfd, "Numerical: \n" + str(grad_approx)
-                    print >> outfd, "Computed:  \n" + str(grad_computed)
+                    print("Numerical: \n" + str(grad_approx), file=outfd)
+                    print("Computed:  \n" + str(grad_computed), file=outfd)
 
         self._reset_grad_acc()
 
@@ -417,7 +417,7 @@ class NNBase(object):
                   printevery=10000, costevery=10000,
                   devidx=None):
         if idxiter == None: # default training schedule
-            idxiter = xrange(len(y))
+            idxiter = range(len(y))
         if alphaiter == None: # default training schedule
             alphaiter = itertools.repeat(self.alpha)
 
@@ -426,16 +426,16 @@ class NNBase(object):
         t0 = time.time()
 
         try:
-            print "Begin SGD..."
-            for idx, alpha in itertools.izip(idxiter, alphaiter):
+            print("Begin SGD...")
+            for idx, alpha in zip(idxiter, alphaiter):
                 if counter % printevery == 0:
-                    print "  Seen %d in %.02f s" % (counter, time.time() - t0)
+                    print("  Seen %d in %.02f s" % (counter, time.time() - t0))
                 if counter % costevery == 0:
                     if devidx != None:
                         cost = self.compute_display_loss(X[devidx], y[devidx])
                     else: cost = self.compute_display_loss(X, y)
                     costs.append((counter, cost))
-                    print "  [%d]: mean loss %g" % (counter, cost)
+                    print("  [%d]: mean loss %g" % (counter, cost))
 
                 if hasattr(idx, "__iter__") and len(idx) > 1: # if iterable
                     self.train_minibatch_sgd(X[idx], y[idx], alpha)
@@ -450,7 +450,7 @@ class NNBase(object):
             """
             Allow manual early termination.
             """
-            print "SGD Interrupted: saw %d examples in %.02f seconds." % (counter, time.time() - t0)
+            print("SGD Interrupted: saw %d examples in %.02f seconds." % (counter, time.time() - t0))
             return costs
 
         # Wrap-up
@@ -458,8 +458,8 @@ class NNBase(object):
             cost = self.compute_display_loss(X[devidx], y[devidx])
         else: cost = self.compute_display_loss(X, y)
         costs.append((counter, cost))
-        print "  [%d]: mean loss %g" % (counter, cost)
-        print "SGD complete: %d examples in %.02f seconds." % (counter, time.time() - t0)
+        print("  [%d]: mean loss %g" % (counter, cost))
+        print("SGD complete: %d examples in %.02f seconds." % (counter, time.time() - t0))
 
         return costs
 
@@ -468,12 +468,12 @@ class NNBase(object):
     def epochiter(N, nepoch=5):
         """Iterator to loop sequentially through training sets."""
         return itertools.chain.from_iterable(
-                    itertools.repeat(xrange(N), nepoch))
+                    itertools.repeat(range(N), nepoch))
 
     @staticmethod
     def randomiter(N, high, batch=1):
         """Iterator to generate random minibatches."""
-        for i in xrange(N):
+        for i in range(N):
             yield random.randint(0, high, size=batch)
 
     @staticmethod

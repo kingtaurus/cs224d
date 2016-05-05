@@ -29,6 +29,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \documentclass[letter,12pt]{article}
+
 \RequirePackage{amsmath}
 \RequirePackage{amsmath,amssymb,amsthm}
 \RequirePackage{tikz}
@@ -36,6 +37,8 @@
 \usepackage{color}
 \usepackage{textcomp}
 \usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{afterpage}
 
 \renewcommand{\lstlistlistingname}{Code Listings} 
 \renewcommand{\lstlistingname}{Code Listing} 
@@ -162,7 +165,7 @@ rulesepcolor=\color{blue},#1
 \setlength{\headheight}{.25in}
 \setlength{\headsep}{.25in}
 \setlength{\topmargin}{0in}
-\setlength{\textwidth}{6.5in}
+\setlength{\textwidth}{6.75in}
 \setlength{\oddsidemargin}{0in}
 \setlength{\evensidemargin}{0in}
 
@@ -227,21 +230,31 @@ rulesepcolor=\color{blue},#1
 \newcommand{\myhwtitle}[3]
 {\begin{center}
 {\large {\bf Solution to Assignment {#1}, Problem {#2}}}\\
-\medskip 
+\medskip
+{\it {#3}} % Name goes here
+\end{center}}
+
+\newcommand{\myhwintro}[3]
+{\begin{center}
+{\large {\bf Assignment {#1}, Problem {#2}}}\\
+\medskip
 {\it {#3}} % Name goes here
 \end{center}}
 
 \newcommand{\mysection}[1]
 {\noindent {\bf {#1}}}
 
+\newcommand{\solutionsAuthor}{Gregory King}
 %%%%%% Begin document with header and title %%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{document}
 
 \myalgsheader
+%\myhwintro{2}{1 (Tensorflow Softmax)}{~}
 
-\pagestyle{plain}
+\pagestyle{myheadings}
+\thispagestyle{plain}
 \setcounter{page}{1}
-\myhwtitle{1}{1(a)}{Gregory King}
+\myhwtitle{1}{1(a)}{\solutionsAuthor}
 
 \bigskip
 %Assn#1:
@@ -302,7 +315,7 @@ since this is true for an arbitary $i$, it follows immediately that the linear s
 \pagestyle{myheadings}
 \myrunninghwhead{1}{1 (Softmax)}
 
-\myhwtitle{1}{1(b)}{Gregory King}
+\myhwtitle{1}{1(b)}{\solutionsAuthor}
 
 \bigskip
 
@@ -328,16 +341,16 @@ def softmax(x):
 
 \myrunninghwhead{1}{2 (Neural Networks)}
 
-\myhwtitle{1}{2(a)}{Gregory King}
+\myhwtitle{1}{2(a)}{\solutionsAuthor}
 
 \bigskip
 
-\noindent Derive the gradients of the sigmoid function and show that it can be rewritten as a function of the 
+\noindent Derive the gradients of the sigmoid function and show that it can be rewritten as a function of the
 function value (i.e. in some expression where only $\sigma(x)$, but not $x$, is present). Assume that the input
 $x$ is a scalar for this question.\vspace{5mm}
 
 \noindent\rule{\textwidth}{0.4pt}\vspace{5mm}
- 
+
 \noindent Denote the sigmoid function as $\sigma(z)$,
 \begin{equation}
 \sigma(z) = \frac{1}{1 + e^{-z}}.
@@ -349,10 +362,10 @@ It follows, using the chain rule (and noting that $e^{-z}= 1/\sigma(z) -1$),
                                  &= \sigma(z) - \sigma^{2}(z)\\
                                  &= \sigma(z)(1 - \sigma(z))
 \end{align*}
- 
+
 \clearpage
 
-\myhwtitle{1}{2(b)}{Gregory King}
+\myhwtitle{1}{2(b)}{\solutionsAuthor}
 \bigskip
 
 \noindent Derive the gradient with regard to the inputs of a softmax function when cross entropy loss is used for
@@ -370,7 +383,7 @@ Starting with, cross entropy,
 \begin{equation}
 \textrm{CE}({\bf y},{\bf\hat{y}}) = -\sum_{i}{y_{i}\log{\hat{y_{i}}}}
 \end{equation}
-We can derive the gradient of the cross-entropy function, using back propagation, 
+We can derive the gradient of the cross-entropy function, using back propagation,
 \begin{equation}
 \frac{\partial(\textrm{CE})}{\partial{\hat{y}_{i}}} = -\frac{y_{j}}{\hat{y}_{i}}\label{eq:2b 1}
 \end{equation}
@@ -391,7 +404,7 @@ and (where $i\neq k$),
                                                                        = & - \left(\frac{e^{\theta_{i}}e^{\theta_{k}}}{\sum_{j=1}{e^{\theta_{j}}}}\right) \\
                                                                        = & - \hat{y}_{i}\hat{y}_{k}\label{eq:2b 3}
 \end{align}
-Combining Equations \ref{eq:2b 1}, \ref{eq:2b 2}, \ref{eq:2b 3}, yields 
+Combining Equations \ref{eq:2b 1}, \ref{eq:2b 2}, \ref{eq:2b 3}, yields
 \begin{equation}
 \frac{\partial(\textrm{CE})}{\partial{\theta_{k}}} = \begin{cases}
 -y_{j}(1 - \hat{y}_{k})&\text{ for }i=k \\
@@ -412,7 +425,7 @@ Which is equivalent to (with the substitution $y_{j}$ for $1$ in the first case 
 
 \clearpage
 
-\myhwtitle{1}{2(c)}{Gregory King}
+\myhwtitle{1}{2(c)}{\solutionsAuthor}
 \bigskip
 
 \noindent Derive the gradients with respect to the inputs x to an one-hidden-layer neural network (that is, find
@@ -523,7 +536,7 @@ Finally, using the results from Equation~\ref{eq: 2c 1} (but for the first layer
 
 \clearpage
 
-\myhwtitle{1}{2(d)}{Gregory King}
+\myhwtitle{1}{2(d)}{\solutionsAuthor}
 \bigskip
 \noindent How many parameters are there in this neural network, assuming the input is $\textrm{D}_{x}$-dimensional,
 the output is $\textrm{D}_{y}$-dimensional, and there are H hidden units?\vspace{5mm}
@@ -545,7 +558,7 @@ weights, for each input vector of dimensions $\textrm{D}_{x}$.
 %\item[$\bf{b}_{2}$:]{$\textrm{D}_{y}$}
 %\end{itemize}
 \clearpage
-\myhwtitle{1}{2(e)}{Gregory King}
+\myhwtitle{1}{2(e)}{\solutionsAuthor}
 \bigskip
 \noindent Fill in the implementation for the sigmoid activation function and its gradient in  \texttt{q2\_sigmoid.py}.
 Test your implementation using python \texttt{q2\_sigmoid.py}. \textbf{Note:} Again, thoroughly test your code as the provided
@@ -572,7 +585,7 @@ def sigmoid_grad(f):
     return f
 \end{python}
 \clearpage
-\myhwtitle{1}{2(f)}{Gregory King}
+\myhwtitle{1}{2(f)}{\solutionsAuthor}
 \bigskip
 \noindent To make debugging easier, we will now implement a gradient checker. Fill in the implementation
 for \texttt{gradcheck\_naive} in \texttt{q2\_gradcheck.py}. Test your code using python \texttt{q2\_gradcheck.py}\vspace{5mm}
@@ -624,7 +637,7 @@ def gradcheck_naive(f, x):
     print("Gradient check passed!")
 \end{python}
 \clearpage
-\myhwtitle{1}{2(g)}{Gregory King}
+\myhwtitle{1}{2(g)}{\solutionsAuthor}
 \bigskip
 \noindent  Now, implement the forward and backward passes for a neural network with one sigmoid
 hidden layer. Fill in your implementation in \texttt{q2\_neural.py}. Sanity check your implementation with
@@ -698,7 +711,7 @@ def forward_backward_prop(data, labels, params, dimensions):
 
 \myrunninghwhead{1}{3 (word2vec)}
 
-\myhwtitle{1}{3(a)}{Gregory King}
+\myhwtitle{1}{3(a)}{\solutionsAuthor}
 \bigskip
 \noindent Assume you are given a predicted word vector ${\boldsymbol v}_{c}$ corresponding to the center word $c$ for
 \texttt{skipgram}, and word prediction is made with the \texttt{softmax} function found in \texttt{word2vec} models
@@ -732,7 +745,7 @@ Now, using the chain rule, we can calculate,
 
 \clearpage
 
-\myhwtitle{1}{3(b)}{Gregory King}
+\myhwtitle{1}{3(b)}{\solutionsAuthorg}
 
 \bigskip
 \noindent As in the previous problem, derive gradients for the `output' word vectors ${\boldsymbol u}_{w}$'s (including ${\boldsymbol u}_{o}$)\vspace{5mm}
@@ -749,7 +762,7 @@ This follows immediately from the chain rule:
 \end{align}
 \clearpage
 
-\myhwtitle{1}{3(c)}{Gregory King}
+\myhwtitle{1}{3(c)}{\solutionsAuthor}
 \bigskip
 %TODO
 %\hat{\boldsymbol r} -> {\boldsymbol v}_{c}
@@ -784,16 +797,16 @@ If $i \in \{1,...,K\}$ then we need to take the derivative of the second term. I
 \end{align}
 Which yields the following, where $j\in{{\boldsymbol o},1,...,K}$,
 \begin{equation*}
-\frac{\partial{J}}{\partial{z_{i}}} = \sigma(z_{i}) - \delta^{i}_{o}
+\frac{\partial{J}}{\partial{z_{i}}} = \sigma(z_{i}) - \delta^{i}_{0}
 \end{equation*}
 
 \begin{align}
-\frac{\partial J}{\partial{\boldsymbol u}_{j}} &= (\sigma(z_{j}) - \delta^{j}_{o}){\boldsymbol v}_{c}\\
-\frac{\partial J}{\partial{\boldsymbol v}_{c}} &= \sum^{K}_{j=1}(\sigma(z_{j}) - \delta^{j}_{o}){\boldsymbol u}_{j}
+\frac{\partial J}{\partial{\boldsymbol u}_{j}} &= (\sigma(z_{j}) - \delta^{j}_{0}){\boldsymbol v}_{c}\\
+\frac{\partial J}{\partial{\boldsymbol v}_{c}} &= (\sigma(z_{0}) - 1){\boldsymbol u}_{0} - \sum^{K}_{j=1}(\sigma(-z_{j}) - 1){\boldsymbol u}_{j}
 \end{align}
 
 \clearpage
-\myhwtitle{1}{3(d)}{Gregory King}
+\myhwtitle{1}{3(d)}{\solutionsAuthor}
 %TODO FIX this 
 \bigskip
 \noindent Derive the gradients for all of the word vectors for \texttt{skip-gram} and \texttt{CBOW} (optional)
@@ -872,7 +885,7 @@ It is important to notice that the above is equivalent to doing a one-hot encodi
 %\end{align}
 
 \clearpage
-\myhwtitle{1}{3(e)}{Gregory King}
+\myhwtitle{1}{3(e)}{\solutionsAuthor}
 \bigskip
 \noindent In this part you will implement the \texttt{word2vec} models and train your own word vectors with stochastic gradient descent (\textbf{SGD}). First,
 write a helper function to normalize rows of a matrix in \texttt{q3\_word2vec.py}. In the same file, fill in the implementation for the softmax and negative sampling
@@ -900,7 +913,7 @@ def normalizeRows(x):
     return x
 \end{python}
 \clearpage
-\myhwtitle{1}{3(f)}{Gregory King}
+\myhwtitle{1}{3(f)}{\solutionsAuthor}
 \bigskip
 \noindent Complete the implementation for your \texttt{SGD} optimizer in \texttt{q3\_sgd.py}. Test your implementation by running \texttt{python q3\_sgd.py}.
 
@@ -979,7 +992,7 @@ def sgd(f, x0, step, iterations,
     return x
 \end{python}
 \clearpage
-\myhwtitle{1}{3(g)}{Gregory King}
+\myhwtitle{1}{3(g)}{\solutionsAuthor}
 \bigskip
 \noindent \textbf{Show time!} Now we are going to load some real data and train word vectors with everything you just implemented!. We are going to use
 the \textbf{Stanford Sentiment Treebank} (\textbf{SST}) dataset to train word vectors, and later apply them to a sentiment analysis task. There is no additional code to write
@@ -999,7 +1012,7 @@ for this part; just run \texttt{python q3\_run.py}.
 \end{figure}
 
 \clearpage
-\myhwtitle{1}{3(h)}{Gregory King}
+\myhwtitle{1}{3(h)}{\solutionsAuthor}
 \bigskip
 \noindent \textbf{Extra Credit} Implement the \texttt{CBOW} model in \texttt{q3\_word2vec.py}. \textbf{Note}: This part is optional but the gradient derivations for 
 the \texttt{CBOW} in part (d) are not.
@@ -1009,7 +1022,7 @@ the \texttt{CBOW} in part (d) are not.
 
 \clearpage
 \myrunninghwhead{1}{4 (Sentiment Analysis)}
-\myhwtitle{1}{4}{Gregory King}
+\myhwtitle{1}{4}{\solutionsAuthor}
 \bigskip
 \noindent Now, with the word vectors you trained, we are going to perform a simple sentiment analysis. For each sentence in the Stanford Sentiment Treebank dataset, we are going to use the average of all the word vectors in that sentence as its feature, and try to predict the sentiment level of the said sentence. The sentiment level of the phrases are represented as real values in the original dataset, here we'll use five classes:
 \begin{center}
@@ -1018,7 +1031,7 @@ the \texttt{CBOW} in part (d) are not.
 which are represented by 0 to 4 in the code, respectively. For this part, you will learn to train a softmax regressor with SGD, and perform train/dev validation to imporve generalization of your regressor.
 \clearpage
 
-\myhwtitle{1}{4(a)}{Gregory King}
+\myhwtitle{1}{4(a)}{\solutionsAuthor}
 
 \bigskip
 \noindent Implement a sentence featurizer and softmax regression. Fill in the implementation in \texttt{q4\_softmaxreg.py}. Sanity check your implementation with \texttt{python q4\_softmaxreg.py}.\vspace{5mm}
@@ -1027,7 +1040,7 @@ which are represented by 0 to 4 in the code, respectively. For this part, you wi
 
 \clearpage
 
-\myhwtitle{1}{4(b)}{Gregory King}
+\myhwtitle{1}{4(b)}{\solutionsAuthor}
 \bigskip
 \noindent Explain in fewer than three sentences why we want to introduce regularization when doing classification (in fact, most machine learning tasks).\vspace{5mm}
 
@@ -1035,7 +1048,7 @@ which are represented by 0 to 4 in the code, respectively. For this part, you wi
 Regularization helps prevent over-fitting. By limiting the parameter space it forces the model to have a higher chance of learning features (rather than memorizing the training data).
 \clearpage
 
-\myhwtitle{1}{4(c)}{Gregory King}
+\myhwtitle{1}{4(c)}{\solutionsAuthor}
 
 \bigskip
 \noindent Fill in the hyperparameter selection code in \texttt{q4\_sentiment.py} to search for the `optimal' regularization parameter. \textbf{What values did you select? Report your train, dev, and test accuracies. Justify your hyperparameter search methodology in at most one sentence.}. \\
@@ -1124,7 +1137,7 @@ Reg & Train & Dev \\
 
 \clearpage
 
-\myhwtitle{1}{4(d)}{Gregory King}
+\myhwtitle{1}{4(d)}{\solutionsAuthor}
 
 \bigskip
 \noindent Plot the classification accuracy on the train and dev set with respect to the regularization value, using a logarithmic scale on the x-axis. This should have been done automatically. \textbf{Include \texttt{q4\_reg\_acc.png} in your homework write up.} Briefly explain in at most three sentences what you see in the plot.\vspace{5mm}

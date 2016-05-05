@@ -137,7 +137,8 @@ class StanfordSentiment:
                     first = False
                     continue
 
-                line = remove_non_ascii(line.strip())
+                # line = remove_non_ascii(line.strip())
+                line = line.strip()
                 if not line: continue
                 splitted = line.split("|")
                 labels[int(splitted[0])] = float(splitted[1])

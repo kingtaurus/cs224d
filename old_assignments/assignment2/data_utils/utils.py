@@ -8,7 +8,7 @@ import pandas as pd
 
 
 def invert_dict(d):
-    return {v:k for k,v in d.iteritems()}
+    return {v:k for k,v in d.items()}
 
 def flatten1(lst):
     return list(itertools.chain.from_iterable(lst))
@@ -100,7 +100,7 @@ def seq_to_windows(words, tags, word_to_num, tag_to_num, left=1, right=1):
     return array(X), array(y)
 
 def docs_to_windows(docs, word_to_num, tag_to_num, wsize=3):
-    pad = (wsize - 1)/2
+    pad = (wsize - 1)//2
     docs = flatten1([pad_sequence(seq, left=pad, right=pad) for seq in docs])
 
     words, tags = zip(*docs)
