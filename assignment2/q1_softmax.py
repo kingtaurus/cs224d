@@ -81,7 +81,8 @@ def cross_entropy_mean_loss(y, yhat):
           tensor in the problem.
   """
   ### YOUR CODE HERE
-  out = tf.reduce_mean(- tf.reduce_sum(y * tf.log(yhat + 1e-12), reduction_indices=[len(yhat.get_shape()) - 1]))
+  # tf.reduce_mean(- tf.reduce_sum(y * tf.log(yhat + 1e-12), reduction_indices=[len(yhat.get_shape()) - 1]))
+  out =  -tf.reduce_sum(y * tf.log(yhat + 1e-12))
   ### END YOUR CODE
   return out
 
@@ -114,11 +115,12 @@ def test_cross_entropy_loss_basic():
   Some simple tests to get you started.
   Warning: these are not exhaustive.
   """
-  y = np.array([[0, 1], [1, 0], [1, 0]])
+  y = np.array([[0, 1], [1, 0], [1, 0]], dtype=np.int32)
   yhat = np.array([[.5, .5], [.5, .5], [.5, .5]])
 
+  #implicit dtype conversion passes in 0.7.1 not in 0.8.0
   test1 = cross_entropy_loss(
-      tf.convert_to_tensor(y, dtype=tf.int32),
+      tf.convert_to_tensor(y, dtype=tf.float32),
       tf.convert_to_tensor(yhat, dtype=tf.float32))
   with tf.Session():
     test1 = test1.eval()
