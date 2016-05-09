@@ -273,7 +273,13 @@ class NERModel(LanguageModel):
       train_op: The Op for training.
     """
     ### YOUR CODE HERE
-    raise NotImplementedError
+    train_op = tf.train.AdamOptimizer(self.config.lr).minimize(loss)
+    tf.scalar_summary('loss', loss)
+    #alternate:
+    # global_step = tf.Variable(0, name="global_step", trainable=False)
+    # optimizer = tf.train.AdamOptimizer(1e-4)
+    # gradients = optimizer.compute_gradients(loss)
+    # train_op  = optimizer.apply_gradients(gradients, global_step=global_step)
     ### END YOUR CODE
     return train_op
 
