@@ -240,12 +240,16 @@ class NERModel(LanguageModel):
     Hint: You can use tf.nn.softmax_cross_entropy_with_logits to simplify your
           implementation. You might find tf.reduce_mean useful.
     Args:
-      pred: A tensor of shape (batch_size, n_classes)
+      y (pred): A tensor of shape (batch_size, n_classes)
     Returns:
       loss: A 0-d tensor (scalar)
     """
     ### YOUR CODE HERE
-    raise NotImplementedError
+    # regularization = tf.nn.l2_loss(W) + tf.nn.l2_loss(b1) +
+    #                  tf.nn.l2_loss(U) + tf.nn.l2_loss(b2)
+    # loss += self.config.reg * regularization
+    loss = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(y, self.labels_placeholder))
+    loss += self.config.l2 * tf.get_collection("l2_loss")[0]
     ### END YOUR CODE
     return loss
 
