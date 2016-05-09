@@ -130,7 +130,10 @@ class NERModel(LanguageModel):
       feed_dict: The feed dictionary mapping from placeholders to values.
     """
     ### YOUR CODE HERE
-    raise NotImplementedError
+    feed_dict = {self.input_placeholder: input_batch,
+                 self.dropout_placeholder: dropout}
+    if label_batch is not None:
+      feed_dict[self.labels_placeholder] = label_batch
     ### END YOUR CODE
     return feed_dict
 
