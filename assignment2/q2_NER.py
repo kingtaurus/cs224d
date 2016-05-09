@@ -201,7 +201,36 @@ class NERModel(LanguageModel):
       output: tf.Tensor of shape (batch_size, label_size)
     """
     ### YOUR CODE HERE
-    raise NotImplementedError
+    with tf.variable_scope("layer") as layer_scope:
+      W = tf.get_variable("W_l",
+                          shape=[self.config.window_size * self.config.embed_size, self.config.hidden_size],
+                          initializer=xavier_weight_init())
+      b1 = tf.get_variable("b1",
+                           shape=[self.config.hidden_size],
+                           initializer=tf.constant_initializer(0.0))
+      variable_summaries(W, W.name)
+      variable_summaries(b1, b1.name)
+      with tf.variable_scope("hidden_layer") as hidden_layer:
+        U = tf.get_variable("U_h",
+                            shape=[self.config.hidden_size, self.config.label_size],
+                            initializer=xavier_weight_init())
+        b2 = tf.get_variable("b2",
+                             shape=[self.config.label_size],
+                             initializer=tf.constant_initializer(0.0))
+        variable_summaries(U, U.name)
+        variable_summaries(b2, b2.name)
+
+    h_fc1 = tf.nn.relu(tf.matmul(window, W) + b1)
+    h_fc1 = tf.nn.dropout(h_fc1, self.dropout_placeholder)
+
+    h_fc2 = tf.nn.relu(tf.matmul(h_fc1, U) + b2)
+    h_fc2 = tf.nn.dropout(h_fc2, self.dropout_placeholder)
+
+    l2_loss = tf.nn.l2_loss(W) + tf.nn.l2_loss(b1) + tf.nn.l2_loss(U) + tf.nn.l2_loss(b2)
+
+    tf.add_to_collection(name="l2_loss", value=l2_loss)
+
+    output = h_fc2
     ### END YOUR CODE
     return output 
 
