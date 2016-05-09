@@ -298,6 +298,8 @@ class NERModel(LanguageModel):
         tf.argmax(self.labels_placeholder, 1), one_hot_prediction)
     self.correct_predictions = tf.reduce_sum(tf.cast(correct_prediction, 'int32'))
     self.train_op = self.add_training_op(self.loss)
+    self.merged_summaries = tf.merge_all_summaries()
+    self.summary_writer = None
 
   def run_epoch(self, session, input_data, input_labels,
                 shuffle=True, verbose=True):
@@ -308,13 +310,19 @@ class NERModel(LanguageModel):
     total_correct_examples = 0
     total_processed_examples = 0
     total_steps = len(orig_X) / self.config.batch_size
+
     for step, (x, y) in enumerate(
       data_iterator(orig_X, orig_y, batch_size=self.config.batch_size,
                    label_size=self.config.label_size, shuffle=shuffle)):
       feed = self.create_feed_dict(input_batch=x, dropout=dp, label_batch=y)
-      loss, total_correct, _ = session.run(
-          [self.loss, self.correct_predictions, self.train_op],
+
+      loss, total_correct, _, merged = session.run(
+          [self.loss, self.correct_predictions, self.train_op, self.merged_summaries],
           feed_dict=feed)
+
+      if step % 50 == 0:
+        self.summary_writer.add_summary(merged)
+
       total_processed_examples += len(x)
       total_correct_examples += total_correct
       total_loss.append(loss)
@@ -400,6 +408,7 @@ def test_NER():
       best_val_loss = float('inf')
       best_val_epoch = 0
 
+      model.summary_writer = tf.train.SummaryWriter("train_log/", session.graph)
       session.run(init)
       for epoch in range(config.max_epochs):
         print('Epoch {}'.format(epoch))
