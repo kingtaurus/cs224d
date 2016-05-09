@@ -164,7 +164,12 @@ class NERModel(LanguageModel):
     # The embedding lookup is currently only implemented for the CPU
     with tf.device('/cpu:0'):
       ### YOUR CODE HERE
-      raise NotImplementedError
+      with tf.variable_scope("embedding_layer") as scope:
+        embedding = tf.get_variable("embedding",
+                                    [len(self.wv), self.config.embed_size],
+                                    initializer=tf.random_uniform_initializer(-1,1))
+        window = tf.nn.embedding_lookup(params=embedding, ids=self.input_placeholder)
+        window = tf.reshape(window, shape=[-1, self.config.window_size * self.config.embed_size], name="window")
       ### END YOUR CODE
       return window
 
