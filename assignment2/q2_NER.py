@@ -103,7 +103,9 @@ class NERModel(LanguageModel):
     (Don't change the variable names)
     """
     ### YOUR CODE HERE
-    raise NotImplementedError
+    self.input_placeholder   = tf.placeholder(tf.int32, shape=[None, self.config.window_size])
+    self.labels_placeholder  = tf.placeholder(tf.float32, shape=[None, self.config.label_size])
+    self.dropout_placeholder = tf.placeholder(tf.float32, name="dropout_keep_prob")
     ### END YOUR CODE
 
   def create_feed_dict(self, input_batch, dropout, label_batch=None):
