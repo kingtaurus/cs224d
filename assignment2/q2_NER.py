@@ -33,7 +33,7 @@ class Config(object):
   batch_size = 64
   label_size = 5
   hidden_size = 100
-  max_epochs = 1
+  max_epochs = 24
   early_stopping = 2
   dropout = 0.9
   lr = 0.001
@@ -167,9 +167,10 @@ class NERModel(LanguageModel):
       with tf.variable_scope("embedding_layer") as scope:
         embedding = tf.get_variable("embedding",
                                     [len(self.wv), self.config.embed_size],
-                                    initializer=tf.random_uniform_initializer(-1,1))
+                                    initializer=xavier_weight_init())
         window = tf.nn.embedding_lookup(params=embedding, ids=self.input_placeholder)
         window = tf.reshape(window, shape=[-1, self.config.window_size * self.config.embed_size], name="window")
+        variable_summaries(window, window.name)
       ### END YOUR CODE
       return window
 
@@ -302,7 +303,7 @@ class NERModel(LanguageModel):
     self.summary_writer = None
 
   def run_epoch(self, session, input_data, input_labels,
-                shuffle=True, verbose=True):
+                shuffle=True, verbose=True, epoch=0):
     orig_X, orig_y = input_data, input_labels
     dp = self.config.dropout
     # We're interested in keeping track of the loss and accuracy during training
@@ -321,7 +322,7 @@ class NERModel(LanguageModel):
           feed_dict=feed)
 
       if step % 50 == 0:
-        self.summary_writer.add_summary(merged)
+        self.summary_writer.add_summary(merged, epoch * total_steps + step)
 
       total_processed_examples += len(x)
       total_correct_examples += total_correct
@@ -386,9 +387,10 @@ def calculate_confusion(config, predicted_indices, y_indices):
 
 def save_predictions(predictions, filename):
   """Saves predictions to provided file."""
+  # print(type(predictions), predictions)
   with open(filename, "wb") as f:
     for prediction in predictions:
-      f.write(str(prediction) + "\n")
+      f.write(bytes(prediction))
 
 def test_NER():
   """Test NER model implementation.
@@ -415,7 +417,7 @@ def test_NER():
         start = time.time()
         ###
         train_loss, train_acc = model.run_epoch(session, model.X_train,
-                                                model.y_train)
+                                                model.y_train, epoch=epoch)
         val_loss, predictions = model.predict(session, model.X_dev, model.y_dev)
         print('Training loss: {}'.format(train_loss))
         print('Training acc: {}'.format(train_acc))
@@ -430,7 +432,10 @@ def test_NER():
         if epoch - best_val_epoch > config.early_stopping:
           break
         ###
-        confusion = calculate_confusion(config, predictions, model.y_dev)
+        confusion    = calculate_confusion(config, predictions, model.y_dev)
+        # conf_matrix = tf.image_summary("confusion_matrix" + str(epoch), tf.convert_to_tensor(confusion.astype(np.float32)))
+        # conf_summary = session.run(conf_matrix)
+        # model.summary_writer.add_summary(conf_summary, epoch)
         print_confusion(confusion, model.num_to_tag)
         print('Total time: {}'.format(time.time() - start))
       
