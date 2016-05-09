@@ -433,9 +433,13 @@ def test_NER():
           break
         ###
         confusion    = calculate_confusion(config, predictions, model.y_dev)
-        # conf_matrix = tf.image_summary("confusion_matrix" + str(epoch), tf.convert_to_tensor(confusion.astype(np.float32)))
-        # conf_summary = session.run(conf_matrix)
-        # model.summary_writer.add_summary(conf_summary, epoch)
+        cm = confusion.copy()
+        cm = cm.astype(np.float32) / cm.sum(axis=1, keepdims=True)
+        cm = cm[np.newaxis, :, :, np.newaxis].astype(np.float32)
+        cm_tf_image = tf.convert_to_tensor(cm)
+        cm_is = tf.image_summary("confusion_matrix", cm_tf_image)
+        cm_current_epoch = session.run(cm_is)
+        model.summary_writer.add_summary(cm_current_epoch, epoch)
         print_confusion(confusion, model.num_to_tag)
         print('Total time: {}'.format(time.time() - start))
       
