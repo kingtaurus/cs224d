@@ -282,7 +282,7 @@ def generate_text(session, model, config, starting_text='<eos>',
   state = model.initial_state.eval()
   # Imagine tokens as a batch size of one, length of len(tokens[0])
   tokens = [model.vocab.encode(word) for word in starting_text.split()]
-  for i in xrange(stop_length):
+  for i in range(stop_length):
     ### YOUR CODE HERE
     raise NotImplementedError
     ### END YOUR CODE
@@ -317,34 +317,34 @@ def test_RNNLM():
     best_val_epoch = 0
   
     session.run(init)
-    for epoch in xrange(config.max_epochs):
-      print 'Epoch {}'.format(epoch)
+    for epoch in range(config.max_epochs):
+      print('Epoch {}'.format(epoch))
       start = time.time()
       ###
       train_pp = model.run_epoch(
           session, model.encoded_train,
           train_op=model.train_step)
       valid_pp = model.run_epoch(session, model.encoded_valid)
-      print 'Training perplexity: {}'.format(train_pp)
-      print 'Validation perplexity: {}'.format(valid_pp)
+      print('Training perplexity: {}'.format(train_pp))
+      print('Validation perplexity: {}'.format(valid_pp))
       if valid_pp < best_val_pp:
         best_val_pp = valid_pp
         best_val_epoch = epoch
         saver.save(session, './ptb_rnnlm.weights')
       if epoch - best_val_epoch > config.early_stopping:
         break
-      print 'Total time: {}'.format(time.time() - start)
+      print('Total time: {}'.format(time.time() - start))
       
     saver.restore(session, 'ptb_rnnlm.weights')
     test_pp = model.run_epoch(session, model.encoded_test)
-    print '=-=' * 5
-    print 'Test perplexity: {}'.format(test_pp)
-    print '=-=' * 5
+    print('=-=' * 5)
+    print('Test perplexity: {}'.format(test_pp))
+    print('=-=' * 5)
     starting_text = 'in palo alto'
     while starting_text:
-      print ' '.join(generate_sentence(
-          session, gen_model, gen_config, starting_text=starting_text, temp=1.0))
-      starting_text = raw_input('> ')
+      print(' '.join(generate_sentence(
+          session, gen_model, gen_config, starting_text=starting_text, temp=1.0)))
+      starting_text = input('> ')
 
 if __name__ == "__main__":
     test_RNNLM()
