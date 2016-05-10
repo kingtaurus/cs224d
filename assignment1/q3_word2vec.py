@@ -69,14 +69,14 @@ def softmaxCostAndGradient(predicted, target, outputVectors, dataset):
     N, D     = outputVectors.shape
 
     r    = predicted
-    prob = np.exp(np.dot(outputVectors, r)) / np.sum(np.exp(np.dot(outputVectors, r)))
-    cost = -np.log(prob[target] + 1e-12)
+    prob = softmax(r.dot(outputVectors.T))
+    cost = -np.log(prob[target])
 
     dx   = prob
     dx[target] -= 1.
 
-    gradPred = np.dot(outputVectors.T, dx)
-    grad     = np.outer(dx, r)
+    grad     = dx.reshape((N,1)) * r.reshape((1,D))
+    gradPred = (dx.reshape((1,N)).dot(outputVectors)).flatten()
     ### END YOUR CODE
     
     return cost, gradPred, grad
