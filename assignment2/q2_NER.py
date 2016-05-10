@@ -34,7 +34,7 @@ class Config(object):
   label_size = 5
   hidden_size = 100
   max_epochs = 24
-  early_stopping = 2
+  early_stopping = 5
   dropout = 0.9
   lr = 0.001
   l2 = 0.001
