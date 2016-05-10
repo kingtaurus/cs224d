@@ -79,7 +79,9 @@ class RNNLM_Model(LanguageModel):
     (Don't change the variable names)
     """
     ### YOUR CODE HERE
-    raise NotImplementedError
+    self.input_placeholder   = tf.placeholder(tf.int32, shape=[None, self.config.num_steps])
+    self.labels_placeholder  = tf.placeholder(tf.float32, shape=[None, self.config.num_steps])
+    self.dropout_placeholder = tf.placeholder(tf.float32, name="dropout_keep_prob")
     ### END YOUR CODE
   
   def add_embedding(self):
