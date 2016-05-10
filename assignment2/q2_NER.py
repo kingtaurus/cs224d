@@ -11,6 +11,17 @@ import data_utils.ner as ner
 from utils import data_iterator
 from model import LanguageModel
 
+def variable_summaries(variable, name):
+  with tf.name_scope("summaries"):
+    mean = tf.reduce_mean(variable)
+    tf.scalar_summary('mean/' + name, mean)
+    with tf.name_scope('stddev'):
+      stddev = tf.sqrt(tf.reduce_sum(tf.square(variable - mean)))
+    tf.scalar_summary('stddev/' + name, stddev)
+    tf.scalar_summary('max/' + name, tf.reduce_max(variable))
+    tf.scalar_summary('min/' + name, tf.reduce_min(variable))
+    tf.histogram_summary(name, variable)
+
 class Config(object):
   """Holds model hyperparams and data information.
 
@@ -22,7 +33,7 @@ class Config(object):
   batch_size = 64
   label_size = 5
   hidden_size = 100
-  max_epochs = 24 
+  max_epochs = 1
   early_stopping = 2
   dropout = 0.9
   lr = 0.001
@@ -44,7 +55,7 @@ class NERModel(LanguageModel):
       'data/ner/vocab.txt', 'data/ner/wordVectors.txt')
     tagnames = ['O', 'LOC', 'MISC', 'ORG', 'PER']
     self.num_to_tag = dict(enumerate(tagnames))
-    tag_to_num = {v:k for k,v in self.num_to_tag.iteritems()}
+    tag_to_num = {v:k for k,v in self.num_to_tag.items()}
 
     # Load the training set
     docs = du.load_dataset('data/ner/train')
@@ -92,7 +103,9 @@ class NERModel(LanguageModel):
     (Don't change the variable names)
     """
     ### YOUR CODE HERE
-    raise NotImplementedError
+    self.input_placeholder   = tf.placeholder(tf.int32, shape=[None, self.config.window_size])
+    self.labels_placeholder  = tf.placeholder(tf.float32, shape=[None, self.config.label_size])
+    self.dropout_placeholder = tf.placeholder(tf.float32, name="dropout_keep_prob")
     ### END YOUR CODE
 
   def create_feed_dict(self, input_batch, dropout, label_batch=None):
@@ -117,7 +130,10 @@ class NERModel(LanguageModel):
       feed_dict: The feed dictionary mapping from placeholders to values.
     """
     ### YOUR CODE HERE
-    raise NotImplementedError
+    feed_dict = {self.input_placeholder: input_batch,
+                 self.dropout_placeholder: dropout}
+    if label_batch is not None:
+      feed_dict[self.labels_placeholder] = label_batch
     ### END YOUR CODE
     return feed_dict
 
@@ -148,7 +164,12 @@ class NERModel(LanguageModel):
     # The embedding lookup is currently only implemented for the CPU
     with tf.device('/cpu:0'):
       ### YOUR CODE HERE
-      raise NotImplementedError
+      with tf.variable_scope("embedding_layer") as scope:
+        embedding = tf.get_variable("embedding",
+                                    [len(self.wv), self.config.embed_size],
+                                    initializer=tf.random_uniform_initializer(-1,1))
+        window = tf.nn.embedding_lookup(params=embedding, ids=self.input_placeholder)
+        window = tf.reshape(window, shape=[-1, self.config.window_size * self.config.embed_size], name="window")
       ### END YOUR CODE
       return window
 
@@ -180,7 +201,36 @@ class NERModel(LanguageModel):
       output: tf.Tensor of shape (batch_size, label_size)
     """
     ### YOUR CODE HERE
-    raise NotImplementedError
+    with tf.variable_scope("layer") as layer_scope:
+      W = tf.get_variable("W_l",
+                          shape=[self.config.window_size * self.config.embed_size, self.config.hidden_size],
+                          initializer=xavier_weight_init())
+      b1 = tf.get_variable("b1",
+                           shape=[self.config.hidden_size],
+                           initializer=tf.constant_initializer(0.0))
+      variable_summaries(W, W.name)
+      variable_summaries(b1, b1.name)
+      with tf.variable_scope("hidden_layer") as hidden_layer:
+        U = tf.get_variable("U_h",
+                            shape=[self.config.hidden_size, self.config.label_size],
+                            initializer=xavier_weight_init())
+        b2 = tf.get_variable("b2",
+                             shape=[self.config.label_size],
+                             initializer=tf.constant_initializer(0.0))
+        variable_summaries(U, U.name)
+        variable_summaries(b2, b2.name)
+
+    h_fc1 = tf.nn.relu(tf.matmul(window, W) + b1)
+    h_fc1 = tf.nn.dropout(h_fc1, self.dropout_placeholder)
+
+    h_fc2 = tf.nn.relu(tf.matmul(h_fc1, U) + b2)
+    h_fc2 = tf.nn.dropout(h_fc2, self.dropout_placeholder)
+
+    l2_loss = tf.nn.l2_loss(W) + tf.nn.l2_loss(b1) + tf.nn.l2_loss(U) + tf.nn.l2_loss(b2)
+
+    tf.add_to_collection(name="l2_loss", value=l2_loss)
+
+    output = h_fc2
     ### END YOUR CODE
     return output 
 
@@ -190,12 +240,16 @@ class NERModel(LanguageModel):
     Hint: You can use tf.nn.softmax_cross_entropy_with_logits to simplify your
           implementation. You might find tf.reduce_mean useful.
     Args:
-      pred: A tensor of shape (batch_size, n_classes)
+      y (pred): A tensor of shape (batch_size, n_classes)
     Returns:
       loss: A 0-d tensor (scalar)
     """
     ### YOUR CODE HERE
-    raise NotImplementedError
+    # regularization = tf.nn.l2_loss(W) + tf.nn.l2_loss(b1) +
+    #                  tf.nn.l2_loss(U) + tf.nn.l2_loss(b2)
+    # loss += self.config.reg * regularization
+    loss = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(y, self.labels_placeholder))
+    loss += self.config.l2 * tf.get_collection("l2_loss")[0]
     ### END YOUR CODE
     return loss
 
@@ -219,7 +273,13 @@ class NERModel(LanguageModel):
       train_op: The Op for training.
     """
     ### YOUR CODE HERE
-    raise NotImplementedError
+    train_op = tf.train.AdamOptimizer(self.config.lr).minimize(loss)
+    tf.scalar_summary('loss', loss)
+    #alternate:
+    # global_step = tf.Variable(0, name="global_step", trainable=False)
+    # optimizer = tf.train.AdamOptimizer(1e-4)
+    # gradients = optimizer.compute_gradients(loss)
+    # train_op  = optimizer.apply_gradients(gradients, global_step=global_step)
     ### END YOUR CODE
     return train_op
 
@@ -238,6 +298,8 @@ class NERModel(LanguageModel):
         tf.argmax(self.labels_placeholder, 1), one_hot_prediction)
     self.correct_predictions = tf.reduce_sum(tf.cast(correct_prediction, 'int32'))
     self.train_op = self.add_training_op(self.loss)
+    self.merged_summaries = tf.merge_all_summaries()
+    self.summary_writer = None
 
   def run_epoch(self, session, input_data, input_labels,
                 shuffle=True, verbose=True):
@@ -248,13 +310,19 @@ class NERModel(LanguageModel):
     total_correct_examples = 0
     total_processed_examples = 0
     total_steps = len(orig_X) / self.config.batch_size
+
     for step, (x, y) in enumerate(
       data_iterator(orig_X, orig_y, batch_size=self.config.batch_size,
                    label_size=self.config.label_size, shuffle=shuffle)):
       feed = self.create_feed_dict(input_batch=x, dropout=dp, label_batch=y)
-      loss, total_correct, _ = session.run(
-          [self.loss, self.correct_predictions, self.train_op],
+
+      loss, total_correct, _, merged = session.run(
+          [self.loss, self.correct_predictions, self.train_op, self.merged_summaries],
           feed_dict=feed)
+
+      if step % 50 == 0:
+        self.summary_writer.add_summary(merged)
+
       total_processed_examples += len(x)
       total_correct_examples += total_correct
       total_loss.append(loss)
@@ -300,17 +368,17 @@ def print_confusion(confusion, num_to_tag):
     total_guessed_tags = confusion.sum(axis=0)
     # Summing left to right gets the total number of true tags
     total_true_tags = confusion.sum(axis=1)
-    print
-    print confusion
+    print()
+    print(confusion)
     for i, tag in sorted(num_to_tag.items()):
         prec = confusion[i, i] / float(total_guessed_tags[i])
         recall = confusion[i, i] / float(total_true_tags[i])
-        print 'Tag: {} - P {:2.4f} / R {:2.4f}'.format(tag, prec, recall)
+        print('Tag: {} - P {:2.4f} / R {:2.4f}'.format(tag, prec, recall))
 
 def calculate_confusion(config, predicted_indices, y_indices):
     """Helper method that calculates confusion matrix."""
     confusion = np.zeros((config.label_size, config.label_size), dtype=np.int32)
-    for i in xrange(len(y_indices)):
+    for i in range(len(y_indices)):
         correct_label = y_indices[i]
         guessed_label = predicted_indices[i]
         confusion[correct_label, guessed_label] += 1
@@ -340,17 +408,18 @@ def test_NER():
       best_val_loss = float('inf')
       best_val_epoch = 0
 
+      model.summary_writer = tf.train.SummaryWriter("train_log/", session.graph)
       session.run(init)
-      for epoch in xrange(config.max_epochs):
-        print 'Epoch {}'.format(epoch)
+      for epoch in range(config.max_epochs):
+        print('Epoch {}'.format(epoch))
         start = time.time()
         ###
         train_loss, train_acc = model.run_epoch(session, model.X_train,
                                                 model.y_train)
         val_loss, predictions = model.predict(session, model.X_dev, model.y_dev)
-        print 'Training loss: {}'.format(train_loss)
-        print 'Training acc: {}'.format(train_acc)
-        print 'Validation loss: {}'.format(val_loss)
+        print('Training loss: {}'.format(train_loss))
+        print('Training acc: {}'.format(train_acc))
+        print('Validation loss: {}'.format(val_loss))
         if val_loss < best_val_loss:
           best_val_loss = val_loss
           best_val_epoch = epoch
@@ -363,12 +432,12 @@ def test_NER():
         ###
         confusion = calculate_confusion(config, predictions, model.y_dev)
         print_confusion(confusion, model.num_to_tag)
-        print 'Total time: {}'.format(time.time() - start)
+        print('Total time: {}'.format(time.time() - start))
       
       saver.restore(session, './weights/ner.weights')
-      print 'Test'
-      print '=-=-='
-      print 'Writing predictions to q2_test.predicted'
+      print('Test')
+      print('=-=-=')
+      print('Writing predictions to q2_test.predicted')
       _, predictions = model.predict(session, model.X_test, model.y_test)
       save_predictions(predictions, "q2_test.predicted")
 

@@ -5,6 +5,8 @@ class Model(object):
   computational graphs. Each algorithm you will construct in this homework will
   inherit from a Model object.
   """
+  def __init__(self):
+    self.input_data = None
 
   def load_data(self):
     """Loads data from disk and stores it in memory.
@@ -109,6 +111,7 @@ class Model(object):
       average_loss: Average loss of model.
       predictions: Predictions of model on input_data
     """
+    return None, None
     raise NotImplementedError("Each Model must re-implement this method.")
 
 class LanguageModel(Model):
@@ -116,8 +119,10 @@ class LanguageModel(Model):
 
   Adds ability to do embedding.
   """
-
   def add_embedding(self):
     """Add embedding layer. that maps from vocabulary to vectors.
     """
     raise NotImplementedError("Each Model must re-implement this method.")
+
+  def predict(self, sess, input_data, input_labels=None):
+    return None, None
