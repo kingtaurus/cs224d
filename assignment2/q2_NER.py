@@ -224,7 +224,7 @@ class NERModel(LanguageModel):
     h_fc1 = tf.nn.relu(tf.matmul(window, W) + b1)
     h_fc1 = tf.nn.dropout(h_fc1, self.dropout_placeholder)
 
-    h_fc2 = tf.nn.relu(tf.matmul(h_fc1, U) + b2)
+    h_fc2 = tf.matmul(h_fc1, U) + b2
     h_fc2 = tf.nn.dropout(h_fc2, self.dropout_placeholder)
 
     l2_loss = tf.nn.l2_loss(W) + tf.nn.l2_loss(b1) + tf.nn.l2_loss(U) + tf.nn.l2_loss(b2)
@@ -361,6 +361,8 @@ class NERModel(LanguageModel):
         preds = session.run(self.predictions, feed_dict=feed)
       predicted_indices = preds.argmax(axis=1)
       results.extend(predicted_indices)
+    if len(losses) == 0:
+      return 0, results
     return np.mean(losses), results
 
 def print_confusion(confusion, num_to_tag):
