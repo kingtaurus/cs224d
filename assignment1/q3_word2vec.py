@@ -36,7 +36,7 @@ def test_normalize_rows():
     x = normalizeRows(np.array([[3.0,4.0],[1, 2]])) 
     # the result should be [[0.6, 0.8], [0.4472, 0.8944]]
     print(x)
-    assert (x.all() == np.array([[0.6, 0.8], [0.4472, 0.8944]]).all())
+    assert (np.amax(np.fabs(x - np.array([[0.6,0.8],[0.4472136,0.89442719]]))) <= 1e-6)
     print("")
 
 def softmaxCostAndGradient(predicted, target, outputVectors, dataset):
@@ -69,14 +69,14 @@ def softmaxCostAndGradient(predicted, target, outputVectors, dataset):
     N, D     = outputVectors.shape
 
     r    = predicted
-    prob = np.exp(np.dot(outputVectors, r)) / np.sum(np.exp(np.dot(outputVectors, r)))
-    cost = -np.log(prob[target] + 1e-12)
+    prob = softmax(r.dot(outputVectors.T))
+    cost = -np.log(prob[target])
 
     dx   = prob
     dx[target] -= 1.
 
-    gradPred = np.dot(outputVectors.T, dx)
-    grad     = np.outer(dx, r)
+    grad     = dx.reshape((N,1)) * r.reshape((1,D))
+    gradPred = (dx.reshape((1,N)).dot(outputVectors)).flatten()
     ### END YOUR CODE
     
     return cost, gradPred, grad
@@ -105,28 +105,42 @@ def negSamplingCostAndGradient(predicted, target, outputVectors, dataset,
     gradPred = np.zeros_like(predicted)
     grad     = np.zeros_like(outputVectors)
 
-    negative_samples = np.array([dataset.sampleTokenIdx() for i in range(K)], dtype='int64')
+    #negative_samples = np.array([dataset.sampleTokenIdx() for i in range(K)], dtype='int64')
+    negative_samples = []
+    for k in range(K):
+        new_idx = dataset.sampleTokenIdx()
+        while new_idx == target:
+            new_idx = dataset.sampleTokenIdx()
+        negative_samples += [new_idx]
+    indices = [target]
+    indices += negative_samples
 
-    z        = np.dot(outputVectors, predicted)
+    labels = np.array([1] + [-1 for k in range(K)])
+    vecs = outputVectors[indices]
+
+    z        = np.dot(vecs, predicted) * labels
     probs    = sigmoid(z)
-    cost     = - np.log(probs[target]+1e-12) - np.sum(np.log(1 - probs[negative_samples] + 1e-12) )
+    cost     = - np.sum(np.log(probs))
 
-    gradPred -=   outputVectors[target] * (1 - probs[target])
-    gradPred +=   np.sum(probs[negative_samples].reshape((K,1)) * outputVectors[negative_samples,:], axis=0)
+    dx = labels * (probs - 1)
+    gradPred = dx.reshape((1,K+1)).dot(vecs).flatten()
+    gradtemp = dx.reshape((K+1,1)).dot(predicted.reshape(1,predicted.shape[0]))
 
-    # Z[negative_samples] += 1.
-    # First attempt to convert this to vectorized code
-    grad[target, :] = predicted * (probs[target] - 1.)
+    for k in range(K+1):
+        grad[indices[k]] += gradtemp[k,:]
 
-    for k in negative_samples:
-        grad[k, :] += predicted * probs[k]
-
-    #THIS code can be used to remove the above loop
-    #but even with 20 negative samples this will be slower
-    # tiled_pred = np.tile(predicted,(grad.shape[0],1))
-    # A = np.diag(np.bincount(negative_samples, minlength=grad.shape[0])) * probs
-    # neg_samp_shift = np.dot(A, tiled_pred)
-    # grad += neg_samp_shift
+#     t = sigmoid(predicted.dot(outputVectors[target,:]))
+#     cost = -np.log(t)
+#     delta = t - 1
+#     gradPred += delta * outputVectors[target, :]
+#     grad[target, :] += delta * predicted
+#     for k in xrange(K):
+#         idx = dataset.sampleTokenIdx()
+#         t = sigmoid(-predicted.dot(outputVectors[idx,:]))
+#         cost += -np.log(t)
+#         delta = 1 - t
+#         gradPred += delta * outputVectors[idx, :]
+#         grad[idx, :] += delta * predicted
 
     ### END YOUR CODE
     
