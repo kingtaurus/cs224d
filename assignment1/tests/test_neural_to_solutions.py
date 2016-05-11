@@ -1,9 +1,9 @@
 '''
 HOW TO RUN THIS CODE (if tests are within the assignment 1 root):
-python -m py.test tests/test_neural.py -vv -s -q
-python -m py.test tests/test_neural.py -vv -s -q --cov
+python -m py.test tests/test_neural_to_solutions.py -vv -s -q
+python -m py.test tests/test_neural_to_solutions.py -vv -s -q --cov
 
-py.test.exe --cov=cs224d/ tests/test_neural.py --cov-report html
+py.test.exe --cov=cs224d/ tests/test_neural_to_solutions.py --cov-report html
 
 (if the tests are within the subfolder tests)
 PYTHONPATH=${PWD} py.test.exe tests/ -v --cov-report html
