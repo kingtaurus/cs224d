@@ -404,7 +404,7 @@ and (where $i\neq k$),
                                                                        = & - \left(\frac{e^{\theta_{i}}e^{\theta_{k}}}{\sum_{j=1}{e^{\theta_{j}}}}\right) \\
                                                                        = & - \hat{y}_{i}\hat{y}_{k}\label{eq:2b 3}
 \end{align}
-Combining Equations \ref{eq:2b 1}, \ref{eq:2b 2}, \ref{eq:2b 3}, yields
+Combining Equations~\ref{eq:2b 1},~\ref{eq:2b 2},~\ref{eq:2b 3}, yields
 \begin{equation}
 \frac{\partial(\textrm{CE})}{\partial{\theta_{k}}} = \begin{cases}
 -y_{j}(1 - \hat{y}_{k})&\text{ for }i=k \\
@@ -676,10 +676,9 @@ def forward_backward_prop(data, labels, params, dimensions):
     layer2   = np.dot(layer1_a, W2) + b2
     # need to calculate the softmax loss
     probs = softmax(layer2)
-    cost  = -np.sum(np.log(probs[np.arange(N), np.argmax(labels)] +
-                                         1e-16)) / N
+    cost  = -np.sum(np.log(probs[np.arange(N), np.argmax(labels, axis=1)])) / N
     dx    = probs.copy()
-    dx[np.arange(N), np.argmax(labels)] -= 1
+    dx[np.arange(N), np.argmax(labels, axis=1)] -= 1
     dx /= N
     # dx is the gradient of the loss w.r.t. y_{est}
     ### END YOUR CODE
@@ -745,7 +744,7 @@ Now, using the chain rule, we can calculate,
 
 \clearpage
 
-\myhwtitle{1}{3(b)}{\solutionsAuthorg}
+\myhwtitle{1}{3(b)}{\solutionsAuthor}
 
 \bigskip
 \noindent As in the previous problem, derive gradients for the `output' word vectors ${\boldsymbol u}_{w}$'s (including ${\boldsymbol u}_{o}$)\vspace{5mm}
