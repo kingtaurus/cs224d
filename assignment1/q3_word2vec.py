@@ -99,49 +99,42 @@ def negSamplingCostAndGradient(predicted, target, outputVectors, dataset,
     # assignment!
 
     ### YOUR CODE HERE
-    N, D     = outputVectors.shape
+    grad = np.zeros(outputVectors.shape)
+    gradPred = np.zeros(predicted.shape)
 
-    cost     = 0
-    gradPred = np.zeros_like(predicted)
-    grad     = np.zeros_like(outputVectors)
-
-    #negative_samples = np.array([dataset.sampleTokenIdx() for i in range(K)], dtype='int64')
-    negative_samples = []
-    for k in range(K):
-        new_idx = dataset.sampleTokenIdx()
-        while new_idx == target:
-            new_idx = dataset.sampleTokenIdx()
-        negative_samples += [new_idx]
     indices = [target]
-    indices += negative_samples
+    for k in range(K):
+        newidx = dataset.sampleTokenIdx()
+        while newidx == target:
+            newidx = dataset.sampleTokenIdx()
+        indices += [newidx]
+
 
     labels = np.array([1] + [-1 for k in range(K)])
-    vecs = outputVectors[indices]
+    vecs = outputVectors[indices,:]
 
-    z        = np.dot(vecs, predicted) * labels
-    probs    = sigmoid(z)
-    cost     = - np.sum(np.log(probs))
+    t = sigmoid(vecs.dot(predicted) * labels)
+    cost = -np.sum(np.log(t))
 
-    dx = labels * (probs - 1)
-    gradPred = dx.reshape((1,K+1)).dot(vecs).flatten()
-    gradtemp = dx.reshape((K+1,1)).dot(predicted.reshape(1,predicted.shape[0]))
-
+    delta = labels * (t - 1)
+    gradPred = delta.reshape((1,K+1)).dot(vecs).flatten()
+    gradtemp = delta.reshape((K+1,1)).dot(predicted.reshape(
+        (1,predicted.shape[0])))
     for k in range(K+1):
         grad[indices[k]] += gradtemp[k,:]
 
-#     t = sigmoid(predicted.dot(outputVectors[target,:]))
-#     cost = -np.log(t)
-#     delta = t - 1
-#     gradPred += delta * outputVectors[target, :]
-#     grad[target, :] += delta * predicted
-#     for k in xrange(K):
-#         idx = dataset.sampleTokenIdx()
-#         t = sigmoid(-predicted.dot(outputVectors[idx,:]))
-#         cost += -np.log(t)
-#         delta = 1 - t
-#         gradPred += delta * outputVectors[idx, :]
-#         grad[idx, :] += delta * predicted
-
+    #     t = sigmoid(predicted.dot(outputVectors[target,:]))
+    #     cost = -np.log(t)
+    #     delta = t - 1
+    #     gradPred += delta * outputVectors[target, :]
+    #     grad[target, :] += delta * predicted
+    #     for k in range(K):
+    #         idx = dataset.sampleTokenIdx()
+    #         t = sigmoid(-predicted.dot(outputVectors[idx,:]))
+    #         cost += -np.log(t)
+    #         delta = 1 - t
+    #         gradPred += delta * outputVectors[idx, :]
+    #         grad[idx, :] += delta * predicted
     ### END YOUR CODE
     
     return cost, gradPred, grad
@@ -273,6 +266,7 @@ def word2vec_sgd_wrapper(word2vecModel, tokens, wordVectors, dataset, C, word2ve
     N = wordVectors.shape[0]
     inputVectors = wordVectors[:N//2,:]
     outputVectors = wordVectors[N//2:,:]
+
     for i in range(batchsize):
         C1 = random.randint(1,C)
         centerword, context = dataset.getRandomContext(C1)
@@ -305,7 +299,7 @@ def test_word2vec():
     random.seed(31415)
     np.random.seed(9265)
     dummy_vectors = normalizeRows(np.random.randn(10,3))
-    dummy_tokens = dict([("a",0), ("b",1), ("c",2),("d",3),("e",4)])
+    dummy_tokens = dict([("a",0), ("b",1), ("c",2), ("d",3), ("e",4)])
     print("==== Gradient check for skip-gram ====")
     gradcheck_naive(lambda vec: word2vec_sgd_wrapper(skipgram, dummy_tokens, vec, dataset, 5), dummy_vectors)
     gradcheck_naive(lambda vec: word2vec_sgd_wrapper(skipgram, dummy_tokens, vec, dataset, 5, negSamplingCostAndGradient), dummy_vectors)

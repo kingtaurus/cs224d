@@ -23,8 +23,8 @@ def getSentenceFeature(tokens, wordVectors, sentence):
     sentVector = np.zeros((wordVectors.shape[1],))
     
     ### YOUR CODE HERE
-    array = np.fromiter( (tokens[word] for word in sentence), dtype='int')
-    sentVector = np.mean(wordVectors[array], axis=0)
+    indices = [tokens[word] for word in sentence]
+    sentVector = np.mean(wordVectors[indices, :], axis=0)
     ### END YOUR CODE
     
     return sentVector
@@ -53,19 +53,18 @@ def softmaxRegression(features, labels, weights, regularization = 0.0, nopredict
         N = 1
 
     # A vectorized implementation of    1/N * sum(cross_entropy(x_i, y_i)) + 1/2*|w|^2
-    cost = np.sum(-np.log(prob[np.arange(N), labels] + 1e-12)) / N
+    cost = np.sum(-np.log(prob[range(N), labels])) / N 
     cost += 0.5 * regularization * np.sum(weights ** 2)
     
     ### YOUR CODE HERE: compute the gradients and predictions
-    pred = np.argmax(prob, axis=1)
-    dx = prob
-    dx[np.arange(N), labels] -= 1
-    dx /= N
-    # dx is the gradient associated with the loss (softmax layer only)
-    grad = np.dot(features.T, dx)
-    #backprop the weights
+    grad = np.array(prob)
+    grad[range(N), labels] -= 1.0
+    grad = features.T.dot(grad) / N
     grad += regularization * weights
-    #adding the regularization to the gradient
+    if N > 1:
+        pred = np.argmax(prob, axis=1)
+    else:
+        pred = np.argmax(prob)
     ### END YOUR CODE
     
     if nopredictions:
@@ -95,9 +94,7 @@ def sanity_check():
     nWords = len(tokens)
 
     _, wordVectors0, _ = load_saved_params()
-    N = wordVectors0.shape[0]//2
-    #assert N == nWords
-    wordVectors = (wordVectors0[:N,:] + wordVectors0[N:,:])
+    wordVectors = (wordVectors0[:nWords,:] + wordVectors0[nWords:,:])
     dimVectors = wordVectors.shape[1]
 
     dummy_weights = 0.1 * np.random.randn(dimVectors, 5)

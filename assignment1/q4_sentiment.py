@@ -13,8 +13,9 @@ sns.set(style='whitegrid', context='talk')
 # NOTE: fill in one more "your code here" below before running!
 REGULARIZATION = None   # Assign a list of floats in the block below
 ### YOUR CODE HERE
-REGULARIZATION = np.logspace(-6,0.1,21)
-REGULARIZATION = np.hstack([0,REGULARIZATION])
+#REGULARIZATION = np.logspace(-6,0.1,21)
+#REGULARIZATION = np.hstack([0,REGULARIZATION])
+REGULARIZATION = [0.0, 0.00001, 0.00003, 0.0001, 0.0003, 0.001, 0.003, 0.01]
 ### END YOUR CODE
 
 # Load the dataset
@@ -24,9 +25,7 @@ nWords = len(tokens)
 
 # Load the word vectors we trained earlier
 _, wordVectors0, _ = load_saved_params()
-N = wordVectors0.shape[0]//2
-#assert nWords == N
-wordVectors = (wordVectors0[:N,:] + wordVectors0[N:,:])
+wordVectors = (wordVectors0[:nWords,:] + wordVectors0[nWords:,:])
 dimVectors = wordVectors.shape[1]
 
 # Load the train set
