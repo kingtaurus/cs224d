@@ -6,7 +6,7 @@ from q2_sigmoid_sol import sigmoid_sol as sigmoid
 from q2_sigmoid_sol import sigmoid_grad_sol as sigmoid_grad
 from q2_gradcheck import gradcheck_naive
 
-def forward_backward_prop(data, labels, params, dimensions):
+def forward_backward_prop_sol(data, labels, params, dimensions):
     """
     Forward and backward propagation for a two-layer sigmoidal network
 

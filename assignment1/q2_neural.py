@@ -106,22 +106,20 @@ def forward_backward_prop(data, labels, params, dimensions):
     b2 = np.reshape(params[ofs:ofs + Dy], (1, Dy))
 
     ### YOUR CODE HERE: forward propagation
-    layer1   = np.dot(data,W1) + b1
-    layer1_a = sigmoid(layer1)
+    hidden   = np.dot(data,W1) + b1
+    layer1_a = sigmoid(hidden)
     layer2   = np.dot(layer1_a, W2) + b2
     # need to calculate the softmax loss
     probs = softmax(layer2)
-    cost  = -np.sum(np.log(probs[np.arange(N), np.argmax(labels)] +
-                           1e-16)) / N
-    dx    = probs.copy()
-    dx[np.arange(N), np.argmax(labels)] -= 1
-    dx /= N
-    # dx is the gradient of the loss w.r.t. y_{est}
+    cost  = - np.sum(np.log(probs[np.arange(N), np.argmax(labels, axis=1)]))
     ### END YOUR CODE
     
     ### YOUR CODE HERE: backward propagation
     #There is no regularization :/
     # dx -> sigmoid -> W2 * layer1_a + b -> sigmoid -> W1 * data + b1 -> ..
+    dx     = probs.copy()
+    dx    -= labels
+
     dlayer2   = np.zeros_like(dx)
     gradW2    = np.zeros_like(W2)
     gradW1    = np.zeros_like(W1)
@@ -146,7 +144,7 @@ def forward_backward_prop(data, labels, params, dimensions):
     # probs = softmax(scores)
     # cost  = -np.sum(np.log(probs[np.arange(N), np.argmax(labels)] + 1e-12)) / N
     # softmax_dx    = probs.copy()
-    # softmax_dx[np.arange(N), np.argmax(labels)] -= 1
+    # softmax_dx[np.arange(N), np.argmax(labels,axis=1)] -= 1
     # softmax_dx /= N
 
     # grads = {}
