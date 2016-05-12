@@ -6,11 +6,6 @@ import numpy as np
 import os
 import random
 
-from unidecode import unidecode
-
-def remove_non_ascii(text):
-    return unidecode(text)
-
 class StanfordSentiment:
     def __init__(self, path=None, tablesize = 1000000):
         if not path:
