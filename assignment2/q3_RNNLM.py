@@ -114,7 +114,24 @@ class RNNLM_Model(LanguageModel):
     # The embedding lookup is currently only implemented for the CPU
     with tf.device('/cpu:0'):
       ### YOUR CODE HERE
-      raise NotImplementedError
+      with tf.variable_scope("embedding_layer") as scope:
+        embedding = tf.get_variable("embedding",
+                                    [len(self.vocab), self.config.embed_size],
+                                    initializer=tf.random_normal_initializer())
+        variable_summaries(embedding, embedding.name)
+        #so each row corresponds to an word to embedding representation
+
+      inputs = tf.nn.embedding_lookup(params=embedding, ids=self.input_placeholder)
+      #this should use the id from input parameters to look up the embedding representation
+      #shape of inputs is now (?, self.config.num_steps, self.config.embed_size)
+      #                       (?, 10, 50) -> current case
+      inputs = tf.split(1, self.config.num_steps, inputs)
+      for i in range(len(inputs)):
+        inputs[i] = tf.squeeze(inputs[i], [1])
+      #this removes the extra dimensions of size=1, at dim=1
+      ##print(len(inputs), inputs[0].get_shape())
+      # current_case length = 10, (?, 50)
+
       ### END YOUR CODE
       return inputs
 
