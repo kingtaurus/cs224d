@@ -256,7 +256,44 @@ class RNNLM_Model(LanguageModel):
                a tensor of shape (batch_size, hidden_size)
     """
     ### YOUR CODE HERE
-    raise NotImplementedError
+    with tf.variable_scope("state"):
+      self.initial_state = tf.get_variable("initial_state",
+                                           [self.config.batch_size, self.config.hidden_size],
+                                           initializer=tf.constant_initializer(0.))
+      self.final_state   = tf.get_variable("final_state",
+                                           [self.config.batch_size, self.config.hidden_size],
+                                           initializer=tf.constant_initializer(0.))
+    with tf.variable_scope("RNN") as scope:
+      Whh = tf.get_variable("Whh",
+                            [self.config.hidden_size, self.config.hidden_size],
+                            initializer=tf.random_uniform_initializer(-1.,1.))#W
+      Whx = tf.get_variable("Whx",
+                            [self.config.hidden_size, self.config.embed_size],
+                            initializer=tf.random_uniform_initializer(-1.,1.))#U
+      b_1 = tf.get_variable("b_h",
+                            [self.config.hidden_size, 1],
+                            initializer=tf.constant_initializer(0.))
+      scope.reuse_variables()
+      variable_summaries(Whh, Whh.name)
+      variable_summaries(Whx, Whx.name)
+      variable_summaries(b_1, b_1.name)
+
+    h = self.initial_state
+    h = tf.expand_dims(h, -1)
+    Whh_b = tf.pack(self.config.batch_size * [Whh])
+    Whx_b = tf.pack(self.config.batch_size * [Whx])
+
+    # x -> embedding -> f(Ux(t-1) + Ws(t-1)) = s(t-1)
+    # x -> embedding -> V * s(t-1) = o(t-1)
+    # EXTERNAL to add_model;
+    rnn_outputs = []
+    for i, step in enumerate(inputs):
+      # #forward step
+      x = tf.expand_dims(step, -1)
+      # Required for batch_matmul
+      h = tf.tanh(tf.batch_matmul(Whh_b, h) + tf.batch_matmul(Whx_b, x) + b_1)
+      rnn_outputs.append(tf.squeeze(h))
+
     ### END YOUR CODE
     return rnn_outputs
 
