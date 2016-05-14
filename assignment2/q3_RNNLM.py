@@ -16,6 +16,17 @@ from model import LanguageModel
 # http://arxiv.org/pdf/1409.2329v4.pdf shows parameters that would achieve near
 # SotA numbers
 
+def variable_summaries(variable, name):
+  with tf.name_scope("summaries"):
+    mean = tf.reduce_mean(variable)
+    tf.scalar_summary('mean/' + name, mean)
+    with tf.name_scope('stddev'):
+      stddev = tf.sqrt(tf.reduce_sum(tf.square(variable - mean)))
+    tf.scalar_summary('stddev/' + name, stddev)
+    tf.scalar_summary('max/' + name, tf.reduce_max(variable))
+    tf.scalar_summary('min/' + name, tf.reduce_min(variable))
+    tf.histogram_summary(name, variable)
+
 class Config(object):
   """Holds model hyperparams and data information.
 
@@ -103,7 +114,24 @@ class RNNLM_Model(LanguageModel):
     # The embedding lookup is currently only implemented for the CPU
     with tf.device('/cpu:0'):
       ### YOUR CODE HERE
-      raise NotImplementedError
+      with tf.variable_scope("embedding_layer") as scope:
+        embedding = tf.get_variable("embedding",
+                                    [len(self.vocab), self.config.embed_size],
+                                    initializer=tf.random_normal_initializer())
+        variable_summaries(embedding, embedding.name)
+        #so each row corresponds to an word to embedding representation
+
+      inputs = tf.nn.embedding_lookup(params=embedding, ids=self.input_placeholder)
+      #this should use the id from input parameters to look up the embedding representation
+      #shape of inputs is now (?, self.config.num_steps, self.config.embed_size)
+      #                       (?, 10, 50) -> current case
+      inputs = tf.split(1, self.config.num_steps, inputs)
+      for i in range(len(inputs)):
+        inputs[i] = tf.squeeze(inputs[i], [1])
+      #this removes the extra dimensions of size=1, at dim=1
+      ##print(len(inputs), inputs[0].get_shape())
+      # current_case length = 10, (?, 50)
+
       ### END YOUR CODE
       return inputs
 
@@ -127,7 +155,23 @@ class RNNLM_Model(LanguageModel):
                (batch_size, len(vocab)
     """
     ### YOUR CODE HERE
-    raise NotImplementedError
+    with tf.variable_scope('projection'):
+      U = tf.get_variable("U",
+                          [self.config.hidden_size, len(self.vocab)],
+                          initializer=tf.random_normal_initializer())
+      b_2 = tf.get_variable("b_2",
+                            [len(self.vocab)],
+                            initializer=tf.constant_initializer(0.))
+      variable_summaries(U, U.name)
+      variable_summaries(b_2, b_2.name)
+
+    outputs = []
+
+    U_b = tf.pack(self.config.batch_size * [U])
+    for rnn_step in rnn_outputs:
+      x = tf.expand_dims(rnn_step,1)
+      out = tf.squeeze(tf.batch_matmul(x, U_b) + b_2)
+      outputs.append(out)
     ### END YOUR CODE
     return outputs
 
@@ -142,7 +186,10 @@ class RNNLM_Model(LanguageModel):
       loss: A 0-d tensor (scalar)
     """
     ### YOUR CODE HERE
+    #print(output.get_shape())
+    #shape is batch_size * steps, vocab size
     raise NotImplementedError
+    loss = tf.python.ops.seq2seq.sequence_loss()
     ### END YOUR CODE
     return loss
 
@@ -166,7 +213,7 @@ class RNNLM_Model(LanguageModel):
       train_op: The Op for training.
     """
     ### YOUR CODE HERE
-    raise NotImplementedError
+    train_op = tf.optimizer.AdamOptimizer(loss).minimize()
     ### END YOUR CODE
     return train_op
   
@@ -228,7 +275,44 @@ class RNNLM_Model(LanguageModel):
                a tensor of shape (batch_size, hidden_size)
     """
     ### YOUR CODE HERE
-    raise NotImplementedError
+    with tf.variable_scope("state"):
+      self.initial_state = tf.get_variable("initial_state",
+                                           [self.config.batch_size, self.config.hidden_size],
+                                           initializer=tf.constant_initializer(0.))
+      self.final_state   = tf.get_variable("final_state",
+                                           [self.config.batch_size, self.config.hidden_size],
+                                           initializer=tf.constant_initializer(0.))
+    with tf.variable_scope("RNN") as scope:
+      Whh = tf.get_variable("Whh",
+                            [self.config.hidden_size, self.config.hidden_size],
+                            initializer=tf.random_uniform_initializer(-1.,1.))#W
+      Whx = tf.get_variable("Whx",
+                            [self.config.hidden_size, self.config.embed_size],
+                            initializer=tf.random_uniform_initializer(-1.,1.))#U
+      b_1 = tf.get_variable("b_h",
+                            [self.config.hidden_size, 1],
+                            initializer=tf.constant_initializer(0.))
+      scope.reuse_variables()
+      variable_summaries(Whh, Whh.name)
+      variable_summaries(Whx, Whx.name)
+      variable_summaries(b_1, b_1.name)
+
+    h = self.initial_state
+    h = tf.expand_dims(h, -1)
+    Whh_b = tf.pack(self.config.batch_size * [Whh])
+    Whx_b = tf.pack(self.config.batch_size * [Whx])
+
+    # x -> embedding -> f(Ux(t-1) + Ws(t-1)) = s(t-1)
+    # x -> embedding -> V * s(t-1) = o(t-1)
+    # EXTERNAL to add_model;
+    rnn_outputs = []
+    for i, step in enumerate(inputs):
+      # #forward step
+      x = tf.expand_dims(step, -1)
+      # Required for batch_matmul
+      h = tf.tanh(tf.batch_matmul(Whh_b, h) + tf.batch_matmul(Whx_b, x) + b_1)
+      rnn_outputs.append(tf.squeeze(h))
+
     ### END YOUR CODE
     return rnn_outputs
 
