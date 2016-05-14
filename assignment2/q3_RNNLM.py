@@ -155,7 +155,23 @@ class RNNLM_Model(LanguageModel):
                (batch_size, len(vocab)
     """
     ### YOUR CODE HERE
-    raise NotImplementedError
+    with tf.variable_scope('projection'):
+      U = tf.get_variable("U",
+                          [self.config.hidden_size, len(self.vocab)],
+                          initializer=tf.random_normal_initializer())
+      b_2 = tf.get_variable("b_2",
+                            [len(self.vocab)],
+                            initializer=tf.constant_initializer(0.))
+      variable_summaries(U, U.name)
+      variable_summaries(b_2, b_2.name)
+
+    outputs = []
+
+    U_b = tf.pack(self.config.batch_size * [U])
+    for rnn_step in rnn_outputs:
+      x = tf.expand_dims(rnn_step,1)
+      out = tf.squeeze(tf.batch_matmul(x, U_b) + b_2)
+      outputs.append(out)
     ### END YOUR CODE
     return outputs
 
@@ -170,7 +186,10 @@ class RNNLM_Model(LanguageModel):
       loss: A 0-d tensor (scalar)
     """
     ### YOUR CODE HERE
+    #print(output.get_shape())
+    #shape is batch_size * steps, vocab size
     raise NotImplementedError
+    loss = tf.python.ops.seq2seq.sequence_loss()
     ### END YOUR CODE
     return loss
 
@@ -194,7 +213,7 @@ class RNNLM_Model(LanguageModel):
       train_op: The Op for training.
     """
     ### YOUR CODE HERE
-    raise NotImplementedError
+    train_op = tf.optimizer.AdamOptimizer(loss).minimize()
     ### END YOUR CODE
     return train_op
   
