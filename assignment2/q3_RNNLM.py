@@ -91,7 +91,7 @@ class RNNLM_Model(LanguageModel):
     """
     ### YOUR CODE HERE
     self.input_placeholder   = tf.placeholder(tf.int32, shape=[None, self.config.num_steps])
-    self.labels_placeholder  = tf.placeholder(tf.float32, shape=[None, self.config.num_steps])
+    self.labels_placeholder  = tf.placeholder(tf.int32, shape=[None, self.config.num_steps])
     self.dropout_placeholder = tf.placeholder(tf.float32, name="dropout_keep_prob")
     ### END YOUR CODE
   
@@ -117,8 +117,11 @@ class RNNLM_Model(LanguageModel):
       with tf.variable_scope("embedding_layer") as scope:
         embedding = tf.get_variable("embedding",
                                     [len(self.vocab), self.config.embed_size],
-                                    initializer=tf.random_normal_initializer())
+                                    initializer=tf.random_uniform_initializer(-1,1), trainable=True)
         variable_summaries(embedding, embedding.name)
+        #tf.random_uniform_initializer(minval=0.0, maxval=1.0, seed=None, dtype=tf.float32)
+        #tf.random_normal_initializer(mean=0, stddev=1., seed=None, dtype=tf.float32)
+
         #so each row corresponds to an word to embedding representation
 
       inputs = tf.nn.embedding_lookup(params=embedding, ids=self.input_placeholder)
@@ -158,7 +161,7 @@ class RNNLM_Model(LanguageModel):
     with tf.variable_scope('projection'):
       U = tf.get_variable("U",
                           [self.config.hidden_size, len(self.vocab)],
-                          initializer=tf.random_normal_initializer())
+                          initializer=tf.random_uniform_initializer())
       b_2 = tf.get_variable("b_2",
                             [len(self.vocab)],
                             initializer=tf.constant_initializer(0.))
@@ -167,10 +170,8 @@ class RNNLM_Model(LanguageModel):
 
     outputs = []
 
-    U_b = tf.pack(self.config.batch_size * [U])
     for rnn_step in rnn_outputs:
-      x = tf.expand_dims(rnn_step,1)
-      out = tf.squeeze(tf.batch_matmul(x, U_b) + b_2)
+      out = tf.squeeze(tf.matmul(rnn_step, U) + b_2)
       outputs.append(out)
     ### END YOUR CODE
     return outputs
@@ -186,10 +187,12 @@ class RNNLM_Model(LanguageModel):
       loss: A 0-d tensor (scalar)
     """
     ### YOUR CODE HERE
-    #print(output.get_shape())
-    #shape is batch_size * steps, vocab size
-    raise NotImplementedError
-    loss = tf.python.ops.seq2seq.sequence_loss()
+    all_ones = [tf.ones([self.config.batch_size * self.config.num_steps])]
+    cross_entropy = sequence_loss(
+        [output], [tf.reshape(self.labels_placeholder, [-1])], all_ones, len(self.vocab))
+    tf.add_to_collection('total_loss', cross_entropy)
+    loss = tf.add_n(tf.get_collection('total_loss'))
+    tf.scalar_summary('loss', loss)
     ### END YOUR CODE
     return loss
 
@@ -213,7 +216,8 @@ class RNNLM_Model(LanguageModel):
       train_op: The Op for training.
     """
     ### YOUR CODE HERE
-    train_op = tf.optimizer.AdamOptimizer(loss).minimize()
+    optimizer = tf.train.AdamOptimizer(self.config.lr)
+    train_op = optimizer.minimize(loss)
     ### END YOUR CODE
     return train_op
   
@@ -234,6 +238,8 @@ class RNNLM_Model(LanguageModel):
     output = tf.reshape(tf.concat(1, self.outputs), [-1, len(self.vocab)])
     self.calculate_loss = self.add_loss_op(output)
     self.train_step = self.add_training_op(self.calculate_loss)
+    self.merged_summaries = tf.merge_all_summaries()
+    self.summary_writer = None
 
 
   def add_model(self, inputs):
@@ -275,49 +281,36 @@ class RNNLM_Model(LanguageModel):
                a tensor of shape (batch_size, hidden_size)
     """
     ### YOUR CODE HERE
-    with tf.variable_scope("state"):
-      self.initial_state = tf.get_variable("initial_state",
-                                           [self.config.batch_size, self.config.hidden_size],
-                                           initializer=tf.constant_initializer(0.))
-      self.final_state   = tf.get_variable("final_state",
-                                           [self.config.batch_size, self.config.hidden_size],
-                                           initializer=tf.constant_initializer(0.))
-    with tf.variable_scope("RNN") as scope:
-      Whh = tf.get_variable("Whh",
-                            [self.config.hidden_size, self.config.hidden_size],
-                            initializer=tf.random_uniform_initializer(-1.,1.))#W
-      Whx = tf.get_variable("Whx",
-                            [self.config.hidden_size, self.config.embed_size],
-                            initializer=tf.random_uniform_initializer(-1.,1.))#U
-      b_1 = tf.get_variable("b_h",
-                            [self.config.hidden_size, 1],
-                            initializer=tf.constant_initializer(0.))
-      scope.reuse_variables()
+    with tf.variable_scope('InputDropout'):
+      inputs = [tf.nn.dropout(x, self.dropout_placeholder) for x in inputs]
+
+    with tf.variable_scope('rnn') as scope:
+      self.initial_state = tf.zeros([self.config.batch_size, self.config.hidden_size])
+      Whh = tf.get_variable(
+            'Whh', [self.config.hidden_size, self.config.hidden_size], initializer=tf.random_normal_initializer())
+      Whx = tf.get_variable(
+            'Whx', [self.config.embed_size, self.config.hidden_size], initializer=tf.random_normal_initializer())
+      b_1 = tf.get_variable(
+            'b_h', [self.config.hidden_size],  initializer=tf.constant_initializer(0.) )
       variable_summaries(Whh, Whh.name)
       variable_summaries(Whx, Whx.name)
       variable_summaries(b_1, b_1.name)
+      scope.reuse_variables()
 
-    h = self.initial_state
-    h = tf.expand_dims(h, -1)
-    Whh_b = tf.pack(self.config.batch_size * [Whh])
-    Whx_b = tf.pack(self.config.batch_size * [Whx])
-
-    # x -> embedding -> f(Ux(t-1) + Ws(t-1)) = s(t-1)
-    # x -> embedding -> V * s(t-1) = o(t-1)
-    # EXTERNAL to add_model;
+    state = self.initial_state
     rnn_outputs = []
-    for i, step in enumerate(inputs):
-      # #forward step
-      x = tf.expand_dims(step, -1)
-      # Required for batch_matmul
-      h = tf.tanh(tf.batch_matmul(Whh_b, h) + tf.batch_matmul(Whx_b, x) + b_1)
-      rnn_outputs.append(tf.squeeze(h))
+    for step, current_input in enumerate(inputs):
+      state = tf.nn.sigmoid(tf.matmul(state, Whh) + tf.matmul(current_input, Whx) + b_1)
+      rnn_outputs.append(state)
+    self.final_state = rnn_outputs[-1]
 
+    with tf.variable_scope('RNNDropout'):
+      rnn_outputs = [tf.nn.dropout(x, self.dropout_placeholder) for x in rnn_outputs]
     ### END YOUR CODE
     return rnn_outputs
 
 
-  def run_epoch(self, session, data, train_op=None, verbose=10):
+  def run_epoch(self, session, data, train_op=None, verbose=10, epoch=0):
     config = self.config
     dp = config.dropout
     if not train_op:
@@ -334,9 +327,11 @@ class RNNLM_Model(LanguageModel):
               self.labels_placeholder: y,
               self.initial_state: state,
               self.dropout_placeholder: dp}
-      loss, state, _ = session.run(
-          [self.calculate_loss, self.final_state, train_op], feed_dict=feed)
+      loss, state, _, merged = session.run(
+          [self.calculate_loss, self.final_state, train_op, self.merged_summaries], feed_dict=feed)
       total_loss.append(loss)
+      if step % 50 ==0 and dp != 1:
+        self.summary_writer.add_summary(merged, epoch * total_steps + step)
       if verbose and step % verbose == 0:
           sys.stdout.write('\r{} / {} : pp = {}'.format(
               step, total_steps, np.exp(np.mean(total_loss))))
@@ -370,7 +365,11 @@ def generate_text(session, model, config, starting_text='<eos>',
   tokens = [model.vocab.encode(word) for word in starting_text.split()]
   for i in range(stop_length):
     ### YOUR CODE HERE
-    raise NotImplementedError
+    feed = {model.input_placeholder: [tokens[-1:]],
+            model.initial_state: state,
+            model.dropout_placeholder: 1}
+    state, y_pred = session.run(
+        [model.final_state, model.predictions[-1]], feed_dict=feed)
     ### END YOUR CODE
     next_word_idx = sample(y_pred[0], temperature=temp)
     tokens.append(next_word_idx)
@@ -402,6 +401,7 @@ def test_RNNLM():
     best_val_pp = float('inf')
     best_val_epoch = 0
   
+    model.summary_writer = tf.train.SummaryWriter("RNN_train_log/", session.graph)
     session.run(init)
     for epoch in range(config.max_epochs):
       print('Epoch {}'.format(epoch))
@@ -409,7 +409,7 @@ def test_RNNLM():
       ###
       train_pp = model.run_epoch(
           session, model.encoded_train,
-          train_op=model.train_step)
+          train_op=model.train_step, epoch=epoch)
       valid_pp = model.run_epoch(session, model.encoded_valid)
       print('Training perplexity: {}'.format(train_pp))
       print('Validation perplexity: {}'.format(valid_pp))

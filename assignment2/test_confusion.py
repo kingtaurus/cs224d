@@ -6,7 +6,7 @@ import seaborn as sns
 
 import tensorflow as tf
 
-confusion = np.array([[42452,    27,    45,   175,    60], 
+confusion = np.array([[42452,    27,    45,   175,    60],
 	           [  255,  1636,    12,   152,    39],
 	           [  317,    26,   863,    42,    20],
 	           [  598,    73,    31,  1319,    71],
