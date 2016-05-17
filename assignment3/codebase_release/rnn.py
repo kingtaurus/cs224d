@@ -10,6 +10,7 @@ import tensorflow as tf
 import tree as tr
 from utils import Vocab
 
+from collections import OrderedDict
 
 RESET_AFTER = 50
 class Config(object):
@@ -97,7 +98,7 @@ class RNN_Model():
             ### END YOUR CODE
 
 
-        node_tensors = dict()
+        node_tensors = OrderedDict()
         curr_node_tensor = None
         if node.isLeaf:
             ### YOUR CODE HERE
@@ -216,6 +217,7 @@ class RNN_Model():
                 if new_model:
                     init = tf.initialize_all_variables()
                     sess.run(init)
+                    new_model = False
                 else:
                     saver = tf.train.Saver()
                     saver.restore(sess, './weights/%s.temp'%self.config.model_name)
