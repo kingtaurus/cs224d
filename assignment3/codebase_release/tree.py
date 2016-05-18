@@ -136,9 +136,9 @@ def simplified_data(num_train, num_dev, num_test):
     print(len(pos_trees), len(neg_trees))
     pos_trees = sorted(pos_trees, key=lambda t: len(t.get_words()))
     neg_trees = sorted(neg_trees, key=lambda t: len(t.get_words()))
-    num_train/=2
-    num_dev/=2
-    num_test/=2
+    num_train = num_train // 2
+    num_dev = num_dev // 2
+    num_test = num_test // 2
     train = pos_trees[:num_train] + neg_trees[:num_train]
     dev = pos_trees[num_train : num_train+num_dev] + neg_trees[num_train : num_train+num_dev]
     test = pos_trees[num_train+num_dev : num_train+num_dev+num_test] + neg_trees[num_train+num_dev : num_train+num_dev+num_test]
