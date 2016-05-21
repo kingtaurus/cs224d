@@ -1,4 +1,4 @@
-from numpy import *
+import numpy as np
 from nn.base import NNBase
 from nn.math import softmax, make_onehot
 from misc import random_weight_matrix
@@ -64,11 +64,10 @@ class WindowMLP(NNBase):
 
         random.seed(rseed) # be sure to seed this for repeatability!
         #### YOUR CODE HERE ####
-
         # any other initialization you need
-
-
-
+        self.params.W = random_weight_matrix(*self.params.W.shape)
+        self.params.U = random_weight_matrix(*self.params.U.shape)
+        self.sparams.L = wv.copy()
         #### END YOUR CODE ####
 
 
@@ -89,13 +88,17 @@ class WindowMLP(NNBase):
         self.sgrads.L[i] = (gradient dJ/dL[i]) # this adds an update for that index
         """
         #### YOUR CODE HERE ####
-
         ##
         # Forward propagation
-
+        words = np.array([self.params.L[x] for x in window])
+        x = np.reshape(words, -1)
+        layer1 = np.tanh(self.params.W.dot(x) + self.params.b1)
+        probs  = softmax(self.params.U.dot(layer1) + self.params.b2)
         ##
         # Backpropagation
-
+        y = make_onehot(label, len(probs))
+        dx = probs - y
+        dlayer1 = np.outer(dx, layer1)
 
 
         #### END YOUR CODE ####
