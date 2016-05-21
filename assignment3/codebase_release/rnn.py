@@ -12,6 +12,9 @@ from utils import Vocab
 
 from collections import OrderedDict
 
+import seaborn as sns
+sns.set_style('whitegrid')
+
 def variable_summaries(variable, name):
   with tf.name_scope("summaries"):
     mean = tf.reduce_mean(variable)
@@ -81,7 +84,9 @@ class RNN_Model():
         '''
         with tf.variable_scope('Composition'):
             ### YOUR CODE HERE
-            embedding = tf.get_variable("embedding", [self.vocab.total_words, self.config.embed_size])
+            #initializer=initializer=tf.random_normal_initializer(0,3)
+            embedding = tf.get_variable("embedding",
+                                        [self.vocab.total_words, self.config.embed_size])
             W1 = tf.get_variable("W1", [2 * self.config.embed_size, self.config.embed_size])
             b1 = tf.get_variable("b1", [1, self.config.embed_size])
             variable_summaries(embedding, embedding.name)
@@ -127,8 +132,8 @@ class RNN_Model():
         curr_node_tensor = None
         if node.isLeaf:
             ### YOUR CODE HERE
-            self.vocab.add_word(node.word)
-            curr_node_tensor = tf.expand_dims(tf.gather(embedding, self.vocab.word_to_index[node.word]),0)
+            # self.vocab.encode(node.word)
+            curr_node_tensor = tf.expand_dims(tf.gather(embedding, self.vocab.encode(node.word)),0)
             ### END YOUR CODE
         else:
             node_tensors.update(self.add_model(node.left))
@@ -284,7 +289,7 @@ class RNN_Model():
                 saver = tf.train.Saver()
                 if not os.path.exists("./weights"):
                     os.makedirs("./weights")
-                saver.save(sess, './weights/%s.temp'%self.config.model_name)
+                saver.save(sess, './weights/%s.temp'%self.config.model_name, write_meta_graph=False)
         train_preds, _ = self.predict(self.train_data, './weights/%s.temp'%self.config.model_name)
         val_preds, val_losses = self.predict(self.dev_data, './weights/%s.temp'%self.config.model_name, get_loss=True)
         train_labels = [t.root.label for t in self.train_data]
