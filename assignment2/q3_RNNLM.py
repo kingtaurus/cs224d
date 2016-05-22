@@ -162,7 +162,7 @@ class RNNLM_Model(LanguageModel):
       U = tf.get_variable("U",
                           [self.config.hidden_size, len(self.vocab)],
                           initializer=tf.random_uniform_initializer())
-      b_2 = tf.get_variable("b_2",
+      b_2 = tf.get_variable("b_U",
                             [len(self.vocab)],
                             initializer=tf.constant_initializer(0.))
       variable_summaries(U, U.name)
@@ -171,7 +171,7 @@ class RNNLM_Model(LanguageModel):
     outputs = []
 
     for rnn_step in rnn_outputs:
-      out = tf.squeeze(tf.matmul(rnn_step, U) + b_2)
+      out = tf.matmul(rnn_step, U) + b_2
       outputs.append(out)
     ### END YOUR CODE
     return outputs
@@ -286,22 +286,28 @@ class RNNLM_Model(LanguageModel):
 
     with tf.variable_scope('rnn') as scope:
       self.initial_state = tf.zeros([self.config.batch_size, self.config.hidden_size])
-      Whh = tf.get_variable(
-            'Whh', [self.config.hidden_size, self.config.hidden_size], initializer=tf.random_normal_initializer())
-      Whx = tf.get_variable(
-            'Whx', [self.config.embed_size, self.config.hidden_size], initializer=tf.random_normal_initializer())
-      b_1 = tf.get_variable(
-            'b_h', [self.config.hidden_size],  initializer=tf.constant_initializer(0.) )
-      variable_summaries(Whh, Whh.name)
-      variable_summaries(Whx, Whx.name)
-      variable_summaries(b_1, b_1.name)
-      scope.reuse_variables()
+      state = self.initial_state
+      rnn_outputs = []
+      for step, current_input in enumerate(inputs):
+        if step > 0:
+          scope.reuse_variables()
 
-    state = self.initial_state
-    rnn_outputs = []
-    for step, current_input in enumerate(inputs):
-      state = tf.nn.sigmoid(tf.matmul(state, Whh) + tf.matmul(current_input, Whx) + b_1)
-      rnn_outputs.append(state)
+        Whh = tf.get_variable('Whh',
+                              [self.config.hidden_size, self.config.hidden_size],
+                              initializer=tf.random_normal_initializer())
+        Whx = tf.get_variable('Whx',
+                              [self.config.embed_size, self.config.hidden_size],
+                              initializer=tf.random_normal_initializer())
+        b_1 = tf.get_variable('b_h',
+                              [self.config.hidden_size],
+                              initializer=tf.constant_initializer(0.))
+        state = tf.nn.sigmoid(tf.matmul(state, Whh) + tf.matmul(current_input, Whx) + b_1)
+        rnn_outputs.append(state)
+
+        if step == 0:
+          variable_summaries(Whh, Whh.name)
+          variable_summaries(Whx, Whx.name)
+          variable_summaries(b_1, b_1.name)
     self.final_state = rnn_outputs[-1]
 
     with tf.variable_scope('RNNDropout'):

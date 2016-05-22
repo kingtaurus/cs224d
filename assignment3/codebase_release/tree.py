@@ -113,7 +113,7 @@ def loadTrees(dataSet='train'):
     Loads training trees. Maps leaf node words to word ids.
     """
     file = 'trees/%s.txt' % dataSet
-    print "Loading %s trees.." % dataSet
+    print("Loading %s trees.." % dataSet)
     with open(file, 'r') as fid:
         trees = [Tree(l) for l in fid.readlines()]
 
@@ -133,12 +133,12 @@ def simplified_data(num_train, num_dev, num_test):
     binarize_labels(neg_trees)
     
     #split into train, dev, test
-    print len(pos_trees), len(neg_trees)
+    print(len(pos_trees), len(neg_trees))
     pos_trees = sorted(pos_trees, key=lambda t: len(t.get_words()))
     neg_trees = sorted(neg_trees, key=lambda t: len(t.get_words()))
-    num_train/=2
-    num_dev/=2
-    num_test/=2
+    num_train = num_train // 2
+    num_dev = num_dev // 2
+    num_test = num_test // 2
     train = pos_trees[:num_train] + neg_trees[:num_train]
     dev = pos_trees[num_train : num_train+num_dev] + neg_trees[num_train : num_train+num_dev]
     test = pos_trees[num_train+num_dev : num_train+num_dev+num_test] + neg_trees[num_train+num_dev : num_train+num_dev+num_test]
