@@ -412,7 +412,7 @@ def test_NER():
       best_val_loss = float('inf')
       best_val_epoch = 0
 
-      model.summary_writer = tf.train.SummaryWriter("train_log/", session.graph)
+      model.summary_writer = tf.train.SummaryWriter("NER_train_log/", session.graph)
       session.run(init)
       for epoch in range(config.max_epochs):
         print('Epoch {}'.format(epoch))

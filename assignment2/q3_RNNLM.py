@@ -294,10 +294,10 @@ class RNNLM_Model(LanguageModel):
 
         Whh = tf.get_variable('Whh',
                               [self.config.hidden_size, self.config.hidden_size],
-                              initializer=tf.random_normal_initializer())
+                              initializer=tf.random_normal_initializer(0, 1.))
         Whx = tf.get_variable('Whx',
                               [self.config.embed_size, self.config.hidden_size],
-                              initializer=tf.random_normal_initializer())
+                              initializer=tf.random_normal_initializer(0, 1.))
         b_1 = tf.get_variable('b_h',
                               [self.config.hidden_size],
                               initializer=tf.constant_initializer(0.))
