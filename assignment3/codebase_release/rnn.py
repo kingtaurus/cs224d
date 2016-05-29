@@ -15,6 +15,11 @@ from collections import OrderedDict
 import seaborn as sns
 sns.set_style('whitegrid')
 
+def initialize_uninitialized_vars(session):
+    uninitialized = [ var for var in tf.all_variables()
+                      if not session.run(tf.is_variable_initialized(var)) ]
+    session.run(tf.initialize_variables(uninitialized))
+
 def variable_summaries(variable, name):
   with tf.name_scope("summaries"):
     mean = tf.reduce_mean(variable)
@@ -207,6 +212,7 @@ class RNN_Model():
         train_op = None
         # YOUR CODE HERE
         optimizer = tf.train.GradientDescentOptimizer(self.config.lr)
+        #optimizer = tf.train.AdamOptimizer(self.config.lr)
         train_op = optimizer.minimize(loss)
         # END YOUR CODE
         return train_op
@@ -272,6 +278,7 @@ class RNN_Model():
                     labels = [l for l in tree.labels if l!=2]
                     loss = self.loss(logits, labels)
                     train_op = self.training(loss)
+                    #initialize_uninitialized_vars(sess)
                     if r_step == 0:
                         self.merged_summaries = tf.merge_all_summaries()
                         # self.summary_writer = tf.train.SummaryWriter("tree_rnn_log/", sess.graph)
