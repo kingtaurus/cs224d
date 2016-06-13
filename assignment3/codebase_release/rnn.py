@@ -36,7 +36,7 @@ class Config(object):
     """Holds model hyperparams and data information.
        Model objects are passed a Config() object at instantiation.
     """
-    embed_size = 35
+    embed_size = 50
     label_size = 2
     early_stopping = 2
     anneal_threshold = 0.99
@@ -137,14 +137,16 @@ class RNN_Model():
         curr_node_tensor = None
         if node.isLeaf:
             ### YOUR CODE HERE
-            # self.vocab.encode(node.word)
-            curr_node_tensor = tf.expand_dims(tf.gather(embedding, self.vocab.encode(node.word)),0)
+            word_id = self.vocab.encode(node.word)
+            curr_node_tensor = tf.expand_dims(tf.gather(embedding, word_id),0)
             ### END YOUR CODE
         else:
             node_tensors.update(self.add_model(node.left))
             node_tensors.update(self.add_model(node.right))
             ### YOUR CODE HERE
             #tf.concat(0,[node_tensors[node.left], node_tensors[node.right]])
+            #This operation could be done without the split call above
+            #curr_node_tensor = tf.nn.relu(tf.matmul(child_tensor, W1) + b1)
             curr_node_tensor = tf.matmul(node_tensors[node.left], W_left) + tf.matmul(node_tensors[node.right], W_right) + b1
             ### END YOUR CODE
         node_tensors[node] = curr_node_tensor
