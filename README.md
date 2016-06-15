@@ -24,8 +24,10 @@ See [`Assignment2 README.md`](https://github.com/kingtaurus/cs224d/blob/master/a
 * **TensorFlow NER Window Model**
 * **TensorFlow RNN Language Model**
 
-`Assignment 3`
+[`Assignment 3`](https://github.com/kingtaurus/cs224d/blob/master/assignment3/assignment3_2016.pdf)
 -------------
+See [`Assignment3 README.md`](https://github.com/kingtaurus/cs224d/blob/master/assignment3/README.md)
+* **TensorFlow Recursive Neural Network (RNN) and Sentiment Analysis**
 
 Old Assignments
 ===============
