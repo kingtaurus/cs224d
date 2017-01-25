@@ -1,5 +1,7 @@
 import sys
 import os
+import random
+
 import numpy as np
 import matplotlib.pyplot as plt
 import math
@@ -23,13 +25,13 @@ def initialize_uninitialized_vars(session):
 def variable_summaries(variable, name):
   with tf.name_scope("summaries"):
     mean = tf.reduce_mean(variable)
-    tf.scalar_summary('mean/' + name, mean)
+    tf.summary.scalar('mean/' + name, mean)
     with tf.name_scope('stddev'):
       stddev = tf.sqrt(tf.reduce_sum(tf.square(variable - mean)))
-    tf.scalar_summary('stddev/' + name, stddev)
-    tf.scalar_summary('max/' + name, tf.reduce_max(variable))
-    tf.scalar_summary('min/' + name, tf.reduce_min(variable))
-    tf.histogram_summary(name, variable)
+    tf.summary.scalar('stddev/' + name, stddev)
+    tf.summary.scalar('max/' + name, tf.reduce_max(variable))
+    tf.summary.scalar('min/' + name, tf.reduce_min(variable))
+    tf.summary.histogram(name, variable)
 
 RESET_AFTER = 50
 class Config(object):
@@ -186,9 +188,9 @@ class RNN_Model():
         l2_loss = self.config.l2 * tf.get_collection("l2_loss")[0]
         objective_loss = tf.reduce_sum(tf.nn.sparse_softmax_cross_entropy_with_logits(logits=logits, labels=labels))
         loss = objective_loss + l2_loss
-        tf.scalar_summary("loss_l2", l2_loss)
-        tf.scalar_summary("loss_objective", tf.reduce_sum(objective_loss))
-        tf.scalar_summary("loss_total", loss)
+        tf.summary.scalar("loss_l2", l2_loss)
+        tf.summary.scalar("loss_objective", tf.reduce_sum(objective_loss))
+        tf.summary.scalar("loss_total", loss)
         # END YOUR CODE
         return loss
 
@@ -266,7 +268,7 @@ class RNN_Model():
             with tf.Graph().as_default(), tf.Session() as sess:
                 self.add_model_vars()
                 if new_model:
-                    init = tf.initialize_all_variables()
+                    init = tf.global_variables_initializer()
                     sess.run(init)
                     new_model = False
                 else:
@@ -282,10 +284,10 @@ class RNN_Model():
                     train_op = self.training(loss)
                     #initialize_uninitialized_vars(sess)
                     if r_step == 0:
-                        self.merged_summaries = tf.merge_all_summaries()
+                        self.merged_summaries = tf.summary.merge_all()
                         # self.summary_writer = tf.train.SummaryWriter("tree_rnn_log/", sess.graph)
                     if step == 0 and epoch == 0:
-                        self.summary_writer = tf.train.SummaryWriter("tree_rnn_log/", sess.graph)
+                        self.summary_writer = tf.summary.FileWriter("tree_rnn_log/", sess.graph)
                     loss, _, merged = sess.run([loss, train_op, self.merged_summaries])
                     if step % (RESET_AFTER//2):
                         self.summary_writer.add_summary(merged, epoch * len(self.train_data) + step)
