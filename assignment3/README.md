@@ -40,3 +40,51 @@ Assignment Overview (Tasks)
 This assignment is much shorter and has only one part. We recommend reading the assignment carefully and starting early as some parts may take significant time to run.
 
 ###Q1: Recursive Neural Network (100 points, 10 points extra credit)
+
+# Extra
+
+## Efficient recursive (tree-structured) neural networks in TensorFlow
+The code for `codebase_release/rnn_tensorarray.py` is based upon the implementation from @bogatyy (see [bogatyy/cs224d](https://github.com/bogatyy/cs224d/tree/master/assignment3)).
+
+A recursive neural network model relies upon the parsed **tree** structure of sentences and can provide strong results on sentiment analysis tasks. Since the network architecture is different for every example, it can't easily be implemented in the static graph model. The rough structure of a tree looks like the following ![recursive network](recursive.png)
+
+## Dynamic Model
+The naive way to implement a recursive tree network model is to build computational graphs per example for every tree. The construct of the graph relies upon iterating over each python tree in a depth-first search (embedding the words/leaf nodes) and the composing the resultant vectors. This can be viewed as the following recursive descent python-code:
+
+```python
+def walk(in_node):
+  if in_node.isLeaf:
+    return embed(in_node.word)
+  left  = walk(in_node.left)
+  right = walk(in_node.right)
+  return compose(left, right)
+```
+
+Building the computational graph on a per tree basis, adds a bunch of new intermediate nodes to the current active session. In order to deal with this, `rnn.py` clears the default graph after some number of steps.
+
+```python
+step = 0
+for step < len(train_data):
+    with tf.Graph.as_default(), tf.Session() as sess:
+        self.add_model_vars()
+        saver = tf.train.Saver()
+        #reload the model
+        saver.restore(sess, weights_path)
+        for r_step in range(RESET_AFTER):
+            if step >= len(train_data):
+                break
+            train_op = get_train_op(tree[step])
+            sess.run([train_op])
+            step += 1
+        saver.save(sess, './weights/weights_file', write_meta_graph=False)
+```
+
+## Static Computation Graph using `tf.while_loop`
+Recent versions of TensorFlow provide the ability to construct dynamic graphs using `tf.TensorArray` and `tf.while_loop`.
+
+
+
+
+
+
+## Loop Operation
