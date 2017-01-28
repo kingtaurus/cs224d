@@ -80,11 +80,36 @@ for step < len(train_data):
 ```
 
 ## Static Computation Graph using `tf.while_loop`
-Recent versions of TensorFlow provide the ability to construct dynamic graphs using `tf.TensorArray` and `tf.while_loop`.
+Recent versions of TensorFlow provide the ability to construct dynamic graphs using `tf.TensorArray`, `tf.while_loop` and `tf.cond` (tensorflow r0.8). The initial implementation is identical as before, define and declare variables.
 
+Currently within `rnn_while_loop_storage.py` this handled using `tf.variable_scope` and `tf.get_variable` in order to ensure encapsulation of different layer behaviours (as well as allowing a modular swapping of embedding vectors).
 
+```python
+class RNN_Model():
+    def __init__(self, config):
+        #.... snip ...
+    #private function used to construct the graph
+    def _embed_word(self, word_index):
+        with tf.variable_scope("Composition", reuse=True) as scope:
+             embedding = tf.get_variable("embedding")
+        return tf.expand_Dims(tf.gather(embedding, word_index, 0))
+    # ... snip ..
+    def add_model_vars(self):
+        with tf.variable_scope('Composition') as scope:
+            with tf.device('/cpu:0'):
+                embedding = tf.get_variable("embedding", [self.vocab.total_words,  self.config.embed_size])
+            W1 = tf.get_variable("W1", [2 * self.config.embed_size, self.config.embed_size])
+            b1 = tf.get_variable("b1", [1, self.config.embed_size])
+            # ... l2_loss; variable summaries, etc.
+```
 
+A few details about the implementation.
 
+(1) `W1` has size [2 * embedding_size, embedding size]: - **REASON** - this respresents `[W(left), W(right)]`, in a compact stored format.
+
+(2) `embedding` is currently trainable (it will be learned) - **REASON** - this can be changed to a tf.get_variable(...., trainable=False) if there is already a set of word vectors available for the corpus that is being used (glove, word2vec); This can be assigned using `sess.run(embedding.assign(embedding_matrix))`;
+
+(3) `embedding` is done on the cpu (`tf.gather`, `tf.nn.embedding_lookup`) - **REASON** - embedding operations need to be done on the cpu (there is a strong chance that these operations will not work on a gpu currently);
 
 
 ## Loop Operation
