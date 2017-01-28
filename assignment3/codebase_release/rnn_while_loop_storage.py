@@ -48,26 +48,6 @@ class Config(object):
     l2 = 0.02
     model_name = 'rnn_embed=%d_l2=%f_lr=%f.weights'%(embed_size, l2, lr)
 
-## ORIGINAL IDEA: create a stack out of the elements and pop off
-#                 and add elements
-# def walk_node(index):
-#     #tf.cond(tf.gather(isLeaf, index,), ..
-#     if in_node.isLeaf is True:
-#         #push the value onto the stack and return index?
-#         word_id = self.vocab.encode(in_node.word)
-#         print("word_id = ", word_id)
-#         vector_stack.write(vector_stack.size() - 1, embed_word(word_id))
-#         return vector_stack.size() - 1
-#         #so we return the index
-#     if in_node.isLeaf is False:
-#         left_node  = walk_node(in_node.left, vocab)
-#         right_node = walk_node(in_node.right, vocab)
-#         vector_stack.concat(combine_children(left_node, right_node))
-#         return vector_stack.size() - 1 
-#         #merge the left - right pair, add it back to the stack
-#     #this should never be hit(?)
-#     return 0
-
 class RNN_Model():
     def __init__(self, config):
         self.config = config
@@ -170,7 +150,6 @@ class RNN_Model():
         '''
         with tf.variable_scope('Composition') as scope:
         ### YOUR CODE HERE
-        #initializer=initializer=tf.random_normal_initializer(0,3)
             with tf.device('/cpu:0'):
                 embedding = tf.get_variable("embedding",
                                             [self.vocab.total_words, self.config.embed_size])
