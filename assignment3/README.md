@@ -109,7 +109,136 @@ A few details about the implementation.
 
 (2) `embedding` is currently trainable (it will be learned) - **REASON** - this can be changed to a tf.get_variable(...., trainable=False) if there is already a set of word vectors available for the corpus that is being used (glove, word2vec); This can be assigned using `sess.run(embedding.assign(embedding_matrix))`;
 
-(3) `embedding` is done on the cpu (`tf.gather`, `tf.nn.embedding_lookup`) - **REASON** - embedding operations need to be done on the cpu (there is a strong chance that these operations will not work on a gpu currently);
+(3) `embedding` is done on the cpu (`tf.gather`, `tf.nn.embedding_lookup`) - **REASON** - embedding operations need to be done on the cpu (there is a strong chance that these operations will not work on a gpu);
 
+## Tree Construction behaviour
+Consider the tree, `(the (very (old cat)))` with four leaves, the structure of the tree looks like:
 
-## Loop Operation
+```
+     *
+   /   \
+the
+         *
+       /   \
+    very    *
+          /   \
+        old   cat
+```
+
+The vocab dictionary, would contain the word_index (the associated row of the embedding matrix that corresponds to the word vector); A represenation of this could be:
+
+```python
+vocab = {'the': 0, `very`: 1, `old`: 2, `cat`: 3}
+```
+
+The [Stanford Tree Bank](http://nlp.stanford.edu/sentiment/trainDevTestTrees_PTB.zip) has the following structure (taken from the first line of the unzipped file `trees/train.txt`):
+
+```
+(3 (2 (2 The) (2 Rock)) (4 (3 (2 is) (4 (2 destined) (2 (2 (2 (2 (2 to) (2 (2 be) (2 (2 the) (2 (2 21st) (2 (2 (2 Century) (2 's)) (2 (3 new) (2 (2 ``) (2 Conan)))))))) (2 '')) (2 and)) (3 (2 that) (3 (2 he) (3 (2 's) (3 (2 going) (3 (2 to) (4 (3 (2 make) (3 (3 (2 a) (3 splash)) (2 (2 even) (3 greater)))) (2 (2 than) (2 (2 (2 (2 (1 (2 Arnold) (2 Schwarzenegger)) (2 ,)) (2 (2 Jean-Claud) (2 (2 Van) (2 Damme)))) (2 or)) (2 (2 Steven) (2 Segal))))))))))))) (2 .)))
+```
+
+A few points about this:
+
+(1) Sentiment of the word is the number next to the `leaf` or `node`;
+
+(2) The structure of the `tree` is built in the same way as the simple example above;
+
+(3) In order to convert the recursive structure to an interatively consumed structure, the leaves of any intermediate node have to be computed prior to evaulating a node. This imposes a requirement of a depth first implementation (or a stack);
+
+Within `tree.py` there is the function:
+```python
+def leftTraverse(node, nodeFn=None, args=None):
+    if node is None:
+        return
+    leftTraverse(node.left, nodeFn, args)
+    leftTraverse(node.right, nodeFn, args)
+    nodeFn(node, args)
+```
+
+using this, as follows:
+```python
+in_node = tree.root
+nodes_list = list()
+tr.leftTraverse(in_node, 
+                lambda node, args: args.append(node),
+                nodes_list
+)
+```
+
+Allows us to generate a `depth and leaf first` list representation of the tree. From this representation it is possible to construct an index representation of the associated child nodes. This could be handled by in_node.index(node) or by an OrderedDict():
+
+```python
+node_to_index = OrderedDict()
+for idx, i in enumerate(nodes_list):
+    node_to_index[i] = idx
+```
+
+The feed dictionary (assigning values to placeholders required for RNN computation) would be constructed (for the OrderedDict solution)
+```python
+feed_dict = {
+    self.is_a_leaf   : [ n.isLeaf for n in nodes_list ],
+    self.left_child  : [ node_to_index[n.left] if not n.isLeaf else -1 for n in nodes_list ],
+    self.right_child  : [ node_to_index[n.right] if not n.isLeaf else -1 for n in nodes_list ],
+    self.word_index  : [ self.vocab.encode(n.word) if n.word else -1 for n in nodes_list ],
+    self.labelholder : [ n.label for n in nodes_list ]
+}
+```
+ **or**, using list indexing:
+
+```python
+feed_dict = {
+    self.is_a_leaf   : [ n.isLeaf for n in nodes_list ],
+    self.left_child : [ nodes_list.index(n.left) if not n.isLeaf else -1 for n in nodes_list ],
+    self.right_child : [ nodes_list.index(n.right) if not n.isLeaf else -1 for n in nodes_list ],
+    self.word_index  : [ self.vocab.encode(n.word) if n.word else -1 for n in nodes_list ],
+    self.labelholder : [ n.label for n in nodes_list ]
+}
+```
+
+## Loop Implementation
+In order to construct the RNN, the following methods are required, `_embed_word`, `_combine_children`, `_loop_over_tree`, `construct_tensor_array`. The functions are implemented as follows (with the declaration of the necessary placeholders):
+
+```python
+    word_index = tf.placeholder([None], dtype=int32)
+    is_a_leaf = tf.placeholder(tf.bool, [None], name="is_a_leaf")
+    left_child  = tf.placeholder(tf.int32, [None], name="lchild")
+    right_child = tf.placeholder(tf.int32, [None], name="rchild")
+    labelholder = tf.placeholder(tf.int32, [None], name="labels_holder")
+
+    def _embed_word(word_idx):
+        with tf.variable_scope("Composition", reuse=True) as scope:
+            embedding = tf.get_variable("embedding")
+        return tf.expand_dims(tf.gather(embedding, word_idx), 0)
+
+    def _combine_children(tensor_concat, left_idx, right_idx):
+        left_tensor = tf.expand_dims(tf.gather(tensor_concat, left_idx), 0)
+        right_tensor = tf.expand_dims(tf.gather(tensor_concat, right_idx), 0)
+        with tf.variable_scope('Composition', reuse=True):
+            W1 = tf.get_variable('W1')
+            b1 = tf.get_variable('b1')
+        return tf.nn.relu(tf.matmul(tf.concat(1, [left_tensor, right_tensor]), W1) + b1)
+
+    def _loop_over_tree(i, tensor_list):
+        is_leaf = tf.gather(is_a_leaf, i)
+        word_idx    = tf.gather(word_index, i)
+        left_child  = tf.gather(left_child, i)
+        right_child = tf.gather(right_child, i)
+        node_tensor = tf.cond(is_leaf, lambda : _embed_word(word_idx),
+                                       lambda : _combine_children(tensor_list, left_child, right_child))
+        tensor_list = tf.concat(0, [tensor_list, node_tensor])
+        i = tf.add(i,1)
+        return i, tensor_list
+
+    def construct_tensor_array():
+        loop_condition = lambda i, tensor_array: \
+                         tf.less(i, tf.squeeze(tf.shape(is_a_leaf)))
+        left_most_element = _embed_word(tf.gather(word_index), 0)
+        i1 = tf.constant(1, dtype=tf.int32)
+        while_loop_op = tf.while_loop(cond=loop_condition,
+                                       body=_loop_over_tree,
+                                       loop_vars=[i1, left_most_element],
+                                       shape_invariants=[i1.get_shape(), tf.TensorShape([None,50])])
+        return while_loop_op[1]
+```
+
+## Results
