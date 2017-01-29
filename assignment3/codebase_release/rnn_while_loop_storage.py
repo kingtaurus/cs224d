@@ -14,13 +14,17 @@ from utils import Vocab
 
 from collections import OrderedDict
 
+from profilehooks import profile, timecall
+
 import seaborn as sns
 sns.set_style('whitegrid')
 
-def initialize_uninitialized_vars(session):
-    uninitialized = [ var for var in tf.all_variables()
-                      if not session.run(tf.is_variable_initialized(var)) ]
-    session.run(tf.initialize_variables(uninitialized))
+global_step = tf.Variable(0, name='global_step', trainable=False)
+
+# def initialize_uninitialized_vars(session):
+#     uninitialized = [ var for var in tf.all_variables()
+#                       if not session.run(tf.is_variable_initialized(var)) ]
+#     session.run(tf.initialize_variables(uninitialized))
 
 def variable_summaries(variable, name):
   with tf.name_scope("summaries"):
@@ -302,7 +306,7 @@ class RNN_Model():
         # YOUR CODE HERE
             optimizer = tf.train.AdamOptimizer(self.config.lr)#tf.train.GradientDescentOptimizer(self.config.lr)
             #optimizer = tf.train.AdamOptimizer(self.config.lr)
-            self.training_op = optimizer.minimize(loss)
+            self.training_op = optimizer.minimize(loss, global_step=global_step)
         # END YOUR CODE
         return self.training_op
 
@@ -323,14 +327,16 @@ class RNN_Model():
     def build_feed_dict(self, in_node):
         nodes_list = []
         tr.leftTraverse(in_node, lambda node, args: args.append(node), nodes_list)
-        node_to_index = OrderedDict()
-        for idx, i in enumerate(nodes_list):
-            node_to_index[i] = idx
+        # node_to_index = OrderedDict()
+        # for idx, i in enumerate(nodes_list):
+        #     node_to_index[i] = idx
 
         feed_dict = {
           self.is_a_leaf   : [ n.isLeaf for n in nodes_list ],
-          self.left_child  : [ node_to_index[n.left] if not n.isLeaf else -1 for n in nodes_list ],
-          self.right_child : [ node_to_index[n.right] if not n.isLeaf else -1 for n in nodes_list ],
+          self.left_child : [ nodes_list.index(n.left) if not n.isLeaf else -1 for n in nodes_list ],
+          #self.left_child  : [ node_to_index[n.left] if not n.isLeaf else -1 for n in nodes_list ],
+          #self.right_child  : [ node_to_index[n.right] if not n.isLeaf else -1 for n in nodes_list ],
+          self.right_child : [ nodes_list.index(n.right) if not n.isLeaf else -1 for n in nodes_list ],
           self.word_index  : [ self.vocab.encode(n.word) if n.word else -1 for n in nodes_list ],
           self.labelholder : [ n.label for n in nodes_list ]
         }
@@ -338,8 +344,6 @@ class RNN_Model():
 
     def predict(self, trees, weights_path, get_loss = False):
         """Make predictions from the provided model."""
-
-
         results = []
         losses = []
 
@@ -350,7 +354,7 @@ class RNN_Model():
         with tf.Session() as sess:
             saver = tf.train.Saver()
             saver.restore(sess, weights_path)
-            for t in  trees:
+            for t in trees:
                 feed_dict = self.build_feed_dict(t.root)
                 if get_loss:
                     root_prediction, loss = sess.run([root_prediction_op, root_loss], feed_dict=feed_dict)
@@ -362,39 +366,43 @@ class RNN_Model():
         return results, losses
 
     #need to rework this: (OP creation needs to be made independent of using OPs)
-    def run_epoch(self, new_model = False, verbose=True, epoch=0):
+    def run_epoch(self, sess, summary_writer, new_model = False, verbose=True, epoch=0):
+        if epoch == 5:
+            sys.exit(0)
         loss_history = []
         random.shuffle(self.train_data)
         
-        with tf.Session() as sess:
-            if new_model:
-                add_model_op = self.add_model()
-                logits = self.logits_op()
-                loss = self.full_loss_op(logits=logits, labels=self.labelholder)
-                train_op = self.training(loss)
-                init = tf.global_variables_initializer()
-                sess.run(init)
-            else:
-                saver = tf.train.Saver()
-                saver.restore(sess, './weights/%s.temp'%self.config.model_name)
-                logits = self.logits_op()
-                loss = self.full_loss_op(logits=logits, labels=self.labelholder)
-                train_op = self.training(loss)
-
-            for step, tree in enumerate(self.train_data):
-                feed_dict = self.build_feed_dict(tree.root)
-                loss_value, _ = sess.run([loss, train_op], feed_dict=feed_dict)
-                loss_history.append(loss_value)
-                if verbose:
-                    sys.stdout.write('\r{} / {} :    loss = {}'.format(
-                            step+1, len(self.train_data), np.mean(loss_history)))
-                    sys.stdout.flush()
+        if new_model:
+            add_model_op = self.add_model()
+            logits = self.logits_op()
+            loss = self.full_loss_op(logits=logits, labels=self.labelholder)
+            train_op = self.training(loss)
+            init = tf.global_variables_initializer()
+            self.merged_summaries = tf.summary.merge_all()
+            sess.run(init)
+        else:
             saver = tf.train.Saver()
-            if not os.path.exists("./weights"):
-                os.makedirs("./weights")
+            saver.restore(sess, './weights/%s.temp'%self.config.model_name)
+            logits = self.logits_op()
+            loss = self.full_loss_op(logits=logits, labels=self.labelholder)
+            train_op = self.training(loss)
 
-            #print('./weights/%s.temp'%self.config.model_name)
-            saver.save(sess, './weights/%s.temp'%self.config.model_name)
+        for step, tree in enumerate(self.train_data):
+            feed_dict = self.build_feed_dict(tree.root)
+            loss_value, _ = sess.run([loss, train_op], feed_dict=feed_dict)
+            merged, current_step = sess.run([self.merged_summaries, global_step], feed_dict=feed_dict)
+            summary_writer.add_summary(merged, global_step=current_step)
+            loss_history.append(loss_value)
+            if verbose:
+                sys.stdout.write('\r{} / {} :    loss = {}'.format(
+                        step+1, len(self.train_data), np.mean(loss_history)))
+                sys.stdout.flush()
+        saver = tf.train.Saver()
+        if not os.path.exists("./weights"):
+            os.makedirs("./weights")
+
+        #print('./weights/%s.temp'%self.config.model_name)
+        saver.save(sess, './weights/%s.temp'%self.config.model_name)
         train_preds, _ = self.predict(self.train_data, './weights/%s.temp'%self.config.model_name)
         val_preds, val_losses = self.predict(self.dev_data, './weights/%s.temp'%self.config.model_name, get_loss=True)
         train_labels = [t.root.label for t in self.train_data]
@@ -416,12 +424,17 @@ class RNN_Model():
         best_val_loss = float('inf')
         best_val_epoch = 0
         stopped = -1
+
+        #probably can remove initialization to here
+        sess = tf.Session()
+        summary_writer = tf.summary.FileWriter('rnn_logs/test_log/', sess.graph)
+
         for epoch in range(self.config.max_epochs):
             print('epoch %d'%epoch)
             if epoch==0:
-                train_acc, val_acc, loss_history, val_loss = self.run_epoch(new_model=True, epoch=epoch)
+                train_acc, val_acc, loss_history, val_loss = self.run_epoch(new_model=True, epoch=epoch, sess=sess, summary_writer=summary_writer)
             else:
-                train_acc, val_acc, loss_history, val_loss = self.run_epoch(epoch=epoch)
+                train_acc, val_acc, loss_history, val_loss = self.run_epoch(epoch=epoch, sess=sess, summary_writer=summary_writer)
             complete_loss_history.extend(loss_history)
             train_acc_history.append(train_acc)
             val_acc_history.append(val_acc)
