@@ -121,7 +121,7 @@ class RNN_Model():
         while_loop_op = tf.while_loop(cond=loop_condition,
                                        body=self._loop_over_tree,
                                        loop_vars=[i1, left_most_element],
-                                       shape_invariants=[i1.get_shape(), tf.TensorShape([None,50])])
+                                       shape_invariants=[i1.get_shape(), tf.TensorShape([None,self.config.embed_size])])
         
         return while_loop_op[1]
 
@@ -411,7 +411,7 @@ class RNN_Model():
         val_acc = np.equal(val_preds, val_labels).mean()
         print()
         print('Training acc (only root node): {}'.format(train_acc))
-        print('Valiation acc (only root node): {}'.format(val_acc))
+        print('Validation acc (only root node): {}'.format(val_acc))
         print(self.make_conf(train_labels, train_preds))
         print(self.make_conf(val_labels, val_preds))
         return train_acc, val_acc, loss_history, np.mean(val_losses)

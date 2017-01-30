@@ -80,9 +80,58 @@ for step < len(train_data):
 ```
 
 ## Static Computation Graph using `tf.while_loop`
-Recent versions of TensorFlow provide the ability to construct dynamic graphs using `tf.TensorArray`, `tf.while_loop` and `tf.cond` (tensorflow r0.8). The initial implementation is identical as before, define and declare variables.
+Recent versions of TensorFlow provide the ability to construct dynamic graphs using `tf.TensorArray`, `tf.while_loop` and `tf.cond` (tensorflow r0.8). The declaration of the `tf.while_loop`:
 
-Currently within `rnn_while_loop_storage.py` this handled using `tf.variable_scope` and `tf.get_variable` in order to ensure encapsulation of different layer behaviours (as well as allowing a modular swapping of embedding vectors).
+```python
+def tf.while_loop(cond, body, loop_vars, 
+                  shape_invariants=None,
+                  parallel_iterations=10
+                  back_prop=True,
+                  swap_memory=False,
+                  name=None)```
+
+Behaviour:
+(1) Repeat `body` while the condition `cond` is true;
+(2) `cond` is a **callable** returning a boolean scalar tensor.
+(3) `body` is a **callable** returning a (possibly nested) tuple, namedtupe or list of tensors of the same **arity** (**length** and **structure**) and types as `loop_vars`.
+(4) `loop_vars` is (possibly nested) tuple, namedtuple or list of tensors that is passed to both
+    `cond` and `body`.
+(5) `cond` and `body` both take as many arguments as there are `loop_vars`.
+
+
+In order to ensure that things make sense, `tf.while_loop()` strictly enforces shape invariants for the loop variables. A shape invariant is a (including partial) shape that is unchanged across iterations of the loop. For example, a function `f` that defined as follows:
+
+```python
+def f(x, y):
+    #
+    return x + 1, y - 1
+```
+
+passes the requirement for `while_loop` shape_invariants, while
+
+```python
+def f(x, y)
+    return x+1
+```
+
+doesn't. The `shape_invariant argument allows the caller to specify a less specific shape invariant for each loop variable ([None, 3], if the first index could change during the loop). If not specified, the shape_invariants is equivalent to the absolute shape as specified by the `loop_vars`. So for example, `shape_invariants = [i0.get_shape(), tf.TensorShape([None, 3])]]` would be used. Some examples:
+
+```python
+i = tf.constant(0)
+c = lambda i: tf.less(i,10)
+b = lambda i: tf.add(i,1)
+r = tf.while_loop(cond=c, body=b, loop_vars=[i])
+init_op = tf.global_variable_initializer()
+sess.run(init_op)
+sess.run(r)
+```
+Returns:
+```
+10
+```
+From this, it is possible to store the data dynamically within the `tf.while_loop` iteration variable or within a `tf.TensorArray`.
+
+The initial implementation is identical as before, define and declare variables. Currently within `rnn_while_loop_storage.py` this handled using `tf.variable_scope` and `tf.get_variable` in order to ensure encapsulation of different layer behaviours (as well as allowing a modular swapping of embedding vectors).
 
 ```python
 class RNN_Model():
@@ -237,7 +286,7 @@ In order to construct the RNN, the following methods are required, `_embed_word`
         while_loop_op = tf.while_loop(cond=loop_condition,
                                        body=_loop_over_tree,
                                        loop_vars=[i1, left_most_element],
-                                       shape_invariants=[i1.get_shape(), tf.TensorShape([None,50])])
+                                       shape_invariants=[i1.get_shape(), tf.TensorShape([None, config.embed_size])])
         return while_loop_op[1]
 ```
 
