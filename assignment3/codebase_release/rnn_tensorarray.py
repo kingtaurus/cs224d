@@ -31,7 +31,7 @@ def variable_summaries(variable, name):
     tf.summary.scalar('stddev/' + name, stddev)
     tf.summary.scalar('max/' + name, tf.reduce_max(variable))
     tf.summary.scalar('min/' + name, tf.reduce_min(variable))
-    tf.summary.histogram(name, variable)
+    # tf.summary.histogram(name, variable)
 
 RESET_AFTER = 50
 class Config(object):
@@ -212,10 +212,9 @@ class RNN_Model():
         ### YOUR CODE HERE
         #initializer=initializer=tf.random_normal_initializer(0,3)
             print(scope.name)
-            with tf.device('/cpu:0'):
-                embedding = tf.get_variable("embedding",
-                                            [self.vocab.total_words, self.config.embed_size])
-                print(embedding.name)
+            embedding = tf.get_variable("embedding",
+                                        [self.vocab.total_words, self.config.embed_size])
+            print(embedding.name)
             W1 = tf.get_variable("W1", [2 * self.config.embed_size, self.config.embed_size])
             b1 = tf.get_variable("b1", [1, self.config.embed_size])
             l2_loss = tf.nn.l2_loss(W1)

@@ -35,9 +35,8 @@ def variable_summaries(variable, name):
     tf.summary.scalar('stddev/' + name, stddev)
     tf.summary.scalar('max/' + name, tf.reduce_max(variable))
     tf.summary.scalar('min/' + name, tf.reduce_min(variable))
-    tf.summary.histogram(name, variable)
+    #tf.summary.histogram(name, variable)
 
-RESET_AFTER = 50
 class Config(object):
     """Holds model hyperparams and data information.
        Model objects are passed a Config() object at instantiation.
@@ -47,7 +46,7 @@ class Config(object):
     early_stopping = 2
     anneal_threshold = 0.99
     anneal_by = 1.5
-    max_epochs = 30
+    max_epochs = 4
     lr = 0.01
     l2 = 0.02
     model_name = 'rnn_embed=%d_l2=%f_lr=%f.weights'%(embed_size, l2, lr)
@@ -154,9 +153,8 @@ class RNN_Model():
         '''
         with tf.variable_scope('Composition') as scope:
         ### YOUR CODE HERE
-            with tf.device('/cpu:0'):
-                embedding = tf.get_variable("embedding",
-                                            [self.vocab.total_words, self.config.embed_size])
+            embedding = tf.get_variable("embedding",
+                                        [self.vocab.total_words, self.config.embed_size])
             W1 = tf.get_variable("W1", [2 * self.config.embed_size, self.config.embed_size])
             b1 = tf.get_variable("b1", [1, self.config.embed_size])
             l2_loss = tf.nn.l2_loss(W1)
@@ -342,7 +340,7 @@ class RNN_Model():
         }
         return feed_dict
 
-    def predict(self, trees, weights_path, get_loss = False):
+    def predict(self, trees, weights_path, sess, get_loss = False):
         """Make predictions from the provided model."""
         results = []
         losses = []
@@ -351,24 +349,22 @@ class RNN_Model():
         #evaluation is based upon the root node
         root_loss = self.loss_op(logits=logits, labels=self.labelholder[-1:])
         root_prediction_op = self.root_prediction_op()
-        with tf.Session() as sess:
-            saver = tf.train.Saver()
-            saver.restore(sess, weights_path)
-            for t in trees:
-                feed_dict = self.build_feed_dict(t.root)
-                if get_loss:
-                    root_prediction, loss = sess.run([root_prediction_op, root_loss], feed_dict=feed_dict)
-                    losses.append(loss)
-                    results.append(root_prediction)
-                else:
-                    root_prediction = sess.run(root_prediction_op, feed_dict=feed_dict)
-                    results.append(root_prediction)
+
+        saver = tf.train.Saver()
+        saver.restore(sess, weights_path)
+        for t in trees:
+            feed_dict = self.build_feed_dict(t.root)
+            if get_loss:
+                root_prediction, loss = sess.run([root_prediction_op, root_loss], feed_dict=feed_dict)
+                losses.append(loss)
+                results.append(root_prediction)
+            else:
+                root_prediction = sess.run(root_prediction_op, feed_dict=feed_dict)
+                results.append(root_prediction)
         return results, losses
 
     #need to rework this: (OP creation needs to be made independent of using OPs)
     def run_epoch(self, sess, summary_writer, new_model = False, verbose=True, epoch=0):
-        if epoch == 5:
-            sys.exit(0)
         loss_history = []
         random.shuffle(self.train_data)
         
@@ -403,8 +399,8 @@ class RNN_Model():
 
         #print('./weights/%s.temp'%self.config.model_name)
         saver.save(sess, './weights/%s.temp'%self.config.model_name)
-        train_preds, _ = self.predict(self.train_data, './weights/%s.temp'%self.config.model_name)
-        val_preds, val_losses = self.predict(self.dev_data, './weights/%s.temp'%self.config.model_name, get_loss=True)
+        train_preds, _ = self.predict(self.train_data, './weights/%s.temp'%self.config.model_name, sess)
+        val_preds, val_losses = self.predict(self.dev_data, './weights/%s.temp'%self.config.model_name, sess, get_loss=True)
         train_labels = [t.root.label for t in self.train_data]
         val_labels = [t.root.label for t in self.dev_data]
         train_acc = np.equal(train_preds, train_labels).mean()
@@ -423,7 +419,8 @@ class RNN_Model():
         prev_epoch_loss = float('inf')
         best_val_loss = float('inf')
         best_val_epoch = 0
-        stopped = -1
+        stopped = self.config.max_epochs
+        #default stop location
 
         #probably can remove initialization to here
         sess = tf.Session()
@@ -455,7 +452,7 @@ class RNN_Model():
             # if model has not imprvoved for a while stop
             if epoch - best_val_epoch > self.config.early_stopping:
                 stopped = epoch
-                #break
+                break
         if verbose:
                 sys.stdout.write('\r')
                 sys.stdout.flush()
@@ -484,7 +481,7 @@ def test_RNN():
     config = Config()
     model = RNN_Model(config)
     start_time = time.time()
-    stats = model.train(verbose=True)
+    stats = model.train(verbose=False)
     print('Training time: {}'.format(time.time() - start_time))
 
     plt.plot(stats['loss_history'])
@@ -496,10 +493,10 @@ def test_RNN():
 
     print('Test')
     print('=-=-=')
-    predictions, _ = model.predict(model.test_data, './weights/%s'%model.config.model_name)
+    predictions, _ = model.predict(model.test_data, './weights/%s'%model.config.model_name, sess)
     labels = [t.root.label for t in model.test_data]
     test_acc = np.equal(predictions, labels).mean()
     print('Test acc: {}'.format(test_acc))
 
 if __name__ == "__main__":
-        test_RNN()
+    test_RNN()
