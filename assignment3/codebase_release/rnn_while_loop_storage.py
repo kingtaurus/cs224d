@@ -41,15 +41,24 @@ class Config(object):
     """Holds model hyperparams and data information.
        Model objects are passed a Config() object at instantiation.
     """
-    embed_size = 50
+    embed_size = 128
     label_size = 2
     early_stopping = 2
     anneal_threshold = 0.99
     anneal_by = 1.5
-    max_epochs = 4
+    max_epochs = 30
     lr = 0.01
     l2 = 0.02
-    model_name = 'rnn_embed=%d_l2=%f_lr=%f.weights'%(embed_size, l2, lr)
+    model_name = 'rnn_embed_dim_%d_l2_weight_%.2f_lr_%.2f.weights'%(embed_size, l2, lr)
+    #probably should changes this to use directories
+
+# saver = tf.train.import_meta_graph('results/model.ckpt-1000.meta')
+
+# # We can now access the default graph where all our metadata has been loaded
+# graph = tf.get_default_graph()
+# global_step_tensor = graph.get_tensor_by_name('loss/global_step:0')
+# train_op = graph.get_operation_by_name('loss/train_op')
+# hyperparameters = tf.get_collection('hyperparameters')
 
 class RNN_Model():
     def __init__(self, config):
@@ -62,6 +71,9 @@ class RNN_Model():
         self.right_child = tf.placeholder(tf.int32, [None], name="rchild")
         self.word_index  = tf.placeholder(tf.int32, [None], name="word_index")
         self.labelholder = tf.placeholder(tf.int32, [None], name="labels_holder")
+
+        self.learning_rate = tf.placeholder(tf.float32, (), name="learning_rate")
+
         self.add_model_vars()
         #tensor array stores the vectors (embedded or composed)
         self.tensor_array_op = None
@@ -70,10 +82,16 @@ class RNN_Model():
         self.root_logits  = None
         self.root_predict = None
 
+        self.saver = None
+
         self.root_loss = None
         self.full_loss = None
 
         self.training_op = None
+        tf.add_to_collection('hyperparameters/lr', self.config.lr)
+        tf.add_to_collection('hyperparameters/l2', self.config.l2)
+        tf.add_to_collection('hyperparameters/embed_size', self.config.embed_size)
+        tf.add_to_collection('hyperparameters/label_size', self.config.label_size)
         #tensor_array_op is the operation on the TensorArray
 
     # private functions used to construct the graph.
@@ -280,6 +298,11 @@ class RNN_Model():
         # END YOUR CODE
         return self.root_loss
 
+    def get_saver(self):
+        if self.saver is None:
+            print("Creating Saver;")
+            self.saver = tf.train.Saver()
+        return self.saver
 
     def training(self, loss):
         """Sets up the training Ops.
@@ -302,8 +325,9 @@ class RNN_Model():
         """
         if self.training_op is None:
         # YOUR CODE HERE
-            optimizer = tf.train.AdamOptimizer(self.config.lr)#tf.train.GradientDescentOptimizer(self.config.lr)
+            optimizer = tf.train.AdamOptimizer(self.learning_rate)#tf.train.GradientDescentOptimizer(self.config.lr)
             #optimizer = tf.train.AdamOptimizer(self.config.lr)
+            tf.summary.scalar("lr", self.learning_rate)
             self.training_op = optimizer.minimize(loss, global_step=global_step)
         # END YOUR CODE
         return self.training_op
@@ -325,18 +349,14 @@ class RNN_Model():
     def build_feed_dict(self, in_node):
         nodes_list = []
         tr.leftTraverse(in_node, lambda node, args: args.append(node), nodes_list)
-        # node_to_index = OrderedDict()
-        # for idx, i in enumerate(nodes_list):
-        #     node_to_index[i] = idx
 
         feed_dict = {
           self.is_a_leaf   : [ n.isLeaf for n in nodes_list ],
           self.left_child : [ nodes_list.index(n.left) if not n.isLeaf else -1 for n in nodes_list ],
-          #self.left_child  : [ node_to_index[n.left] if not n.isLeaf else -1 for n in nodes_list ],
-          #self.right_child  : [ node_to_index[n.right] if not n.isLeaf else -1 for n in nodes_list ],
           self.right_child : [ nodes_list.index(n.right) if not n.isLeaf else -1 for n in nodes_list ],
           self.word_index  : [ self.vocab.encode(n.word) if n.word else -1 for n in nodes_list ],
-          self.labelholder : [ n.label for n in nodes_list ]
+          self.labelholder : [ n.label for n in nodes_list ],
+          self.learning_rate : self.config.lr
         }
         return feed_dict
 
@@ -350,8 +370,6 @@ class RNN_Model():
         root_loss = self.loss_op(logits=logits, labels=self.labelholder[-1:])
         root_prediction_op = self.root_prediction_op()
 
-        saver = tf.train.Saver()
-        saver.restore(sess, weights_path)
         for t in trees:
             feed_dict = self.build_feed_dict(t.root)
             if get_loss:
@@ -367,21 +385,34 @@ class RNN_Model():
     def run_epoch(self, sess, summary_writer, new_model = False, verbose=True, epoch=0):
         loss_history = []
         random.shuffle(self.train_data)
-        
+        saver = self.get_saver()
+
+        add_model_op = self.add_model()
+        logits = self.logits_op()
+        loss = self.full_loss_op(logits=logits, labels=self.labelholder)
+        train_op = self.training(loss)
+
         if new_model:
-            add_model_op = self.add_model()
-            logits = self.logits_op()
-            loss = self.full_loss_op(logits=logits, labels=self.labelholder)
-            train_op = self.training(loss)
             init = tf.global_variables_initializer()
             self.merged_summaries = tf.summary.merge_all()
             sess.run(init)
         else:
-            saver = tf.train.Saver()
-            saver.restore(sess, './weights/%s.temp'%self.config.model_name)
-            logits = self.logits_op()
-            loss = self.full_loss_op(logits=logits, labels=self.labelholder)
-            train_op = self.training(loss)
+            ckpt = tf.train.get_checkpoint_state('./weights')
+            if ckpt and ckpt.model_checkpoint_path:
+                saver.restore(sess, ckpt.model_checkpoint_path)
+                print(tf.report_uninitialized_variables(tf.global_variables()))
+                #sess.run(tf.variable_initializer(tf.report_uninitialized_variables(tf.all_variables())))
+
+        # else:
+        #     ckpt = tf.train.get_checkpoint_state("weights")
+        #     if ckpt and ckpt.model_checkpoint_path:
+        #         saver.restore(sess, ckpt.model_checkpoint_path)
+        #     else:
+        #         print('No Checkpoint found')
+        #     logits = self.logits_op()
+        #     loss = self.full_loss_op(logits=logits, labels=self.labelholder)
+        #     train_op = self.training(loss)
+        #     sess.run(tf.initialize_variables(tf.report_uninitialized_variables(tf.all_variables)))
 
         for step, tree in enumerate(self.train_data):
             feed_dict = self.build_feed_dict(tree.root)
@@ -393,12 +424,14 @@ class RNN_Model():
                 sys.stdout.write('\r{} / {} :    loss = {}'.format(
                         step+1, len(self.train_data), np.mean(loss_history)))
                 sys.stdout.flush()
-        saver = tf.train.Saver()
+
         if not os.path.exists("./weights"):
             os.makedirs("./weights")
 
         #print('./weights/%s.temp'%self.config.model_name)
-        saver.save(sess, './weights/%s.temp'%self.config.model_name)
+        print("Saving %s"%self.config.model_name)
+        saver.save(sess, './weights/%s.cpkt'%self.config.model_name, global_step=current_step)
+        print(saver.last_checkpoints)
         train_preds, _ = self.predict(self.train_data, './weights/%s.temp'%self.config.model_name, sess)
         val_preds, val_losses = self.predict(self.dev_data, './weights/%s.temp'%self.config.model_name, sess, get_loss=True)
         train_labels = [t.root.label for t in self.train_data]
@@ -412,7 +445,7 @@ class RNN_Model():
         print(self.make_conf(val_labels, val_preds))
         return train_acc, val_acc, loss_history, np.mean(val_losses)
 
-    def train(self, verbose=True):
+    def train(self, sess, verbose=True):
         complete_loss_history = []
         train_acc_history = []
         val_acc_history = []
@@ -423,7 +456,6 @@ class RNN_Model():
         #default stop location
 
         #probably can remove initialization to here
-        sess = tf.Session()
         summary_writer = tf.summary.FileWriter('rnn_logs/test_log/', sess.graph)
 
         for epoch in range(self.config.max_epochs):
@@ -445,7 +477,9 @@ class RNN_Model():
 
             #save if model has improved on val
             if val_loss < best_val_loss:
-                 shutil.copyfile('./weights/%s.temp'%self.config.model_name, './weights/%s'%self.config.model_name)
+                # if not os.path.exists("./weights/best"):
+                #     os.makedirs("./weights")
+                #  shutil.copyfile('./weights/%s.ckpt'%self.config.model_name, './weights/best/%s.ckpt'%self.config.model_name)
                  best_val_loss = val_loss
                  best_val_epoch = epoch
 
@@ -481,7 +515,8 @@ def test_RNN():
     config = Config()
     model = RNN_Model(config)
     start_time = time.time()
-    stats = model.train(verbose=False)
+    sess = tf.Session()
+    stats = model.train(verbose=False, sess=sess)
     print('Training time: {}'.format(time.time() - start_time))
 
     plt.plot(stats['loss_history'])
