@@ -506,9 +506,8 @@ class RNN_Model():
             if val_loss < best_val_loss:
                 if not os.path.exists("./weights/best"):
                     os.makedirs("./weights/best")
-                print("saving new (best) checkpoint;")
                 best_saver.save(sess, './weights/best/%s.cpkt'%(self.config.model_name), global_step=global_step)
-                print(best_saver.last_checkpoints)
+                print("saving new (best) checkpoint; (Epoch %d) \nFile: " % epoch, best_saver.last_checkpoints[-1])
                 best_val_loss = val_loss
                 best_val_epoch = epoch
 
@@ -548,19 +547,25 @@ def test_RNN():
     stats = model.train(verbose=True, sess=sess)
     print('Training time: {}'.format(time.time() - start_time))
 
+    plt.figure()
     plt.plot(stats['loss_history'])
     plt.title('Loss history')
     plt.xlabel('Iteration')
     plt.ylabel('Loss')
-    plt.savefig("loss_history.png")
     plt.show()
+    plt.savefig("loss_history.png")
+
 
     print('Test')
     print('=-=-=')
-    predictions, _ = model.predict(model.test_data, sess, load_weights=True)
-    labels = [t.root.label for t in model.test_data]
-    test_acc = np.equal(predictions, labels).mean()
+    predictions_test, _ = model.predict(model.test_data, sess, load_weights=True)
+    predictions_dev, _ = model.predict(model.dev_data, sess, load_weights=True)
+    labels_test = [t.root.label for t in model.test_data ]
+    labels_dev  = [t.root.label for t in model.dev_data ]
+    test_acc = np.equal(predictions_test, labels_test).mean()
+    dev_acc = np.equal(predictions_dev, labels_dev).mean()
     print('Test acc: {}'.format(test_acc))
+    print('Dev  acc: {}'.format(dev_acc))
 
 if __name__ == "__main__":
     test_RNN()
