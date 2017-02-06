@@ -29,12 +29,12 @@ global_step = tf.Variable(0, name='global_step', trainable=False)
 def variable_summaries(variable, name):
   with tf.name_scope("summaries"):
     mean = tf.reduce_mean(variable)
-    tf.summary.scalar('mean/' + name, mean)
+    tf.summary.scalar(name='mean/' + name, tensor=mean)
     with tf.name_scope('stddev'):
       stddev = tf.sqrt(tf.reduce_sum(tf.square(variable - mean)))
-    tf.summary.scalar('stddev/' + name, stddev)
-    tf.summary.scalar('max/' + name, tf.reduce_max(variable))
-    tf.summary.scalar('min/' + name, tf.reduce_min(variable))
+    tf.summary.scalar(name='stddev/' + name, tensor=stddev)
+    tf.summary.scalar(name='max/' + name, tensor=tf.reduce_max(variable))
+    tf.summary.scalar(name='min/' + name, tensor=tf.reduce_min(variable))
     #tf.summary.histogram(name, variable)
 
 class Config(object):
@@ -130,6 +130,7 @@ class RNN_Model():
     def construct_tensor_array(self):
         loop_condition = lambda i, tensor_array: \
                          tf.less(i, tf.squeeze(tf.shape(self.is_a_leaf)))
+                         #tf.squeeze(tf.shape(placeholder)) <--> length of the storage of all leaves
         
         left_most_element = self._embed_word(tf.gather(self.word_index, 0))
         #index is 1
@@ -360,7 +361,7 @@ class RNN_Model():
         }
         return feed_dict
 
-    def predict(self, trees, weights_path, sess, get_loss = False):
+    def predict(self, trees, sess, get_loss = False):
         """Make predictions from the provided model."""
         results = []
         losses = []
@@ -429,11 +430,11 @@ class RNN_Model():
             os.makedirs("./weights")
 
         #print('./weights/%s.temp'%self.config.model_name)
-        print("Saving %s"%self.config.model_name)
+        print("\nSaving %s"%self.config.model_name)
         saver.save(sess, './weights/%s.cpkt'%self.config.model_name, global_step=current_step)
         print(saver.last_checkpoints)
-        train_preds, _ = self.predict(self.train_data, './weights/%s.temp'%self.config.model_name, sess)
-        val_preds, val_losses = self.predict(self.dev_data, './weights/%s.temp'%self.config.model_name, sess, get_loss=True)
+        train_preds, _ = self.predict(self.train_data, sess)
+        val_preds, val_losses = self.predict(self.dev_data, sess, get_loss=True)
         train_labels = [t.root.label for t in self.train_data]
         val_labels = [t.root.label for t in self.dev_data]
         train_acc = np.equal(train_preds, train_labels).mean()
@@ -528,7 +529,7 @@ def test_RNN():
 
     print('Test')
     print('=-=-=')
-    predictions, _ = model.predict(model.test_data, './weights/%s'%model.config.model_name, sess)
+    predictions, _ = model.predict(model.test_data, sess)
     labels = [t.root.label for t in model.test_data]
     test_acc = np.equal(predictions, labels).mean()
     print('Test acc: {}'.format(test_acc))
