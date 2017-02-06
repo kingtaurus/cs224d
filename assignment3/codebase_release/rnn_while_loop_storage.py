@@ -266,9 +266,9 @@ class RNN_Model():
             labels = tf.gather(labels, idx)
             objective_loss = tf.reduce_sum(tf.nn.sparse_softmax_cross_entropy_with_logits(logits=logits, labels=labels))
             loss = objective_loss + l2_loss
-            tf.summary.scalar("loss_l2", l2_loss)
-            tf.summary.scalar("loss_objective", tf.reduce_sum(objective_loss))
-            tf.summary.scalar("loss_total", loss)
+            tf.summary.scalar(name="loss_l2", tensor=l2_loss)
+            tf.summary.scalar(name="loss_objective", tensor=tf.reduce_sum(objective_loss))
+            tf.summary.scalar(name="loss_total", tensor=loss)
             self.full_loss = loss
         # END YOUR CODE
         return self.full_loss
@@ -291,9 +291,9 @@ class RNN_Model():
             l2_loss = self.config.l2 * tf.add_n(tf.get_collection("l2_loss"))
             objective_loss = tf.reduce_sum(tf.nn.sparse_softmax_cross_entropy_with_logits(logits=logits, labels=labels))
             loss = objective_loss + l2_loss
-            tf.summary.scalar("root_loss_l2", l2_loss)
-            tf.summary.scalar("root_loss_objective", tf.reduce_sum(objective_loss))
-            tf.summary.scalar("root_loss_total", loss)
+            tf.summary.scalar(name="root_loss_l2", tensor=l2_loss)
+            tf.summary.scalar(name="root_loss_objective", tensor=tf.reduce_sum(objective_loss))
+            tf.summary.scalar(name="root_loss_total", tensor=loss)
             self.root_loss = loss
         # END YOUR CODE
         return self.root_loss
