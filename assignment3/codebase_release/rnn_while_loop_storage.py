@@ -552,9 +552,7 @@ def test_RNN():
     plt.title('Loss history')
     plt.xlabel('Iteration')
     plt.ylabel('Loss')
-    plt.show()
     plt.savefig("loss_history.png")
-
 
     print('Test')
     print('=-=-=')
