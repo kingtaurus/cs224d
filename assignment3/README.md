@@ -297,3 +297,6 @@ In order to construct the RNN, the following methods are required, `_embed_word`
 ```
 
 ## Results
+
+
+## Pytorch Implementation
