@@ -164,7 +164,7 @@ A few details about the implementation.
 
 (2) `embedding` is currently trainable (it will be learned) - **REASON** - this can be changed to a tf.get_variable(...., trainable=False) if there is already a set of word vectors available for the corpus that is being used (glove, word2vec); This can be assigned using `sess.run(embedding.assign(embedding_matrix))`;
 
-(3) `embedding` is done on the cpu (`tf.gather`, `tf.nn.embedding_lookup`) - **REASON** - embedding operations need to be done on the cpu (there is a strong chance that these operations will not work on a gpu);
+(3) ~~`embedding` is done on the cpu (`tf.gather`, `tf.nn.embedding_lookup`) - **REASON** - embedding operations need to be done on the cpu (there is a strong chance that these operations will not work on a gpu);~~ `embedding` can now be down on the GPU (this might require some modification of the code);.
 
 ## Tree Construction behaviour
 Consider the tree, `(the (very (old cat)))` with four leaves, the structure of the tree looks like:
