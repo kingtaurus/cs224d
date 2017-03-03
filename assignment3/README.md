@@ -88,7 +88,8 @@ def tf.while_loop(cond, body, loop_vars,
                   parallel_iterations=10
                   back_prop=True,
                   swap_memory=False,
-                  name=None)```
+                  name=None)
+```
 
 Behaviour:
 (1) Repeat `body` while the condition `cond` is true;
@@ -114,7 +115,7 @@ def f(x, y)
     return x+1
 ```
 
-doesn't. The `shape_invariant argument allows the caller to specify a less specific shape invariant for each loop variable ([None, 3], if the first index could change during the loop). If not specified, the shape_invariants is equivalent to the absolute shape as specified by the `loop_vars`. So for example, `shape_invariants = [i0.get_shape(), tf.TensorShape([None, 3])]]` would be used. Some examples:
+doesn't. The `shape_invariant` argument allows the caller to specify a less specific shape invariant for each loop variable (`[None, 3]`, if the first index could change during the loop). If not specified, the shape_invariants is equivalent to the absolute shape as specified by the `loop_vars`. So for example, `shape_invariants = [i0.get_shape(), tf.TensorShape([None, 3])]]` would be used. Some examples:
 
 ```python
 i = tf.constant(0)
