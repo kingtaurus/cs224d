@@ -92,12 +92,17 @@ def tf.while_loop(cond, body, loop_vars,
 ```
 
 Behaviour:
-(1) Repeat `body` while the condition `cond` is true;
-(2) `cond` is a **callable** returning a boolean scalar tensor.
-(3) `body` is a **callable** returning a (possibly nested) tuple, namedtupe or list of tensors of the same **arity** (**length** and **structure**) and types as `loop_vars`.
-(4) `loop_vars` is (possibly nested) tuple, namedtuple or list of tensors that is passed to both
+
+ (1) Repeat `body` while the condition `cond` is true;
+ 
+ (2) `cond` is a **callable** returning a boolean scalar tensor.
+ 
+ (3) `body` is a **callable** returning a (possibly nested) tuple, namedtupe or list of tensors of the same **arity** (**length** and **structure**) and types as `loop_vars`.
+ 
+ (4) `loop_vars` is (possibly nested) tuple, namedtuple or list of tensors that is passed to both
     `cond` and `body`.
-(5) `cond` and `body` both take as many arguments as there are `loop_vars`.
+    
+ (5) `cond` and `body` both take as many arguments as there are `loop_vars`.
 
 
 In order to ensure that things make sense, `tf.while_loop()` strictly enforces shape invariants for the loop variables. A shape invariant is a (including partial) shape that is unchanged across iterations of the loop. For example, a function `f` that defined as follows:
