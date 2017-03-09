@@ -300,3 +300,99 @@ In order to construct the RNN, the following methods are required, `_embed_word`
 
 
 ## Pytorch Implementation
+A simple `pytorch` implementation, requires a few details:
+(1) Declaration of model;
+(2) Declaration of recursive descent over the tree;
+(3) Loss Defintion;
+(4) Optimizer Declaration; 
+
+### Pytorch model
+```python
+import torch
+import torch.nn as nn
+from torch.autograd import Variable
+import torch.nn.functional as F
+
+from torch.nn.utils import clip_grad_norm
+
+EMBED_SIZE = 100
+LABEL_SIZE = 2
+LR = 0.01
+L2 = 0.02
+TRAIN_SIZE = 800
+
+class RNN_Model(nn.Module):
+  def __init__(self, vocab, embed_size=100, label_size=2):
+    super(RNN_Model, self).__init__()
+    self.embed_size = embed_size
+    self.label_size = label_size
+    self.vocab = vocab
+    self.embedding = nn.Embedding(int(self.vocab.total_words), self.embed_size)
+    self.fcl = nn.Linear(self.embed_size, self.embed_size, bias=True)
+    self.fcr = nn.Linear(self.embed_size, self.embed_size, bias=True)
+    self.projection = nn.Linear(self.embed_size, self.label_size , bias=True)
+    self.activation = F.relu
+    self.node_list = []
+  
+  def walk_tree(self, in_node):
+    #defined below;
+    #....
+
+  def forward(self, x):
+    """
+    Forward function accepts input data and returns a Variable of output data
+    """
+    self.node_list = []
+    root_node = self.walk_tree(x.root)
+    all_nodes = torch.cat(self.node_list)
+    #now I need to project out
+    return all_nodes
+```
+
+### Pytorch recursive descent function
+
+```python
+  def walk_tree(self, in_node):
+    if in_node.isLeaf:
+      word_id = torch.LongTensor((self.vocab.encode(in_node.word), ))
+      current_node = self.embedding(Variable(word_id))
+      self.node_list.append(self.projection(current_node).unsqueeze(0))
+    else:
+      left  = self.walk_tree(in_node.left)
+      right = self.walk_tree(in_node.right)
+      current_node = self.activation(self.fcl(left) + self.fcl(right))
+      self.node_list.append(self.projection(current_node).unsqueeze(0))
+    return current_node
+```
+
+### Pytorch Loss Function
+
+```python
+#tree is a single example
+#model(tree)
+all_nodes = model(tree)
+labels  = []
+indices = []
+for x,y in enumerate(tree.labels):
+  if y != 2:
+    labels.append(y)
+    indices.append(x)
+torch_labels = torch.LongTensor([l for l in labels if l != 2])
+logits = all_nodes.index_select(dim=0, index=Variable(torch.LongTensor(indices)))
+logits_squeezed = logits.squeeze()
+predictions = logits.max(dim=2)[1].squeeze()
+objective_loss = F.cross_entropy(input=logits_squeezed, target=Variable(torch_labels))
+```
+
+### Pytorch Optimizer
+```python
+optimizer = torch.optim.SGD(model.parameters(), lr=LR, momentum=0.9, dampening=0.0)
+for epoch in range(max_epochs):
+  for step, tree in enumerate(train_data):
+     all_nodes = model(tree)
+     # ... snip ... loss function above
+     optimizer.zero_grad()
+     objective_loss.backward()
+     clip_grad_norm(model.parameters(), 5, norm_type=2.)
+     optimizer.step()
+```
