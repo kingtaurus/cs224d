@@ -301,9 +301,13 @@ In order to construct the RNN, the following methods are required, `_embed_word`
 
 ## Pytorch Implementation
 A simple `pytorch` implementation, requires a few details:
+
 (1) Declaration of model;
+
 (2) Declaration of recursive descent over the tree;
+
 (3) Loss Defintion;
+
 (4) Optimizer Declaration; 
 
 ### Pytorch model
