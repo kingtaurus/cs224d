@@ -27,14 +27,14 @@ Tasks
 
 There will be two parts to this assignment, the first will be a very easy Recursive Neural Network implementation to train and test multiple times. The next part is an augmented version of the plain RNN and includes one additional layer. Your job is to see how much the model improves. There is a lot of extra credit in this PSet to give you all the opportunity to really show us how capable of datascientists you are! But we also want you focusing on your projects so this PSet is intentionally short.
 
-###Q1: Recursive Neural Network (30 points)
+### Q1: Recursive Neural Network (30 points)
 
 * (a): 5 points
 * (b): 5 points
 * (c): 15 points
 * (d): 5 points
 
-###Q2: 2-Layer Deep RNN (70 points and 30 Extra Credit points)
+### Q2: 2-Layer Deep RNN (70 points and 30 Extra Credit points)
 
 * (a): 15 points
 * (b): 15 points
@@ -43,7 +43,7 @@ There will be two parts to this assignment, the first will be a very easy Recurs
 * (e): 15 extra points
 * (f): 15 extra points
 
-###Q3: RNTN (20 extra points)
+### Q3: RNTN (20 extra points)
 
 * (a): 5 Correct Derivations
 * (b): 5 Correct Implementation
