@@ -15,7 +15,7 @@ Get the code: [Download the starter code here](http://cs224d.stanford.edu/assign
 
 **[Optional] virtual environment:** Once you have unzipped the starter code, you might want to create a [`virtual environment`](http://docs.python-guide.org/en/latest/dev/virtualenvs/) for the project. If you choose not to use a virtual environment, it is up to you to make sure that all dependencies for the code are installed on your machine. To set up a virtual environment, run the following:
 
-```
+```bash
 cd assignment1
 sudo pip install virtualenv      # This may already be installed
 virtualenv .env                  # Create a virtual environment
@@ -27,14 +27,14 @@ deactivate                       # Exit the virtual environment
 
 **Install requirements (without a virtual environment):** To install the required packages locally without setting up a virtual environment, run the following:
 
-```
+```bash
 cd assignment1
 pip install -r requirements.txt  # Install dependencies
 ```
 
 **Download data:** Once you have the starter code, you will need to download the Stanford Sentiment Treebank dataset. Run the following from the assignment1 directory:
 
-```
+```bash
 cd cs224d/datasets
 ./get_datasets.sh
 ```
@@ -44,7 +44,7 @@ Submitting your work
 
 Once you are done working, put the written part in the same directory as your IPython notebook file, and run the `collectSubmission.sh` script; this will produce a file called `assignment1.zip`. Rename this file to `<your-sunet-id>.zip`, for instance if your stanford email is `jdoe@stanford.edu`, your file name should be
 
-```
+```bash
 cd cs224d/datasets
 jdoe.zip
 ```
